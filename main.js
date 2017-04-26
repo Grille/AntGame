@@ -1706,6 +1706,10 @@ window.addEventListener("mouseup", (e) => {
 window.addEventListener("resize", resize);
 resize();
 
+window.addEventListener("contextmenu", (e) => {
+	e.preventDefault();
+});
+
 window.addEventListener("keydown", (e) => {
   keyCode = e.keyCode;
 
