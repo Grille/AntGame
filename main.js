@@ -425,7 +425,6 @@ function buildMap(width,height){
 
   for (let ix = 1; ix < width; ix++){
     for (let iy = 1; iy < height; iy++){
-      Oworld[ix][iy].discovered = 1;
       build(Oworld,ix, iy, 0);
     }
   }
