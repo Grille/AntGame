@@ -543,16 +543,16 @@ function buildWorldMap(world) {
   try {
       let offset = (imgData.width * (y-x+(canvas.height/2)|0) + (x+y)) * 4;
       mod.data[offset + 3] = 255;//a
-      if (world[x][y].discovered === 1)
+      let typ =world[x][y].typ;
+      if (world[x][y].discovered === 1 &&typ!==9)
       {
-        if (world[x][y].owner!==0||world[x][y].aktEntity!==-1)
-        {
+        if(world[x][y].owner!==0||world[x][y].aktEntity!==-1){
           mod.data[offset]     = 0;//r
           mod.data[offset + 1] = 255;//g
           mod.data[offset + 2] = 0;//b
         }else{
-          switch (world[x][y].typ){
-            case 1:case -1:
+          switch (typ){
+            case-1:case 1:case 9:
             mod.data[offset]     = 50;//r
             mod.data[offset + 1] = 70;//g
             mod.data[offset + 2] = 140;//b
@@ -845,8 +845,8 @@ function renderUi(){
       Ui[4].sprite[0].texture,
       0, 0,
       64, 64,
-      0, height-192,
-      192, 192
+      0, height-(192/1.5)|0,
+      192+64, (192/1.5)|0
     
     );}
 
