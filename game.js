@@ -16,10 +16,8 @@
         this.isRightMB = e.which === 3; 
         else if ("button" in e)  // IE, Opera 
         this.isRightMB = e.button === 2; 
-        // if ("clientX" in e) e.x = e.clientX
-        // if ("clientY" in e) e.y = e.clientY
-        this.x = e.x
-        this.y = e.y
+		this.x = e.clientX
+		this.y = e.clientY
         this.mode = mode;
         switch (mode)
         {
