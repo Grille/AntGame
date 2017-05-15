@@ -1,3 +1,4 @@
+"use strict";
 //--class--------------------------------------------------------------------------------------------------------------------------------------------------------
   class MyMouseEvent{
     constructor() {
@@ -70,7 +71,6 @@
         this.butzahl = butzahl;butzahl++;
     }
     clicked() { //-<<-<>->>-<>-<<-<>->>-
-        if (this.butzahl===0) 
         if (  
           mouse.x > this.posX+(width*this.alignX)  &&  
           mouse.y > this.posY+(height*this.alignY)  &&  
@@ -556,8 +556,8 @@
     canvas.height = worldHeight*2;
     let mod = context.createImageData(canvas.width, canvas.height);
     let imgData = context.getImageData(0, 0, canvas.width, canvas.height);
-    for (x = 0; x < worldWidth; x++) {
-      for (y = 0; y < worldHeight; y++) {
+    for (let x = 0; x < worldWidth; x++) {
+      for (let y = 0; y < worldHeight; y++) {
     try {
         let offset = (imgData.width * (y-x+(canvas.height/2)|0) + (x+y)) * 4;
         mod.data[offset + 3] = 255;//a
@@ -1057,7 +1057,7 @@
         }
 
             generateTile(Uworld,1, 8, 0.6);
-            
+        let loop;
         loop = true;
         while (loop){
                   for (let ix = 1; ix < worldWidth-2; ix++){
