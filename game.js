@@ -172,7 +172,8 @@
   function imgToCanvas(img) {
     let canvas = document.createElement("canvas");
     let context  = canvas.getContext("2d");
-    context.imageSmoothingEnabled = false;
+    context.imageSmoothingEnabled = false;//Chrome
+    context.mozImageSmoothingEnabled = false;//Firefox
     canvas.width = img.width;
     canvas.height = img.height;
     context .drawImage(img, 0, 0, img.width, img.height);
@@ -316,6 +317,31 @@
     ]
 
     EntityList[0] = {live: false}
+
+  // var el = document.createElement('div'),
+  //     docEl = document.documentElement;
+
+  // el.innerText = 'Go to fullscreen view';
+  // el.setAttribute('style', 'position: fixed; top: 10%; left: 10%; padding: 30%; background: #000; color: #fff; opacity: .7; cursor: pointer;')
+  // document.body.appendChild(el)
+
+
+  var button = document.createElement('button');
+button.textContent = 'Start Game in fullscreenmode (recommended)';
+button.title = 'Press F11 to enter or leave fullscreen mode';
+button.setAttribute('style', 'position: fixed; top: 00%; left: 90%;width: 10%;height: 5%; background: #e93; color: #000; opacity: 1.0; cursor: pointer;')
+ 
+button.addEventListener('click', function(event) {
+  if (document.body.requestFullScreen) {
+    document.body.requestFullScreen();button.style.display='none';
+  } else if (document.body.mozRequestFullScreen) {
+    document.body.mozRequestFullScreen();button.style.display='none';
+  } else if (document.body.webkitRequestFullScreen) {
+    document.body.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);button.style.display='none';
+  }
+}, false);
+ 
+document.body.appendChild(button);
 
     setMouse(mouse,0);setMouse(mouse,1);setMouse(mouse,2);
     buildMap(128,128);
@@ -551,7 +577,8 @@
   function buildWorldMap(world) {
     let canvas = document.createElement("canvas");
     let context  = canvas.getContext("2d");
-    context.imageSmoothingEnabled = false;
+    context.imageSmoothingEnabled = false;//Chrome
+    context.mozImageSmoothingEnabled = false;//Firefox
     canvas.width = worldWidth*2;
     canvas.height = worldHeight*2;
     let mod = context.createImageData(canvas.width, canvas.height);
@@ -1552,7 +1579,8 @@
     canvas.height = height;
     canvasGround.width = width;
     canvasGround.height = height;
-    context.imageSmoothingEnabled = false;
+    context.imageSmoothingEnabled = false;//Chrome
+    context.mozImageSmoothingEnabled = false;//Firefox
     context.font = "12px Arial";
     context.fillStyle = "#000";
     groundRender = true;
