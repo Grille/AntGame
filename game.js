@@ -44,6 +44,7 @@
         this.height = height;
         this.alignX=0;this.alignY=0;
         this.image = loadUi(path);
+        this.enabled = true;
 
         switch (align){
           case 0:this.alignX=0;this.alignY=0;break; //ol
@@ -54,7 +55,7 @@
 
     }
     render(){
-        if (this.image.ready===true){
+        if (this.image.ready===true&&this.enabled===true){
           context.drawImage(
           this.image.sprite[0].texture,
           0, 0,
@@ -68,20 +69,20 @@
   class Button extends GUI{
     constructor(path,align,posX,posY,width,height) {
         super(path,align,posX,posY,width,height);
-        this.butzahl = butzahl;butzahl++;
     }
     clicked() { //-<<-<>->>-<>-<<-<>->>-
         if (  
           mouse.x > this.posX+(width*this.alignX)  &&  
           mouse.y > this.posY+(height*this.alignY)  &&  
           mouse.x < this.posX+(width*this.alignX)+this.width  &&  
-          mouse.y < this.posY+(height*this.alignY)+this.height  
+          mouse.y < this.posY+(height*this.alignY)+this.height  &&
+          this.enabled===true
           )
-          {lastbut=this.butzahl;return true;}
+          {return true;}
         return false;
     }
     render(){
-        if (this.image.ready===true){
+        if (this.image.ready===true&&this.enabled===true){
           let width = (this.image.sprite[0].width/3)|0;
           let hj=0
           if (this.clicked()===true){hj=1;if(mouse.down===true){hj=2}}
@@ -275,6 +276,8 @@
       new Button("./assets/png/Ui/B_Eilager",2,256+48*6,-48-32,48,48),//5
       new Button("./assets/png/Ui/B_pilzFarm",2,256+48*8,-48-32,48,48),
       new Button("./assets/png/Ui/B_Koenigen",2,256+48,-48-32-100,48,48),
+      new Button("./assets/png/Ui/B_Koenigen",2,0,-44-32-100,48,48),
+      new Button("./assets/png/Ui/B_Koenigen",2,48,-44-32-100,48*2,48),
     ]
     UiAktField = [
       loadStaticEntity("./assets/png/Ui/aktfieldGoTo",1,1,0,1),//0
@@ -317,42 +320,230 @@
     ]
 
     EntityList[0] = {live: false}
-
-  // var el = document.createElement('div'),
-  //     docEl = document.documentElement;
-
-  // el.innerText = 'Go to fullscreen view';
-  // el.setAttribute('style', 'position: fixed; top: 10%; left: 10%; padding: 30%; background: #000; color: #fff; opacity: .7; cursor: pointer;')
-  // document.body.appendChild(el)
-
-
-  var button = document.createElement('button');
-button.textContent = 'Start Game in fullscreenmode (recommended)';
-button.title = 'Press F11 to enter or leave fullscreen mode';
-button.setAttribute('style', 'position: fixed; top: 00%; left: 90%;width: 10%;height: 5%; background: #e93; color: #000; opacity: 1.0; cursor: pointer;')
- 
-button.addEventListener('click', function(event) {
-  if (document.body.requestFullScreen) {
-    document.body.requestFullScreen();button.style.display='none';
-  } else if (document.body.mozRequestFullScreen) {
-    document.body.mozRequestFullScreen();button.style.display='none';
-  } else if (document.body.webkitRequestFullScreen) {
-    document.body.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);button.style.display='none';
-  }
-}, false);
- 
-document.body.appendChild(button);
-
+    for (let i = 0;i<UiButton.length;i++){UiButton[i].enabled=false;}
+    buildHTML();
+    addEvents();
     setMouse(mouse,0);setMouse(mouse,1);setMouse(mouse,2);
     buildMap(128,128);
     logikTimer();       // run logik loop
     renderTimer();      // run render loop
-    
-    if (body.requestFullScreen) body.requestFullScreen();
-    else if (body.mozRequestFullScreen) body.mozRequestFullScreen();
-    else if (body.webkitRequestFullScreen) body.webkitRequestFullScreen();
   };
+  function buildHTML(){
+    var button = document.createElement('p');
+    button.textContent = 'Click to start game in fullscreenmode\n (recommended for Firefox, else use F11)';
+    button.title = 'Press F11 to enter or leave fullscreen mode';
+    button.setAttribute('style', 'position: fixed; top: -16px; left: 128px;width: 280px;height: 48px; background: #004; color: #0f0; opacity: 0.5; cursor: pointer;')
+    
+    button.addEventListener('click', function(event) {
+      if (document.body.requestFullScreen) {
+        document.body.requestFullScreen();
+      } else if (document.body.mozRequestFullScreen) {
+        document.body.mozRequestFullScreen();
+      } else if (document.body.webkitRequestFullScreen) {
+        document.body.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+      }
+    }, false);
+    
+    document.body.appendChild(button);
+  }
+  function addEvents(){
+    window.addEventListener("mousewheel", (e) => {
+      e.preventDefault();
+      let x = e.deltaY > 0 ? -1 : 1;
+      if (scale <= 0.1) scale = 0.1;
+      if (scale >= 80) scale = 80;
+      scale += x/1e1;
+      // scale *= x + .25;
+      // console.log(scale);
+    });
 
+    window.addEventListener("mousemove", (e) => {
+      mouse.setMouse(e,0);
+      mouseEffents();
+      
+    });
+
+    window.addEventListener("mousedown",(e) => {
+      mouse.setMouse(e,1);
+      lastAktPlayerPosX = aktPlayerPosX;
+      lastAktPlayerPosY = aktPlayerPosY;
+      //console.log(mouse);
+      // if (mouse.isRightMB===true) {
+      //   mapMoveX = ((mouse.x - (width/2)) / 64)|0;
+      //   mapMoveY = ((mouse.y - (height / 2)) / 32)|0;
+      //   mapScroal();
+      //   mapMoveX = 0;
+      //   mapMoveY = 0;
+      // }
+    });
+    window.addEventListener("mouseup", (e) => {
+      mouse.setMouse(e,2);
+      let aktWorld;
+      if (worldMode===0) aktWorld = Oworld;
+      else aktWorld = Uworld;
+
+      if (buttonClick(0,height-100,100,100)===1){
+        if (worldMode===0)worldMode = 1;
+        else worldMode = 0;
+        groundRender = true;
+        return
+      }
+
+      if (mouse.isRightMB===true){ //RightMouse
+
+
+
+        mapMoveX = 0; mapMoveY = 0;
+        for (let ii = 0;ii<=MaxEntity;ii++){
+          if (EntityList[ii] !== void 0 && EntityList[ii].live===true && EntityList[ii].selection===true){
+
+              EntityList[ii].TotalGoalX = aktPlayerPosX;EntityList[ii].TotalGoalY = aktPlayerPosY;
+              EntityList[ii].way =findWay(EntityList[ii].aktWorld,EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],aktPlayerPosX,aktPlayerPosY,false);
+              EntityList[ii].aktWayPos = 1;
+              if (EntityList[ii].way[1] !== -1){
+                EntityList[ii].goalX = EntityList[ii].worldPos[0]+EntityList[ii].way[EntityList[ii].aktWayPos][0],
+                EntityList[ii].goalY =EntityList[ii].worldPos[1]+EntityList[ii].way[EntityList[ii].aktWayPos][1]
+              }
+
+          }
+        }
+      }
+
+
+
+      else { //LeftMouse
+
+
+
+        if (UiButton[0].clicked() === true||UiButton[0].clicked() === true){
+          console.log(lastbut);
+          for (let ii = 0;ii<=MaxEntity;ii++){
+            if (EntityList[ii] !== void 0 && EntityList[ii].live===true && EntityList[ii].selection===true){
+            switch (EntityList[ii].typ)
+            {
+              case 0:
+              case 2:
+              killEntity(ii);
+              inGameBuild(EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],100)
+
+              addEntity(Uworld,1,EntityList[ii].worldPos)
+
+              // for (let i = 10; ix < worldWidth-20; ix++){
+              //   for (let iy = 10; iy < worldHeight-20; iy++){
+              //     if (Math.random() <= 0.8 && Uworld[ix][iy].begehbar === 1 && Uworld[ix][iy].aktEntity===-1) {
+              //       //addEntity(Uworld,2,ix,iy);
+              //       addEntity(Uworld,2,ix,iy);
+              //     }
+              //   }
+              // }
+
+              addEntity(Oworld,2,[EntityList[ii].worldPos[0],EntityList[ii].worldPos[1]+1])
+              addEntity(Oworld,2,[EntityList[ii].worldPos[0],EntityList[ii].worldPos[1]-1])
+              addEntity(Oworld,2,[EntityList[ii].worldPos[0]+1,EntityList[ii].worldPos[1]])
+              addEntity(Oworld,2,[EntityList[ii].worldPos[0]-1,EntityList[ii].worldPos[1]])
+              break;
+              //            case 2:
+              // inGameBuild(EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],2)
+
+              // break;
+            }
+            }
+          }
+        }
+        else if (UiButton[1].clicked() === true){
+                for (let ii = 0;ii<=MaxEntity;ii++){
+            if (EntityList[ii] !== void 0 && EntityList[ii].live===true && EntityList[ii].selection===true){
+            switch (EntityList[ii].typ)
+            {
+              case 2:
+          inGameBuild(EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],2)
+                }}}
+        }
+        else if (UiButton[7].clicked() === true){
+          addEntity(Uworld,2,[aktSelectetStaticposX,aktSelectetStaticposY])
+          gotoNext(world[aktSelectetStaticposX][aktSelectetStaticposY].aktEntity);
+        }
+        else{
+          aktSelectetStaticTyp = aktWorld[aktPlayerPosX][aktPlayerPosY].typ;
+          aktSelectetStaticposX = aktPlayerPosX;
+          aktSelectetStaticposY = aktPlayerPosY;
+          switch (keyCode)
+          {
+            case 16: //Shift
+              if (aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity!==-1){
+                EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity].selection = !EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity].selection;
+                aktSelectetEntityTyp=-1;}
+              else if (aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity!==-1){
+                EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity].selection = !EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity].selection;
+                aktSelectetEntityTyp=-1;}
+            break
+            default: 
+              for (let ii = 0;ii<=MaxEntity;ii++){
+                if (EntityList[ii] !== void 0 && EntityList[ii].live===true){
+                  EntityList[ii].selection = false;
+                }
+              }
+              aktSelectetEntityNumber=0;
+              aktSelectetEntityTyp=-1;
+              if (aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity!==-1) {
+                EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity].selection = true;
+                aktSelectetEntityTyp=EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity].typ;
+                aktSelectetEntityNumber=1;}
+              else if (aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity!==-1) {
+                EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity].selection = true;
+                aktSelectetEntityTyp=EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity].typ;
+                aktSelectetEntityNumber=1;}
+            break;
+          }
+        }
+
+        for (let i = 0;i<UiButton.length;i++){UiButton[i].enabled=false;}
+        switch (aktSelectetStaticTyp){
+          case 14:UiButton[7].enabled=true;break;
+          default:
+            switch (aktSelectetEntityTyp){
+              case 0:UiButton[0].enabled=true;break;
+              case 1:break;
+              case 2:
+                if (worldMode === 0){UiButton[0].enabled=true;UiButton[1].enabled=true;}
+                else {UiButton[2].enabled=true;UiButton[3].enabled=true;UiButton[4].enabled=true;UiButton[5].enabled=true;UiButton[6].enabled=true;}
+              break;
+            }
+          break;
+        }
+
+
+
+      } //EndMouse
+    });
+    window.addEventListener("resize", resize); {
+        resize();
+    }
+
+    // window.addEventListener("contextmenu", (e) => {
+    //   e.preventDefault();
+    // });
+    //window.addEventListener("")
+
+    window.addEventListener("keydown", (e) => {
+      keyCode = e.keyCode;
+      console.log(keyCode);
+      switch (keyCode)
+      {  
+        case 116:location.reload();break;//F5
+        case 46:
+          for (let ii = 0;ii<=MaxEntity;ii++){
+            if (EntityList[ii] !== void 0 && EntityList[ii].live===true&&EntityList[ii].selection===true){
+              EntityList[ii].hp -=1;
+            }
+          }
+        break;//Entf
+      }
+    });
+    window.addEventListener("keyup", (e) => {
+    keyCode = -1;
+    });
+  }
 
 
 
@@ -707,7 +898,7 @@ document.body.appendChild(button);
     return convertToBin(worldEnvironment[0] * 1000 + worldEnvironment[1] * 100 + worldEnvironment[2] * 10 + worldEnvironment[3] * 1);
   }
   function render(context, contextGround,aktWorld) {
-    //context.globalAlpha = 0.5;
+    if (context === void 0)return;//canvas not ready stop render
     let cscale = Math.round(scale*16)/16;
     let date = Date.now();
     let now = date - last;
@@ -735,43 +926,41 @@ document.body.appendChild(button);
           let drawPosX = 64*ix+32*Indentation;
           let drawPosY = 16*iy;
           let height = (worldPos.height) * 16;
-          //try  {
           let isAktField = (aktPosX >= aktPlayerPosX && aktPosY >= aktPlayerPosY && aktPosX < aktPlayerPosX + StaticEntity[aktGameObject].size && aktPosY < aktPlayerPosY + StaticEntity[aktGameObject].size)
           let aktReferenceX = (worldPos.reference[0]);
           let aktReferenceY = (worldPos.reference[1]);
           let typ = aktWorld[aktPosX - aktReferenceX][aktPosY -aktReferenceY].typ;
           let ground = aktWorld[aktPosX][aktPosY].ground;
-
-          if (aktWorld[aktPosX][aktPosY].discovered === 1){
-
           let staticEntity = StaticEntity[typ];
-          if (staticEntity.ready === false) continue;
-          let envcode = findEnvorimentCode(aktWorld,aktPosX, aktPosY, staticEntity.envmode);
-          let version = worldPos.version;
-          let overDraw = ((staticEntity.sprite[version][envcode].overDraw));
-          let animPhase = staticEntity.sprite[version][envcode].animationPhase;
-          let anim = animator[animPhase] + worldPos.animation
-          let imgSrcX = (aktReferenceX*32)+ (aktReferenceY * 32) + (staticEntity.size*64) * anim;
-          let imgSrcY = 16 * (staticEntity.size - 1) -(aktReferenceX*16) + (aktReferenceY * 16);
 
-          if (overDraw!==0){
-            context.drawImage(
-            staticEntity.sprite[version][envcode].texture,
-            imgSrcX, imgSrcY,
-            64, 32+overDraw|0,
-            drawPosX*cscale, ((drawPosY - overDraw))*cscale|0,
-            64*cscale, ((32+overDraw)*cscale)|0
-            );
-          }
-          else if (groundRender===true){
-            contextGround.drawImage(
-            staticEntity.sprite[0][envcode].texture,
-            imgSrcX, imgSrcY,
-            64, 32,
-            drawPosX*cscale, ((drawPosY))*cscale|0,
-            64*cscale, ((32)*cscale)|0
-            );
-          }
+          if (aktWorld[aktPosX][aktPosY].discovered === 1 && staticEntity.ready === true){
+
+            let envcode = findEnvorimentCode(aktWorld,aktPosX, aktPosY, staticEntity.envmode);//env code for auto tile (0000 - 1111)
+            let version = worldPos.version; //graphic version
+            let overDraw = ((staticEntity.sprite[version][envcode].overDraw));
+            let animPhase = staticEntity.sprite[version][envcode].animationPhase;
+            let anim = animator[animPhase] + worldPos.animation
+            let imgSrcX = (aktReferenceX*32)+ (aktReferenceY * 32) + (staticEntity.size*64) * anim;
+            let imgSrcY = 16 * (staticEntity.size - 1) -(aktReferenceX*16) + (aktReferenceY * 16);
+
+            if (overDraw!==0){
+              context.drawImage(
+              staticEntity.sprite[version][envcode].texture,
+              imgSrcX, imgSrcY,
+              64, 32+overDraw|0,
+              drawPosX*cscale, ((drawPosY - overDraw))*cscale|0,
+              64*cscale, ((32+overDraw)*cscale)|0
+              );
+            }
+            else if (groundRender===true){
+              contextGround.drawImage(
+              staticEntity.sprite[0][envcode].texture,
+              imgSrcX, imgSrcY,
+              64, 32,
+              drawPosX*cscale, ((drawPosY))*cscale|0,
+              64*cscale, ((32)*cscale)|0
+              );
+            }
 
             let aktEntity = EntityList[aktWorld[aktPosX][aktPosY].aktEntity];
             if (aktWorld[aktPosX][aktPosY].aktEntity !== -1){
@@ -786,13 +975,13 @@ document.body.appendChild(button);
               let EntityDrawPosX = (drawPosX+EntityFieldPosX)|0;let EntityDrawPosY = (drawPosY+EntityFieldPosY)|0;
               
               if (MoveableEntity[aktEntity.typ].ready===true){
-                  context.drawImage(
-                    MoveableEntity[aktEntity.typ].sprite[0].texture,
-                    64*aktEntity.direction[0], 32*aktEntity.direction[1],
-                    64, 32,
-                    EntityDrawPosX*cscale, EntityDrawPosY*cscale,
-                    64*cscale, 32*cscale
-                  );
+                context.drawImage(
+                  MoveableEntity[aktEntity.typ].sprite[0].texture,
+                  64*aktEntity.direction[0], 32*aktEntity.direction[1],
+                  64, 32,
+                  EntityDrawPosX*cscale, EntityDrawPosY*cscale,
+                  64*cscale, 32*cscale
+                );
               }
               if (aktEntity.selection === true||isAktField===true) {
                   context.fillStyle = "rgba(0,0,0,1)";    
@@ -800,17 +989,10 @@ document.body.appendChild(button);
                   context.fillStyle = "rgba(255,0,0,1)";
                   context.fillRect(EntityDrawPosX+17, EntityDrawPosY-15,30, 2);
                   context.fillStyle = "rgba(0,255,0,1)";
-                  //context.fillRect(EntityDrawPosX+17, EntityDrawPosY-15,aktEntity.Progress/100*30, 2);
-                  //context.fillRect(EntityDrawPosX+17, EntityDrawPosY-15,aktEntity.wait/(10*aktEntity.waitTry)*30, 2);
                   context.fillRect(EntityDrawPosX+17, EntityDrawPosY-15,aktEntity.hp/MoveableEntity[aktEntity.typ].hp*30, 2);
-                  //context.fillText("x="+aktEntity.direction[0]+" y="+aktEntity.direction[1], EntityDrawPosX+16+36, EntityDrawPosY-16,32);
               }
             }
           }
-
-        // if (worldPos.debug !== 0||worldPos.way !==0){
-        //           context.fillStyle = "rgba(0,0,0,1)";   
-        // context.fillText("("+worldPos.way+")", drawPosX+16, drawPosY+16,64);}
 
         }
           worldPos = aktWorld[aktPosX][aktPosY];
@@ -818,24 +1000,19 @@ document.body.appendChild(button);
             if (aktSelectetEntityNumber>0){
               switch (typ)
               {
-              case 6: context.drawImage(UiAktField[1].sprite[0][0].texture,0, 0,64, 32,drawPosX*cscale, (drawPosY)*cscale,64*cscale, 32*cscale);break;
-              case 7: context.drawImage(UiAktField[2].sprite[0][0].texture,0, 0,64, 32,drawPosX*cscale, (drawPosY)*cscale,64*cscale, 32*cscale);break;
-              default:if (worldPos.begehbar===1)context.drawImage(UiAktField[0].sprite[0][0].texture,0, 0,64, 32,drawPosX*cscale, (drawPosY)*cscale,64*cscale, 32*cscale);break;
+                case 6: context.drawImage(UiAktField[1].sprite[0][0].texture,0, 0,64, 32,drawPosX*cscale, (drawPosY)*cscale,64*cscale, 32*cscale);break;
+                case 7: context.drawImage(UiAktField[2].sprite[0][0].texture,0, 0,64, 32,drawPosX*cscale, (drawPosY)*cscale,64*cscale, 32*cscale);break;
+                default:if (worldPos.begehbar===1)context.drawImage(UiAktField[0].sprite[0][0].texture,0, 0,64, 32,drawPosX*cscale, (drawPosY)*cscale,64*cscale, 32*cscale);break;
               }
             }
           }
 
           if (aktPosX === aktSelectetStaticposX && aktPosY === aktSelectetStaticposY){
-              switch (typ)
-              {
-              case 12: case 13: case 14: 
-                context.drawImage(UiAktField[4].sprite[0][0].texture,0, 0,64, 32,drawPosX*cscale, (drawPosY)*cscale,64*cscale, 32*cscale);
-              break;
-              }
+            switch (typ)
+            {
+              case 12: case 13: case 14: context.drawImage(UiAktField[4].sprite[0][0].texture,0, 0,64, 32,drawPosX*cscale, (drawPosY)*cscale,64*cscale, 32*cscale);break;
             }
-          
-
-          //} catch (error) {try{context.drawImage(errorSprite.sprite[0][0].texture,0, 0,64, 32,drawPos[0], drawPos[1],64, 32);console.log(error);}catch(error) {}} //............
+          }
         }
       }
     }
@@ -999,21 +1176,7 @@ document.body.appendChild(button);
     //
     // findWay(10,10,9,12);
     //console.log(aktSelectetEntityTyp);
-    switch (aktSelectetStaticTyp)
-    {
-      case 14:UiButton[7].render();break;
-      default:
-      switch (aktSelectetEntityTyp){
-        case 0:UiButton[0].render();break;
-        case 1:
-        break;
-        case 2:
-        if (worldMode === 0){UiButton[0].render();UiButton[1].render();}
-        else {UiButton[2].render();UiButton[3].render();UiButton[4].render();UiButton[5].render();UiButton[6].render();}
-        break;
-      }
-      break;
-    }
+    for (let i = 0;i<UiButton.length;i++){UiButton[i].render();}
 
       //console.log("renderUi() -> "+-(date -= Date.now())+"ms");
     context.textAlign = "left";
@@ -1587,191 +1750,5 @@ document.body.appendChild(button);
     render();
   };
 
-  window.addEventListener("mousewheel", (e) => {
-    e.preventDefault();
-    let x = e.deltaY > 0 ? -1 : 1;
-    if (scale <= 0.1) scale = 0.1;
-    if (scale >= 80) scale = 80;
-    scale += x/1e1;
-    // scale *= x + .25;
-    // console.log(scale);
-  });
-
-  window.addEventListener("mousemove", (e) => {
-    mouse.setMouse(e,0);
-    mouseEffents();
-    
-  });
-
-  window.addEventListener("mousedown",(e) => {
-    mouse.setMouse(e,1);
-    lastAktPlayerPosX = aktPlayerPosX;
-    lastAktPlayerPosY = aktPlayerPosY;
-    //console.log(mouse);
-    // if (mouse.isRightMB===true) {
-    //   mapMoveX = ((mouse.x - (width/2)) / 64)|0;
-    //   mapMoveY = ((mouse.y - (height / 2)) / 32)|0;
-    //   mapScroal();
-    //   mapMoveX = 0;
-    //   mapMoveY = 0;
-    // }
-  });
-  window.addEventListener("mouseup", (e) => {
-    mouse.setMouse(e,2);
-    let aktWorld;
-    if (worldMode===0) aktWorld = Oworld;
-    else aktWorld = Uworld;
-
-    if (buttonClick(0,height-100,100,100)===1){
-      if (worldMode===0)worldMode = 1;
-      else worldMode = 0;
-      groundRender = true;
-      return
-    }
-
-    if (mouse.isRightMB===true){ //RightMouse
-
-
-
-      mapMoveX = 0; mapMoveY = 0;
-      for (let ii = 0;ii<=MaxEntity;ii++){
-        if (EntityList[ii] !== void 0 && EntityList[ii].live===true && EntityList[ii].selection===true){
-
-            EntityList[ii].TotalGoalX = aktPlayerPosX;EntityList[ii].TotalGoalY = aktPlayerPosY;
-            EntityList[ii].way =findWay(EntityList[ii].aktWorld,EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],aktPlayerPosX,aktPlayerPosY,false);
-            EntityList[ii].aktWayPos = 1;
-            if (EntityList[ii].way[1] !== -1){
-              EntityList[ii].goalX = EntityList[ii].worldPos[0]+EntityList[ii].way[EntityList[ii].aktWayPos][0],
-              EntityList[ii].goalY =EntityList[ii].worldPos[1]+EntityList[ii].way[EntityList[ii].aktWayPos][1]
-            }
-
-        }
-      }
-    }
-
-
-
-    else { //LeftMouse
-
-
-
-
-      if (UiButton[0].clicked() === true||UiButton[0].clicked() === true){
-          console.log(lastbut);
-        for (let ii = 0;ii<=MaxEntity;ii++){
-          if (EntityList[ii] !== void 0 && EntityList[ii].live===true && EntityList[ii].selection===true){
-          switch (EntityList[ii].typ)
-          {
-            case 0:
-            case 2:
-            killEntity(ii);
-            inGameBuild(EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],100)
-
-            addEntity(Uworld,1,EntityList[ii].worldPos)
-
-            // for (let i = 10; ix < worldWidth-20; ix++){
-            //   for (let iy = 10; iy < worldHeight-20; iy++){
-            //     if (Math.random() <= 0.8 && Uworld[ix][iy].begehbar === 1 && Uworld[ix][iy].aktEntity===-1) {
-            //       //addEntity(Uworld,2,ix,iy);
-            //       addEntity(Uworld,2,ix,iy);
-            //     }
-            //   }
-            // }
-
-            addEntity(Oworld,2,[EntityList[ii].worldPos[0],EntityList[ii].worldPos[1]+1])
-            addEntity(Oworld,2,[EntityList[ii].worldPos[0],EntityList[ii].worldPos[1]-1])
-            addEntity(Oworld,2,[EntityList[ii].worldPos[0]+1,EntityList[ii].worldPos[1]])
-            addEntity(Oworld,2,[EntityList[ii].worldPos[0]-1,EntityList[ii].worldPos[1]])
-            break;
-            //            case 2:
-            // inGameBuild(EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],2)
-
-            // break;
-          }
-          }
-        }
-      }
-      else if (UiButton[1].clicked() === true){
-              for (let ii = 0;ii<=MaxEntity;ii++){
-          if (EntityList[ii] !== void 0 && EntityList[ii].live===true && EntityList[ii].selection===true){
-          switch (EntityList[ii].typ)
-          {
-            case 2:
-        inGameBuild(EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],2)
-              }}}
-      }
-      else if (UiButton[7].clicked() === true){
-          console.log(lastbut);
-        //console.log(""+aktSelectetStaticposX+"-"+aktSelectetStaticposY);
-      addEntity(Uworld,2,[aktSelectetStaticposX,aktSelectetStaticposY])
-      gotoNext(world[aktSelectetStaticposX][aktSelectetStaticposY].aktEntity);
-      }
-      else{
-        aktSelectetStaticTyp = aktWorld[aktPlayerPosX][aktPlayerPosY].typ;
-        aktSelectetStaticposX = aktPlayerPosX;
-        aktSelectetStaticposY = aktPlayerPosY;
-        switch (keyCode)
-        {
-          case 16: //Shift
-            if (aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity!==-1){
-              EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity].selection = !EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity].selection;
-              aktSelectetEntityTyp=-1;}
-            else if (aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity!==-1){
-              EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity].selection = !EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity].selection;
-              aktSelectetEntityTyp=-1;}
-          break
-          default: 
-            for (let ii = 0;ii<=MaxEntity;ii++){
-              if (EntityList[ii] !== void 0 && EntityList[ii].live===true){
-                EntityList[ii].selection = false;
-              }
-            }
-            aktSelectetEntityNumber=0;
-            aktSelectetEntityTyp=-1;
-            if (aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity!==-1) {
-              EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity].selection = true;
-              aktSelectetEntityTyp=EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity].typ;
-              aktSelectetEntityNumber=1;}
-            else if (aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity!==-1) {
-              EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity].selection = true;
-              aktSelectetEntityTyp=EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity].typ;
-              aktSelectetEntityNumber=1;}
-          break;
-        }
-      }
-
-
-
-
-    } //EndMouse
-  });
-  window.addEventListener("resize", resize); {
-      resize();
-  }
-
-  window.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-  });
-  window.addEventListener("")
-
-  window.addEventListener("keydown", (e) => {
-    keyCode = e.keyCode;
-
-    //console.log(keyCode);
-    switch (keyCode)
-    {  
-      case 116:location.reload();break;//F5
-      case 46:
-        for (let ii = 0;ii<=MaxEntity;ii++){
-          if (EntityList[ii] !== void 0 && EntityList[ii].live===true&&EntityList[ii].selection===true){
-            EntityList[ii].hp -=1;
-          }
-        }
-      break;//Entf
-    }
-  });
-  window.addEventListener("keyup", (e) => {
-  keyCode = -1;
-  });
 
 
