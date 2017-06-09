@@ -1,13 +1,19 @@
-<body style="overflow: hidden; margin: 0; background: rgba(0,0,0,1)"; oncontextmenu="return false"; id="body">
-  <canvas style="position: absolute;" id="canvasGround"></canvas>
-  <canvas style="position: absolute;" id="canvas"></canvas>
-  <!--<canvas style="position: absolute;" id="canvasUi"></canvas>-->
-  
-  <!--<script type="text/javascript" src="setImmediate.js"></script>
-  <script type="text/javascript" src="path.js"></script>-->
-  <!--<script type="text/javascript" src="gui.js"></script>-->
-  <!--<script type="text/javascript" src="public.js"></script>-->
-  <script type="text/javascript" src="game.js"></script>
-  <script type="text/javascript" src="main.js"></script>
-
-</body>
+<html>
+  <head>
+    <!--use mini-wasm from https://github.com/maierfelix/mini-wasm-->
+    <script type="text/javascript" src="compiler/const.js"></script>
+    <script type="text/javascript" src="compiler/bytes.js"></script>
+    <script type="text/javascript" src="compiler/scope.js"></script>
+    <script type="text/javascript" src="compiler/scan.js"></script>
+    <script type="text/javascript" src="compiler/parse.js"></script>
+    <script type="text/javascript" src="compiler/emit.js"></script>
+    <script type="text/javascript" src="compiler/index.js"></script>
+  </head>
+  <body style="overflow: hidden; margin: 0; background: rgba(0,0,0,1)"; oncontextmenu="return false"; id="body">
+    <canvas style="position: absolute;" id="canvasGround"></canvas>
+    <canvas style="position: absolute;" id="canvas"></canvas>
+    <script type="text/javascript" src="src/momo.js"></script>
+    <script type="text/javascript" src="src/game.js"></script>
+    <script type="text/javascript" src="src/main.js"></script>
+  </body>
+</html>
