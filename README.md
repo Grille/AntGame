@@ -13,6 +13,6 @@ AI opponents<br>
 Various ant peoples<br>
 <br>
 ## Engine Features
-Native Javascript<br>
+Languages: Javascript & momo (https://github.com/maierfelix/momo)<br>
 Isometric Canvas renderer<br>
 <br>
