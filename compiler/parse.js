@@ -13,6 +13,9 @@ function isBinaryOperator(token) {
     kind === Operators.AND ||
     kind === Operators.BIN_AND ||
     kind === Operators.BIN_OR ||
+    kind === Operators.BIN_XOR ||
+    kind === Operators.BIN_SHL ||
+    kind === Operators.BIN_SHR ||
     kind === Operators.NOT ||
     kind === Operators.LT ||
     kind === Operators.LE ||
@@ -24,8 +27,15 @@ function isBinaryOperator(token) {
     kind === Operators.SUB_ASS ||
     kind === Operators.MUL_ASS ||
     kind === Operators.DIV_ASS ||
-    kind === Operators.MOD_ASS) &&
-    !isUnaryPrefixOperator(token)
+    kind === Operators.MOD_ASS ||
+    kind === Operators.BIN_AND_ASS ||
+    kind === Operators.BIN_OR_ASS ||
+    kind === Operators.BIN_XOR_ASS ||
+    kind === Operators.BIN_SHL_ASS ||
+    kind === Operators.BIN_SHR_ASS) &&
+    (kind !== Operators.NOT &&
+    kind !== Operators.INCR &&
+    kind !== Operators.DECR)
   );
 };
 
@@ -36,13 +46,23 @@ function isAssignmentOperator(kind) {
     kind === Operators.SUB_ASS ||
     kind === Operators.MUL_ASS ||
     kind === Operators.DIV_ASS ||
-    kind === Operators.MOD_ASS
+    kind === Operators.MOD_ASS ||
+    kind === Operators.BIN_AND_ASS ||
+    kind === Operators.BIN_OR_ASS ||
+    kind === Operators.BIN_XOR_ASS ||
+    kind === Operators.BIN_SHL_ASS ||
+    kind === Operators.BIN_SHR_ASS
   );
 };
 
 function isUnaryPrefixOperator(token) {
   let kind = token.kind;
   return (
+    kind === Operators.BIN_AND ||
+    kind === Operators.MUL ||
+    kind === Operators.BIN_NOT ||
+    kind === Operators.SUB ||
+    kind === Operators.ADD ||
     kind === Operators.NOT ||
     kind === Operators.INCR ||
     kind === Operators.DECR
@@ -61,6 +81,7 @@ function isLiteral(token) {
   let kind = token.kind;
   return (
     kind === Token.NumericLiteral ||
+    kind === Token.HexadecimalLiteral ||
     kind === Token.BooleanLiteral ||
     kind === Token.Identifier
   );
@@ -86,6 +107,7 @@ function parse(tkns) {
     body: null
   };
   pushScope(node);
+  global = scope;
   node.body = parseBlock();
   return (node);
 };
@@ -101,7 +123,7 @@ function next() {
 
 function expect(kind) {
   if (current.kind !== kind) {
-    __imports.error("Expected " + kind + " but got " + current.kind + " in " + current.line + ":" + current.column);
+    __imports.error("Expected " + getLabelName(kind) + " but got " + getLabelName(current.kind) + " in " + current.line + ":" + current.column);
   } else {
     next();
   }
@@ -109,7 +131,7 @@ function expect(kind) {
 
 function expectIdentifier() {
   if (current.kind !== Token.IDENTIFIER) {
-    __imports.error("Expected " + Token.IDENTIFIER + ":identifier but got " + current.kind + ":" + current.value);
+    __imports.error("Expected " + Token.IDENTIFIER + ":identifier but got " + getLabelName(current.kind) + ":" + current.value);
   }
 };
 
@@ -141,6 +163,8 @@ function parseStatement() {
   let node = null;
   if (eat(TokenList.EXPORT)) {
     node = parseDeclaration(true);
+  } else if (peek(TokenList.ENUM)) {
+    node = parseEnum();
   } else if (isNativeType(current)) {
     node = parseDeclaration(false);
   } else if (peek(TokenList.RETURN)) {
@@ -159,18 +183,82 @@ function parseStatement() {
   return (node);
 };
 
+function parseEnum() {
+  expect(TokenList.ENUM);
+  let name = null;
+  if (peek(Token.Identifier)) {
+    name = current.value;
+    next();
+  }
+  // enum declaration
+  if (eat(TokenList.LBRACE)) {
+    let node = {
+      kind: Nodes.EnumDeclaration,
+      name: name,
+      items: []
+    };
+    parseEnumList(node);
+    expect(TokenList.RBRACE);
+    parseTrailingNames(node);
+    return (node);
+  // enum variable
+  } else {
+    console.log(current);
+  }
+};
+
+function parseTrailingNames(node) {
+  while (true) {
+    if (peek(Token.Identifier)) {
+      console.log(current);
+    }
+    next();
+    if (!eat(TokenList.COMMA)) break;
+  };
+};
+
+function parseEnumList(node) {
+  let iter = 0;
+  while (true) {
+    expectIdentifier();
+    let enuma = {
+      kind: Nodes.Enumerator,
+      name: current.value,
+      init: null
+    };
+    next();
+    if (eat(Operators.ASS)) {
+      let expr = parseExpression(Operators.LOWEST);
+      enuma.init = expr;
+      enuma.resolvedValue = evalExpression(expr);
+      iter = enuma.resolvedValue;
+    } else {
+      enuma.resolvedValue = iter;
+    }
+    node.items.push(enuma);
+    scope.register(enuma.name, enuma);
+    // allow trailing commas
+    eat(TokenList.COMMA);
+    if (peek(TokenList.RBRACE)) break;
+    iter++;
+  };
+};
+
 function parseDeclaration(extern) {
   let node = null;
   expectTypeLiteral();
   const type = current.kind;
   next();
-  const isPointer = eat(Operators.MUL);
+  let isPointer = eat(Operators.MUL);
+  // if not pointer, check if &-reference
+  let isAlias = false;
+  if (!isPointer) { isAlias = eat(Operators.BIN_AND); }
   expectIdentifier();
   const name = current.value;
   next();
   const token = current.kind;
   if (token === Operators.ASS) {
-    node = parseVariableDeclaration(type, name, extern, isPointer);
+    node = parseVariableDeclaration(type, name, extern, isPointer, isAlias);
   }
   else if (TokenList.LPAREN) {
     node = parseFunctionDeclaration(type, name, extern);
@@ -248,8 +336,11 @@ function parseReturnStatement() {
   expect(TokenList.RETURN);
   let node = {
     kind: Nodes.ReturnStatement,
-    argument: parseExpression(Operators.LOWEST)
+    argument: null
   };
+  if (!peek(TokenList.SEMICOLON)) {
+    node.argument = parseExpression(Operators.LOWEST);
+  }
   expectScope(node, Nodes.FunctionDeclaration);
   let item = scope;
   while (item !== null) {
@@ -262,7 +353,7 @@ function parseReturnStatement() {
 
 function parseFunctionDeclaration(type, name, extern) {
   let node = {
-    index: findex++,
+    index: 0,
     isExported: !!extern,
     kind: Nodes.FunctionDeclaration,
     type: type,
@@ -270,12 +361,14 @@ function parseFunctionDeclaration(type, name, extern) {
     locals: [],
     returns: [],
     parameter: null,
+    prototype: null,
     body: null
   };
   expectScope(node, null); // only allow global functions
+  node.parameter = parseFunctionParameters(node);
+  node.isPrototype = !eat(TokenList.LBRACE);
   scope.register(name, node);
-  node.parameter = parseFunctionParameters();
-  if (eat(TokenList.LBRACE)) {
+  if (!node.isPrototype) {
     pushScope(node);
     node.parameter.map((param) => {
       scope.register(param.value, param);
@@ -284,58 +377,116 @@ function parseFunctionDeclaration(type, name, extern) {
     popScope();
     expect(TokenList.RBRACE);
   }
-  if (node.type !== TokenList.VOID && !node.returns.length) {
+  if (node.prototype !== null && node.type !== TokenList.VOID && !node.returns.length) {
     __imports.error("Missing return in function: " + node.id);
+  }
+  // auto insert a empty return for void functions
+  if (!node.returns.length && node.type === TokenList.VOID) {
+    let ret = {
+      kind: Nodes.ReturnStatement,
+      argument: null
+    };
+    node.returns.push(ret);
+    node.body.body.push(ret);
+  }
+  // auto insert return 0 for non-return main
+  if (node.id === "main" && !node.returns.length) {
+    let ret = {
+      kind: Nodes.ReturnStatement,
+      argument: {
+        kind: Nodes.Literal,
+        type: Token.NumericLiteral,
+        value: "0"
+      }
+    };
+    node.returns.push(ret);
+    node.body.body.push(ret);
   }
   return (node);
 };
 
-function parseFunctionParameters() {
+function parseFunctionParameters(node) {
   let params = [];
+  let hasPrototype = node.prototype !== null;
   expect(TokenList.LPAREN);
   while (true) {
     if (peek(TokenList.RPAREN)) break;
-    if (!isNativeType(current)) {
-      __imports.error("Missing parameter kind: " + current);
-    }
-    const type = current.kind;
-    next();
-    let isPointer = eat(Operators.MUL);
-    expectIdentifier();
-    params.push(current);
-    let param = params[params.length - 1];
-    param.type = type;
-    param.kind = Nodes.Parameter;
-    param.isParameter = true;
-    param.isPointer = isPointer;
-    next();
+    let param = parseFunctionParameter(node);
+    params.push(param);
     if (!eat(TokenList.COMMA)) break;
   };
   expect(TokenList.RPAREN);
   return (params);
 };
 
-function parseVariableDeclaration(type, name, extern, isPointer) {
+function parseFunctionParameter(node) {
+  let type = null;
+  // type
+  if (isNativeType(current)) {
+    type = current.kind;
+    next();
+  } else {
+    __imports.error("Missing type for parameter in", node.id);
+  }
+  // *&
+  let isPointer = eat(Operators.MUL);
+  let isReference = false;
+  if (!isPointer) { isReference = eat(Operators.BIN_AND); }
+  // id
+  expectIdentifier();
+  let param = current;
+  param.type = type;
+  param.kind = Nodes.Parameter;
+  param.isParameter = true;
+  param.isPointer = isPointer;
+  param.isReference = isReference;
+  next();
+  return (param);
+};
+
+function parseVariableDeclaration(type, name, extern, isPointer, isAlias) {
   let node = {
     kind: Nodes.VariableDeclaration,
     type: type,
     id: name,
     init: null,
-    isPointer
+    isGlobal: false,
+    isPointer,
+    isAlias
   };
   // only allow export of global variables
-  if (!!extern) expectScope(node, null);
-  else expectScope(node, Nodes.FunctionDeclaration);
+  if (extern) expectScope(node, null);
+  //expectScope(node, Nodes.FunctionDeclaration);
   scope.register(node.id, node);
+  if (scope.parent === null) {
+    node.isGlobal = true;
+  }
   expect(Operators.ASS);
+  let init = parseExpression(Operators.LOWEST);
   node.init = {
     kind: Nodes.BinaryExpression,
-    left: { kind: Nodes.Literal, type: Token.Identifier, value: node.id },
-    right: parseExpression(Operators.LOWEST),
+    left: {
+      kind: Nodes.Literal,
+      type: Token.Identifier,
+      value: node.id
+    },
+    right: init,
     operator: "="
   };
-  let fn = lookupFunctionScope(scope).node;
-  fn.locals.push(node);
+  if (isAlias) {
+    node.aliasValue = init;
+    node.aliasReference = {
+      kind: Nodes.UnaryPrefixExpression,
+      operator: "&",
+      value: node.aliasValue
+    };
+  }
+  if (!node.isGlobal) {
+    let fn = lookupFunctionScope(scope).node;
+    fn.locals.push(node);
+  } else {
+    node.resolvedValue = evalExpression(node.init.right);
+  }
   return (node);
 };
 
@@ -343,19 +494,33 @@ function parseCallExpression(id) {
   let node = {
     kind: Nodes.CallExpression,
     callee: id,
-    parameter: parseCallParameters()
+    parameter: parseCallParameters(id.value)
   };
   return (node);
 };
 
-function parseCallParameters() {
+function parseCallParameters(id) {
   let params = [];
+  let callee = scope.resolve(id);
   expect(TokenList.LPAREN);
+  let index = 0;
   while (true) {
     if (peek(TokenList.RPAREN)) break;
     let expr = parseExpression(Operators.LOWEST);
+    //let isReference = callee.parameter[index].isReference;
+    //let isReference = false;
+    // called functions parameter expects reference
+    /*if (isReference && expr.kind === Nodes.Literal) {
+      // wrap pass-by-reference node around passed in expression
+      expr = {
+        kind: Nodes.UnaryPrefixExpression,
+        operator: "&",
+        value: expr
+      };
+    }*/
     params.push(expr);
     if (!eat(TokenList.COMMA)) break;
+    index++;
   };
   expect(TokenList.RPAREN);
   return (params);
@@ -379,23 +544,6 @@ function parseContinue() {
   return (node);
 };
 
-function isCastOperator(token) {
-  return (token.kind === Operators.CAST);
-};
-
-function parseCastExpression(left) {
-  let node = {
-    kind: Nodes.CastExpression,
-    source: left,
-    target: null
-  };
-  next();
-  expectTypeLiteral();
-  node.target = current;
-  next();
-  return (node);
-};
-
 function expectTypeLiteral() {
   if (!isNativeType(current)) {
     __imports.error("Expected type literal but got " + current.kind);
@@ -409,7 +557,7 @@ function parseUnaryPrefixExpression() {
     value: null
   };
   next();
-  node.value = parseLiteral();
+  node.value = parseExpression(Operators.UNARY_PREFIX);
   return (node);
 };
 
@@ -430,24 +578,6 @@ function parsePrefix() {
   if (eat(TokenList.LPAREN)) {
     let node = parseExpression(Operators.LOWEST);
     expect(TokenList.RPAREN);
-    return (node);
-  }
-  if (current.kind === Operators.MUL) {
-    next();
-    expectIdentifier();
-    let node = parseLiteral();
-    let resolve = scope.resolve(node.value);
-    node.isDereference = true;
-    resolve.isMemoryLocated = true;
-    return (node);
-  }
-  if (current.kind === Operators.BIN_AND) {
-    next();
-    expectIdentifier();
-    let node = parseLiteral();
-    let resolve = scope.resolve(node.value);
-    node.isReference = true;
-    resolve.isMemoryLocated = true;
     return (node);
   }
   if (isUnaryPrefixOperator(current)) {
@@ -476,7 +606,7 @@ function parseBinaryExpression(level, left) {
       operator: "=",
       right: {
         kind: Nodes.BinaryExpression,
-        operator: operator.charAt(0),
+        operator: operator.slice(0, operator.length - 1),
         left: node.left,
         right: node.right
       }
@@ -491,13 +621,13 @@ function parseInfix(level, left) {
     return (parseBinaryExpression(level, left));
   }
   if (isUnaryPostfixOperator(current)) {
+    if (level >= Operators.UNARY_POSTFIX) {
+      return (left);
+    }
     return (parseUnaryPostfixExpression(left));
   }
   if (peek(TokenList.LPAREN)) {
     return (parseCallExpression(left));
-  }
-  if (isCastOperator(current)) {
-    return (parseCastExpression(left));
   }
   return (left);
 };
@@ -522,8 +652,17 @@ function parseExpression(level) {
 function parseLiteral() {
   let value = current.value;
   if (current.kind === Token.IDENTIFIER) {
+    if ($COMPILER_TEST_MODE) {
+      // register $trap as native call
+      if (value === "§TRAP") {
+        next();
+        return ({
+          kind: Nodes.RuntimeErrorTrap
+        });
+      }
+    }
     // make sure the identifier can be resolved
-    let resolve = scope.resolve(value);
+    scope.resolve(value);
   }
   let node = {
     kind: Nodes.Literal,

@@ -31,10 +31,14 @@ let Operators = {};
   Label[Label["FunctionExpression"] = ++ii] = "FunctionExpression";
   Label[Label["FunctionDeclaration"] = ++ii] = "FunctionDeclaration";
   Label[Label["VariableDeclaration"] = ++ii] = "VariableDeclaration";
+  Label[Label["EnumDeclaration"] = ++ii] = "EnumDeclaration";
   Label[Label["Parameter"] = ++ii] = "Parameter";
+  Label[Label["Enumerator"] = ++ii] = "Enumerator";
   Label[Label["Identifier"] = ++ii] = "Identifier";
   Label[Label["Literal"] = ++ii] = "Literal";
   Label[Label["Comment"] = ++ii] = "Comment";
+  // test mode
+  Label[Label["RuntimeErrorTrap"] = ++ii] = "RuntimeErrorTrap";
 })(Nodes);
 
 /** Data types */
@@ -47,6 +51,7 @@ let Operators = {};
   Label[Label["NullLiteral"] = ++ii] = "NullLiteral";
   Label[Label["StringLiteral"] = ++ii] = "StringLiteral";
   Label[Label["NumericLiteral"] = ++ii] = "NumericLiteral";
+  Label[Label["HexadecimalLiteral"] = ++ii] = "HexadecimalLiteral";
 })(Token);
 
 /** Tokens */
@@ -62,8 +67,9 @@ let Operators = {};
   Label[Label["true"] = ++ii] = "TRUE";
   Label[Label["false"] = ++ii] = "FALSE";
   /** Declaration keywords */
+  Label[Label["enum"] = ++ii] = "ENUM";
   Label[Label["import"] = ++ii] = "IMPORT";
-  Label[Label["export"] = ++ii] = "EXPORT";
+  Label[Label["extern"] = ++ii] = "EXPORT";
   /** Statement keywords */
   Label[Label["break"] = ++ii] = "BREAK";
   Label[Label["continue"] = ++ii] = "CONTINUE";
@@ -87,6 +93,7 @@ let Operators = {};
 /** Operators */
 ((Label) => {
   Label.LOWEST = ++ii;
+  Label.UNARY_POSTFIX = ++ii;
   // order by precedence
   Label[Label["="] = ++ii] = "ASS";
   Label[Label["+="] = ++ii] = "ADD_ASS";
@@ -94,7 +101,13 @@ let Operators = {};
   Label[Label["*="] = ++ii] = "MUL_ASS";
   Label[Label["/="] = ++ii] = "DIV_ASS";
   Label[Label["%="] = ++ii] = "MOD_ASS";
-  Label[Label["=>"] = ++ii] = "CAST";
+
+  Label[Label["&="] = ++ii] = "BIN_AND_ASS";
+  Label[Label["|="] = ++ii] = "BIN_OR_ASS";
+  Label[Label["^="] = ++ii] = "BIN_XOR_ASS";
+  Label[Label["<<="] = ++ii] = "BIN_SHL_ASS";
+  Label[Label[">>="] = ++ii] = "BIN_SHR_ASS";
+
   Label[Label["||"] = ++ii] = "OR";
   Label[Label["&&"] = ++ii] = "AND";
   Label[Label["=="] = ++ii] = "EQ";
@@ -108,9 +121,18 @@ let Operators = {};
   Label[Label["*"] = ++ii] = "MUL";
   Label[Label["/"] = ++ii] = "DIV";
   Label[Label["%"] = ++ii] = "MOD";
+
   Label[Label["&"] = ++ii] = "BIN_AND";
   Label[Label["|"] = ++ii] = "BIN_OR";
+  Label[Label["~"] = ++ii] = "BIN_NOT";
+  Label[Label["^"] = ++ii] = "BIN_XOR";
+  Label[Label["<<"] = ++ii] = "BIN_SHL";
+  Label[Label[">>"] = ++ii] = "BIN_SHR";
+
   Label[Label["!"] = ++ii] = "NOT";
+  Label[Label["--"] = ++ii] = "DECR";
+  Label[Label["++"] = ++ii] = "INCR";
+  Label.UNARY_PREFIX = ++ii;
   Label.HIGHEST = ++ii;
 })(Operators);
 
@@ -357,8 +379,11 @@ const WASM_MAXIMUM_MEMORY = 256;
 
 const WASM_SECTION_TYPE = 0x1;
 const WASM_SECTION_FUNCTION = 0x3;
+const WASM_SECTION_TABLE = 0x4;
 const WASM_SECTION_MEMORY = 0x5;
+const WASM_SECTION_GLOBAL = 0x6;
 const WASM_SECTION_EXPORT = 0x7;
+const WASM_SECTION_ELEMENT = 0x9;
 const WASM_SECTION_CODE = 0xa;
 
 const WASM_TYPE_VOID = 0x0;
@@ -373,6 +398,7 @@ const WASM_TYPE_CTOR_I64 = 0x7e;
 const WASM_TYPE_CTOR_F32 = 0x7d;
 const WASM_TYPE_CTOR_F64 = 0x7c;
 const WASM_TYPE_CTOR_FUNC = 0x60;
+const WASM_TYPE_CTOR_ANYFUNC = 0x70;
 const WASM_TYPE_CTOR_BLOCK = 0x40;
 
 const WASM_EXTERN_FUNCTION = 0x0;

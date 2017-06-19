@@ -1,3 +1,4 @@
+"use strict";
 // use mini-wasm from https://github.com/maierfelix/mini-wasm
 
 // declare functions 
@@ -9,7 +10,7 @@ let code = `// momo code // use HLSL highlighting
 
 
 
-export int convertToBin(int input) {
+    extern int convertToBin(int input) {
     if (input == 0) {return 0;}
     else if (input == 1) {return 1;}
     else if (input == 10) {return 2;}
@@ -26,10 +27,10 @@ export int convertToBin(int input) {
     else if (input == 1101) {return 13;}
     else if (input == 1110) {return 14;}
     else if (input == 1111) {return 15;}
-  	return 0;
-};
+   	return 0;
+ };
 
-export int wasmFindEnvorimentCode(int envmode,int typ, int typO,int typR,int typU,int typL) {
+extern int wasmFindEnvorimentCode(int envmode,int typ, int typO,int typR,int typU,int typL) {
     int worldEnv0 = 0;int worldEnv1 = 0;int worldEnv2 = 0;int worldEnv3 = 0;
     if (envmode == 0){return 0;}
     else if (envmode == 1){
@@ -54,13 +55,15 @@ export int wasmFindEnvorimentCode(int envmode,int typ, int typO,int typR,int typ
 
 
 `;
-//compile funtions
-let _import = {
-error: (msg) => { throw new Error(msg) }
-};
+
+        let _import = {
+          error: (msg) => { throw new Error(msg) },
+          log: function() { console.log.apply(console, arguments); }
+        };
 compile(code, _import).then((result) => {
 
 wasmFindEnvorimentCode = result.exports.wasmFindEnvorimentCode;
 convertToBin = result.exports.convertToBin;
-
 });
+
+//let fuck = convertToBin(1* 1000 + 1 * 100 + 0 * 10 + 1 * 1);

@@ -1008,21 +1008,22 @@
 
 
     context.fillStyle = "rgba(0,0,100,0.5)";
-    context.fillRect(0, 0,128, 15*9);
+    context.fillRect(0, 0,128, 15*11);
 
     context.fillStyle = "rgba(0,255,0,1)";
+    context.fillText("Version: v0.00", 4, 12.5+15*0);
 
-    context.fillText("Graphics:", 4, 12.5);
-    context.fillText("TotalTime: "+-(date -= Date.now())+"ms", 4, 12.5+15);
-    context.fillText(`FPS: ${(1000/(now+0.1))|0}`, 4, 12.5+15*2);
+    context.fillText("Graphics:", 4, 12.5+15*2);
+    context.fillText("TotalTime: "+-(date -= Date.now())+"ms", 4, 12.5+15*3);
+    context.fillText(`FPS: ${(1000/(now+0.1))|0}`, 4, 12.5+15*4);
 
-    context.fillText("Logic:", 4, 12.5+15*3);
-    context.fillText("TotalTime: "+DebugString[0]+"ms", 4, 12.5+15*4);
-    context.fillText("Timer100: "+Timer100+"ms", 4, 12.5+15*5);
-    context.fillText("Timer250: "+Timer250+"ms", 4, 12.5+15*6);
-    context.fillText("Timer500: "+Timer500+"ms", 4, 12.5+15*7);
+    context.fillText("Logic:", 4, 12.5+15*6);
+    context.fillText("TotalTime: "+DebugString[0]+"ms", 4, 12.5+15*7);
+    context.fillText("Timer100: "+Timer100+"ms", 4, 12.5+15*8);
+    context.fillText("Timer250: "+Timer250+"ms", 4, 12.5+15*9);
+    context.fillText("Timer500: "+Timer500+"ms", 4, 12.5+15*10);
 
-    context.fillText("LastWay: "+DebugString[4]+"ms", 4, 12.5+15*8);
+    //context.fillText("LastWay: "+DebugString[4]+"ms", 4, 12.5+15*11);
 
     groundRender = false;
   } 

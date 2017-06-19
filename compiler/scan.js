@@ -18,16 +18,25 @@ function isQuote(cc) {
 };
 
 function isAlpha(cc) {
+  if ($COMPILER_TEST_MODE && cc === 167) return (true);
   return (
     cc >= 65 && cc <= 90 ||
     cc >= 97 && cc <= 122 ||
-    cc === 95
+    cc === 95 ||
+    cc === 36
   );
 };
 
 function isNumber(cc) {
   return (
     cc >= 48 && cc <= 57
+  );
+};
+
+function isHex(cc) {
+  return (
+    isNumber(cc) ||
+    (cc >= 97 && cc <= 102)
   );
 };
 
@@ -47,9 +56,12 @@ function isOperatorChar(ch) {
     ch === "=" ||
     ch === "+" ||
     ch === "-" ||
+    ch === "%" ||
     ch === "!" ||
     ch === "|" ||
     ch === "&" ||
+    ch === "~" ||
+    ch === "^" ||
     ch === ">" ||
     ch === "<" ||
     ch === "*" ||
@@ -65,17 +77,24 @@ function isOperator(str) {
     str === "++" ||
     str === "--" ||
     str === "==" ||
+    str === ">=" ||
+    str === "<=" ||
     str === "!=" ||
     str === "||" ||
     str === "&&" ||
-    str === ">=" ||
-    str === "<=" ||
+    str === "<<" ||
+    str === ">>" ||
     str === "+=" ||
     str === "-=" ||
     str === "*=" ||
     str === "/=" ||
     str === "%=" ||
-    str === "=>"
+    str === "^=" ||
+    str === "&=" ||
+    str === "|=" ||
+    str === "^=" ||
+    str === "<<=" ||
+    str === ">>="
   );
 };
 
@@ -113,10 +132,18 @@ function scan(str) {
   };
 
   // placed here to have correct context to next()
-  function processOperator(ch, second, line, column) {
+  function processOperator(ch, idx, line, column) {
+    let second = str.slice(idx + 1, idx + 2);
+    let third = str.slice(idx + 2, idx + 3);
     if (second && isOperator(ch + second)) {
-      next();
-      processToken(tokens, ch + second, line, column);
+      if (third && isOperator(ch + second + third)) {
+        next();
+        next();
+        processToken(tokens, ch + second + third, line, column);
+      } else {
+        next();
+        processToken(tokens, ch + second, line, column);
+      }
     } else if (isOperator(ch)) {
       processToken(tokens, ch, line, column);
     }
@@ -152,7 +179,25 @@ function scan(str) {
       continue;
     }
     // number [0-9,-0]
-    if (isNumber(cc) || cc === 45 && isNumber(str.charCodeAt(ii+1))) {
+    if (isNumber(cc)) {
+      // hexadecimal
+      if (str.charAt(ii+1) === "x") {
+        let start = ii;
+        next();
+        while (true) {
+          if (!isHex(cc)) {
+            ii--;
+            column--;
+            break;
+          }
+          next();
+          cc = str.charCodeAt(ii);
+        };
+        let content = str.slice(start, ii+1);
+        let token = createToken(Token.HexadecimalLiteral, content, line, column);
+        tokens.push(token);
+        continue;
+      }
       let start = ii;
       while (true) {
         if (!isNumber(cc) && cc !== 45) {
@@ -170,6 +215,7 @@ function scan(str) {
     }
     // comment [//]
     if (ch === "/" && str[ii + 1] === "/") {
+      // TODO: add support for /* */
       while (true) {
         if (cc === 10) {
           column = 0;
@@ -189,8 +235,7 @@ function scan(str) {
     }
     // single operator [+,-,=]
     if (isOperatorChar(ch)) {
-      let second = str.slice(ii+1, ii+2);
-      processOperator(ch, second, line, column);
+      processOperator(ch, ii, line, column);
       continue;
     }
     if (ii >= length) {
