@@ -850,33 +850,33 @@
   function findEnvorimentCode(world,posX, posY, envmode) // envmode (0=keine,1=selbst,2=height,3=Wasser).
     {
       //console.log(envmode,world[posX][posY].typ, world[posX][posY-1].typ,world[posX+1][posY].typ,world[posX][posY+1].typ,world[posX-1][posY].typ);
-      //return wasmFindEnvorimentCode(envmode,world[posX][posY].typ, world[posX][posY-1].typ,world[posX+1][posY].typ,world[posX][posY+1].typ,world[posX-1][posY].typ);
-    let worldEnvironment = [0,0,0,0];
-    switch (envmode)
-      {
-      case 1:
-      if (world[posX][posY - 1].typ === world[posX][posY].typ) worldEnvironment[0] = 1;
-      if (world[posX + 1][posY].typ === world[posX][posY].typ) worldEnvironment[1] = 1;
-      if (world[posX][posY + 1].typ === world[posX][posY].typ) worldEnvironment[2] = 1;
-      if (world[posX - 1][posY].typ === world[posX][posY].typ) worldEnvironment[3] = 1;
-      break;
-      case 2:
-      let aktHeight = world[posX][posY].height;
-      if (aktHeight<world[posX - 1][posY].height || aktHeight<world[posX][posY - 1].height || aktHeight<world[posX - 1][posY - 1].height) worldEnvironment[0] = 1; //ol
-      if (aktHeight<world[posX + 1][posY].height || aktHeight<world[posX][posY - 1].height || aktHeight<world[posX + 1][posY - 1].height) worldEnvironment[1] = 1; //or
-      if (aktHeight<world[posX + 1][posY].height || aktHeight<world[posX][posY + 1].height || aktHeight<world[posX + 1][posY + 1].height) worldEnvironment[2] = 1; //ur
-      if (aktHeight<world[posX - 1][posY].height || aktHeight<world[posX][posY + 1].height || aktHeight<world[posX - 1][posY + 1].height) worldEnvironment[3] = 1; //ul
-      break;
-      case 3:
-      if (world[posX][posY - 1].typ === -1 || world[posX][posY - 1].typ === 2) worldEnvironment[0] = 1;
-      if (world[posX + 1][posY].typ === -1 || world[posX + 1][posY].typ === 2) worldEnvironment[1] = 1;
-      if (world[posX][posY + 1].typ === -1 || world[posX][posY + 1].typ === 2) worldEnvironment[2] = 1;
-      if (world[posX - 1][posY].typ === -1 || world[posX - 1][posY].typ === 2) worldEnvironment[3] = 1;
-      break;
-      default: return 0;
-      }
-      //console.log("X="+posX+"Y="+posY+"\nCode()"+worldEnvironment[0] +";"+ worldEnvironment[1] +";" + worldEnvironment[2] +";"+ worldEnvironment[3] +")")
-    return convertToBin(worldEnvironment[0] * 1000 + worldEnvironment[1] * 100 + worldEnvironment[2] * 10 + worldEnvironment[3] * 1);
+    return wasmFindEnvorimentCode(envmode,world[posX][posY].typ, world[posX][posY-1].typ,world[posX+1][posY].typ,world[posX][posY+1].typ,world[posX-1][posY].typ);
+    // let worldEnvironment = [0,0,0,0];
+    // switch (envmode)
+    //   {
+    //   case 1:
+    //   if (world[posX][posY - 1].typ === world[posX][posY].typ) worldEnvironment[0] = 1;
+    //   if (world[posX + 1][posY].typ === world[posX][posY].typ) worldEnvironment[1] = 1;
+    //   if (world[posX][posY + 1].typ === world[posX][posY].typ) worldEnvironment[2] = 1;
+    //   if (world[posX - 1][posY].typ === world[posX][posY].typ) worldEnvironment[3] = 1;
+    //   break;
+    //   case 2:
+    //   let aktHeight = world[posX][posY].height;
+    //   if (aktHeight<world[posX - 1][posY].height || aktHeight<world[posX][posY - 1].height || aktHeight<world[posX - 1][posY - 1].height) worldEnvironment[0] = 1; //ol
+    //   if (aktHeight<world[posX + 1][posY].height || aktHeight<world[posX][posY - 1].height || aktHeight<world[posX + 1][posY - 1].height) worldEnvironment[1] = 1; //or
+    //   if (aktHeight<world[posX + 1][posY].height || aktHeight<world[posX][posY + 1].height || aktHeight<world[posX + 1][posY + 1].height) worldEnvironment[2] = 1; //ur
+    //   if (aktHeight<world[posX - 1][posY].height || aktHeight<world[posX][posY + 1].height || aktHeight<world[posX - 1][posY + 1].height) worldEnvironment[3] = 1; //ul
+    //   break;
+    //   case 3:
+    //   if (world[posX][posY - 1].typ === -1 || world[posX][posY - 1].typ === 2) worldEnvironment[0] = 1;
+    //   if (world[posX + 1][posY].typ === -1 || world[posX + 1][posY].typ === 2) worldEnvironment[1] = 1;
+    //   if (world[posX][posY + 1].typ === -1 || world[posX][posY + 1].typ === 2) worldEnvironment[2] = 1;
+    //   if (world[posX - 1][posY].typ === -1 || world[posX - 1][posY].typ === 2) worldEnvironment[3] = 1;
+    //   break;
+    //   default: return 0;
+    //   }
+    //   //console.log("X="+posX+"Y="+posY+"\nCode()"+worldEnvironment[0] +";"+ worldEnvironment[1] +";" + worldEnvironment[2] +";"+ worldEnvironment[3] +")")
+    // return convertToBin(worldEnvironment[0] * 1000 + worldEnvironment[1] * 100 + worldEnvironment[2] * 10 + worldEnvironment[3] * 1);
    }
   function render(context, contextGround,aktWorld) {
     if (context === void 0)return;//canvas not ready stop render
