@@ -115,6 +115,7 @@
   let alpha = 0.0;
   let worldMap
   var Timer = Date.now();
+  var Timer020=0;
   var Timer100=0; 
   var Timer250=0;
   var Timer500=0;
@@ -164,7 +165,6 @@
   let lastbut=0;
   let butzahl=0;
   let DebugString = [];
-
 
 
 
@@ -431,7 +431,7 @@
 
               // for (let i = 10; ix < worldWidth-20; ix++){
               //   for (let iy = 10; iy < worldHeight-20; iy++){
-              //     if (Math.random() <= 0.8 && Uworld[ix][iy].begehbar === 1 && Uworld[ix][iy].aktEntity===-1) {
+              //     if (Math.random() <= 0.8 && Uworld.begehbar[conv2Dto1D(ix,iy)] === 1 && Uworld.aktEntity[conv2Dto1D(ix,iy)].aktEntity===-1) {
               //       //addEntity(Uworld,2,ix,iy);
               //       addEntity(Uworld,2,ix,iy);
               //     }
@@ -462,20 +462,20 @@
         }
         else if (UiButton[7].clicked() === true){
           addEntity(Uworld,2,[aktSelectetStaticposX,aktSelectetStaticposY])
-          gotoNext(world[aktSelectetStaticposX][aktSelectetStaticposY].aktEntity);
+          gotoNext(world.aktEntity[conv2Dto1D(aktSelectetStaticposX,aktSelectetStaticposY)]);
         }
         else{
-          aktSelectetStaticTyp = aktWorld[aktPlayerPosX][aktPlayerPosY].typ;
+          aktSelectetStaticTyp = aktWorld.typ[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)];
           aktSelectetStaticposX = aktPlayerPosX;
           aktSelectetStaticposY = aktPlayerPosY;
           switch (keyCode)
           {
             case 16: //Shift
-              if (aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity!==-1){
-                EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity].selection = !EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity].selection;
+              if (aktWorld.aktEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]!==-1){
+                EntityList[aktWorld.aktEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].selection = !EntityList[aktWorld.aktEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].selection;
                 aktSelectetEntityTyp=-1;}
-              else if (aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity!==-1){
-                EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity].selection = !EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity].selection;
+              else if (aktWorld.resEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]!==-1){
+                EntityList[aktWorld.resEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].selection = !EntityList[aktWorld.resEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].selection;
                 aktSelectetEntityTyp=-1;}
             break
             default: 
@@ -486,13 +486,13 @@
               }
               aktSelectetEntityNumber=0;
               aktSelectetEntityTyp=-1;
-              if (aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity!==-1) {
-                EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity].selection = true;
-                aktSelectetEntityTyp=EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].aktEntity].typ;
+              if (aktWorld.aktEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]!==-1) {
+                EntityList[aktWorld.aktEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].selection = true;
+                aktSelectetEntityTyp=EntityList[aktWorld.aktEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].typ;
                 aktSelectetEntityNumber=1;}
-              else if (aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity!==-1) {
-                EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity].selection = true;
-                aktSelectetEntityTyp=EntityList[aktWorld[aktPlayerPosX][aktPlayerPosY].resEntity].typ;
+              else if (aktWorld.resEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]!==-1) {
+                EntityList[aktWorld.resEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].selection = true;
+                aktSelectetEntityTyp=EntityList[aktWorld.resEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].typ;
                 aktSelectetEntityNumber=1;}
             break;
           }
@@ -561,11 +561,18 @@
       let ms = Date.now() - Timer;
       //DebugString[0]=ms;
       let date;let totalDate = Date.now();
+      Timer020+=ms;
       Timer100+=ms;
       Timer250+=ms; 
       Timer500+=ms;
 
-      mapScroal((ms/10/3));
+     // mapScroal(1);
+
+      date = Date.now();
+      while (Timer020>20){
+        Timer020-=20;
+        mapScroal(1);
+      }
 
       date = Date.now();
       while (Timer100>100){
@@ -608,33 +615,57 @@
 //--BuildWorld---------------------------------------------------------------------------------------------------------------------------------------------------
 
   function buildWorldarray(width,height,typ){
-    let world = [];
-    for (let yy = 0; yy < width; ++yy) {
-      world[yy] = [];
-      for (let xx = 0; xx < height; ++xx) {
-        world[yy][xx] = {
-          typ: typ,
-          version: 0,
-          animation: 0,
-          height: 0,
-          reference: [0,0],
-          aktEntity: 0,  
-          resEntity: 0,  
-          discovered: 1,  
-          owner:0  ,
-          way:0,
-          debug:0,
-          debug2:0,
-          wayKost:0,
-          begehbar:0
-        };
-      };
+
+      // let world = [];
+      // for (let yy = 0; yy < width; ++yy) {
+      //   world[yy] = [];
+      //   for (let xx = 0; xx < height; ++xx) {
+      //     world[yy][xx] = {
+      //       typ: typ,
+      //       version: 0,
+      //       animation: 0,
+      //       height: 0,
+      //       referenceX: 0,
+      //       referenceY: 0,
+      //       aktEntity: 0,  
+      //       resEntity: 0,  
+      //       discovered: 1,  
+      //       owner:0  ,
+      //       way:0,
+      //       debug:0,
+      //       debug2:0,
+      //       wayKost:0,
+      //       begehbar:0
+      //     };
+      //   };
+      // };
+
+    let size = (width * height);
+    let world = 
+    {
+      typ: new Uint8Array(size),
+      version: new Uint8Array(size),
+      animation: new Uint8Array(size),
+      height: new Uint8Array(size),
+      referenceX: new Uint8Array(size),
+      referenceY: new Uint8Array(size),
+      aktEntity: new Uint8Array(size),
+      resEntity: new Uint8Array(size),
+      discovered: new Uint8Array(size),
+      owner: new Uint8Array(size),
+      way: new Uint8Array(size),
+      debug: new Uint8Array(size),
+      debug2: new Uint8Array(size),
+      wayKost: new Uint8Array(size),
+      begehbar: new Uint8Array(size),
     };
 
-    for (let ii = 0; ii < width; ii++) world[ii][0].typ = 0;
-    for (let ii = 0; ii < width; ii++) world[ii][height - 1].typ = 0;
-    for (let ii = 0; ii < height; ii++) world[0][ii].typ = 0;
-    for (let ii = 0; ii < height; ii++) world[width - 1][ii].typ = 0;
+    //for (let ii = 0; ii < size-3; ii++) world.typ[ii] = 3;
+
+    for (let ii = 0; ii < width; ii++) world.typ[conv2Dto1D(ii,0)] = 0;
+    for (let ii = 0; ii < width; ii++) world.typ[conv2Dto1D(ii,height - 1)] = 0;
+    for (let ii = 0; ii < height; ii++) world.typ[conv2Dto1D(0,ii)] = 0;
+    for (let ii = 0; ii < height; ii++) world.typ[conv2Dto1D(width - 1,ii)] = 0;
 
     return world;
   }
@@ -643,12 +674,12 @@
       for (let ii = 0;ii < mit;ii++) {
         for (let ix = 1; ix <= width; ix++){
           for (let iy = 1; iy <= height; iy++){
-            if (world[ix + 1][iy].typ === typ || world[ix - 1][iy].typ === typ || world[ix][iy + 1].typ === typ || world[ix][iy - 1].typ === typ) {if(Math.random()<rnd){build(world,ix, iy, typ);}}
+            if (world.typ[conv2Dto1D(ix + 1,iy)] === typ || world.typ[conv2Dto1D(ix - 1,iy)] === typ || world.typ[conv2Dto1D(ix,iy + 1)] === typ || world.typ[conv2Dto1D(ix,iy - 1)] === typ) {if(Math.random()<rnd){build(world,ix, iy, typ);}}
           };
         };
         for (let ix = width; ix >= 1; ix--){
           for (let iy = height; iy >= 1; iy--){
-            if (world[ix + 1][iy].typ === typ || world[ix - 1][iy].typ === typ || world[ix][iy + 1].typ === typ || world[ix][iy - 1].typ === typ) {if(Math.random()<rnd){build(world,ix, iy, typ);}}
+            if (world.typ[conv2Dto1D(ix + 1,iy)] === typ || world.typ[conv2Dto1D(ix - 1,iy)] === typ || world.typ[conv2Dto1D(ix,iy + 1)] === typ || world.typ[conv2Dto1D(ix,iy - 1)] === typ) {if(Math.random()<rnd){build(world,ix, iy, typ);}}
           };
         };
       };
@@ -656,11 +687,12 @@
   function buildMap(width,height){
     worldWidth = width + 2;
     worldHeight = height + 2;
+    set_WorldWidth(worldWidth);
     Oworld = buildWorldarray(worldWidth,worldHeight,1)
     Uworld = buildWorldarray(worldWidth,worldHeight,10)
 
-    for (let ix = 1; ix < width; ix++){
-      for (let iy = 1; iy < height; iy++){
+    for (let ix = 1; ix <= width; ix++){
+      for (let iy = 1; iy <= height; iy++){
         build(Oworld,ix, iy, 1);
       }
     }
@@ -672,28 +704,29 @@
     
 
     //Moos
-    for (let ix = 1; ix < width; ix++){
-      for (let iy = 1; iy < height - 1; iy++)
+    for (let ix = 1; ix < width; ix++)
+    {
+      for (let iy = 1; iy < height; iy++)
       {
-      if (Math.random() <= 0.02 && Oworld[ix][iy].typ === 1) build(Oworld,ix, iy, 4);
+      if (Math.random() <= 0.02 && Oworld.typ[conv2Dto1D(ix,iy)] === 1) build(Oworld,ix, iy, 4);
       }
     }
 
     generateTile(Oworld,4, 4, 0.2);
 
-    //Water---------------------------------
+    // //Water---------------------------------
 
-    for (let ii = 1; ii < worldWidth-1; ii++) Oworld[ii][1].typ = 3;
-    for (let ii = 1; ii < worldWidth-1; ii++) Oworld[ii][worldHeight - 2].typ = 3;
-    for (let ii = 1; ii < worldHeight-1; ii++) Oworld[1][ii].typ = 3;
-    for (let ii = 1; ii < worldHeight-1; ii++) Oworld[worldWidth - 2][ii].typ = 3;
+    // for (let ii = 1; ii < worldWidth-1; ii++) Oworld.typ[conv2Dto1D(ii,1)] = 3;
+    // for (let ii = 1; ii < worldWidth-1; ii++) Oworld.typ[conv2Dto1D(ii,worldHeight - 2)] = 3;
+    // for (let ii = 1; ii < worldHeight-1; ii++) Oworld.typ[conv2Dto1D(1,ii)] = 3;
+    // for (let ii = 1; ii < worldHeight-1; ii++) Oworld.typ[conv2Dto1D(worldWidth - 2,ii)] = 3;
 
     let total = width * height;
     let proC = (total * 0.001)|0;
     for (let ii = 0; ii < proC;){
       let rndX = (width * Math.random())|0 + 1;
       let rndY = (height * Math.random())|0 + 1;
-        if (Oworld[rndX][rndY].typ !== -1){
+        if (Oworld.typ[conv2Dto1D(rndX,rndY)] !== -1){
       build(Oworld,rndX, rndY, 2);
       ii++;
       }
@@ -701,45 +734,45 @@
 
     generateTile(Oworld,2, 2, 0.5);
 
-    for (let ix = 1; ix < width; ix++)
-    {
-      for (let iy = 1; iy < height; iy++)
-      {
-      if (Math.random() <= 0.9 && Oworld[ix + 1][iy].typ === 2 && Oworld[ix - 1][iy].typ === 2 && Oworld[ix][iy + 1].typ === 2 && Oworld[ix][iy - 1].typ === 2) build(Oworld,ix, iy, 2);
-      }
-    }
+    // for (let ix = 1; ix < width; ix++)
+    // {
+    //   for (let iy = 1; iy < height; iy++)
+    //   {
+    //   if (Math.random() <= 0.9 && Oworld.typ[conv2Dto1D(ix + 1,iy)] === 2 && Oworld.typ[conv2Dto1D(ix - 1,iy)] === 2 && Oworld.typ[conv2Dto1D(ix,iy + 1)] === 2 && Oworld.typ[conv2Dto1D(ix,iy - 1)] === 2) build(Oworld,ix, iy, 2);
+    //   }
+    // }
 
     //Stein
-    for (let ix = 1; ix < width; ix++)
+    for (let ix = 1; ix <= width; ix++)
     {
-      for (let iy = 1; iy < height; iy++)
+      for (let iy = 1; iy <= height; iy++)
       {
-      if (Math.random() <= 0.01 && Oworld[ix][iy].typ === 1) build(Oworld,ix, iy, 5);
+      if (Math.random() <= 0.01 && Oworld.typ[conv2Dto1D(ix,iy)] === 1) build(Oworld,ix, iy, 5);
       }
     }
 
     //--Grass--
-    for (let ix = 1; ix < width; ix++){
-      for (let iy = 1; iy < height; iy++){
-      if (Math.random() <= 0.02 && Oworld[ix][iy].typ === 1) build(Oworld,ix, iy, 3);
+    for (let ix = 1; ix <= width; ix++){
+      for (let iy = 1; iy <= height; iy++){
+      if (Math.random() <= 0.02 && Oworld.typ[conv2Dto1D(ix,iy)] === 1) build(Oworld,ix, iy, 3);
       }
     }
 
     generateTile(Oworld,4, 3, 0.2);
 
 
-    for (let ix = 1; ix < width; ix++){
-      for (let iy = 1; iy < height; iy++){
-      if (Math.random() <= 0.02 && Oworld[ix][iy].typ === 1) build(Oworld,ix, iy, 3);
-      }
-    }
+    // for (let ix = 1; ix < width; ix++){
+    //   for (let iy = 1; iy < height; iy++){
+    //   if (Math.random() <= 0.02 && Oworld.typ[conv2Dto1D(ix,iy)] === 1) build(Oworld,ix, iy, 3);
+    //   }
+    // }
 
-    //Laus
-    for (let ix = 1; ix < width; ix++){
-      for (let iy = 1; iy < height; iy++){
-      if (Math.random() <= 0.01 && Oworld[ix][iy].typ === 3) build(Oworld,ix, iy, 6);
-      }
-    }
+    // //Laus
+    // for (let ix = 1; ix < width; ix++){
+    //   for (let iy = 1; iy < height; iy++){
+    //   if (Math.random() <= 0.01 && Oworld.typ[conv2Dto1D(ix,iy)] === 3) build(Oworld,ix, iy, 6);
+    //   }
+    // }
 
     mapPosX = ((worldWidth/2)|0);//(width/64)|0;
     mapPosY = ((worldHeight/2)|0);
@@ -759,6 +792,8 @@
     addEntity(Oworld,0,[mapPosX,mapPosY]);
 
     worldMap = buildWorldMap(Oworld);
+
+    
   }
 
 
@@ -777,23 +812,23 @@
     let imgData = context.getImageData(0, 0, canvas.width, canvas.height);
     for (let x = 0; x < worldWidth; x++) {
       for (let y = 0; y < worldHeight; y++) {
-    try {
+
         let offset = (imgData.width * (y-x+(canvas.height/2)|0) + (x+y)) * 4;
         mod.data[offset + 3] = 255;//a
-        let typ =world[x][y].typ;
-        if (world[x][y].discovered === 1 &&typ!==9)
+        let typ =world.typ[conv2Dto1D(x,y)];
+        if (world.discovered[conv2Dto1D(x,y)] === 1 &&typ!==9)
         {
-          if(world[x][y].owner!==0||world[x][y].aktEntity!==0){
+          if(world.owner[conv2Dto1D(x,y)]!==0||world.aktEntity[conv2Dto1D(x,y)]!==0){
             mod.data[offset]     = 0;//r
             mod.data[offset + 1] = 255;//g
             mod.data[offset + 2] = 0;//b
           }else{
             switch (typ){
-              case 0:case 1:case 9:
+              case 1:case 2:case 10:
               mod.data[offset]     = 50;//r
               mod.data[offset + 1] = 70;//g
               mod.data[offset + 2] = 140;//b
-              break;case 2:
+              break;case 3:
               mod.data[offset]     = 150;//r
               mod.data[offset + 1] = 140;//g
               mod.data[offset + 2] = 50;//b
@@ -807,7 +842,6 @@
         }
 
 
-    }catch(e){}
       }
     }
     let offset = (imgData.width * (2) + worldWidth-2) * 4;
@@ -818,28 +852,6 @@
     context.putImageData(mod, 0, 0);
     return (canvas);
   };
-  function pixelShader(){
-    let imgData = context.getImageData(0, 0, canvas.width, canvas.height);
-    let w = canvas.width;
-    let h = canvas.height;
-    // for (x = 0; x < w; x++) {
-    //   for (y = 0; y < h; y++) {
-    //     let offset = (imgData.width * (y) + x) * 4;
-    //     //mod.data[offset]     = mod.data[offset];//r
-    //     imgData.data[offset + 1] = 0;//g
-    //     //mod.data[offset + 2] = mod.data[offset + 2];//b
-    //     imgData.data[offset + 3] = 255;//a
-    //   }
-    // }
-      for (i = 0; i < w*h; i++) {
-        //mod.data[offset]     = mod.data[offset];//r
-        imgData.data[i*4 + 1] = 0;//g
-        //mod.data[offset + 2] = mod.data[offset + 2];//b
-        imgData.data[i*4 + 3] = 255;//a
-    }
-
-    context.putImageData(imgData, 0, 0);
-  }
   function setAnimator() {
     for (let ii = 0; ii < 20; ii++){
     if (animator[ii] < ii) animator[ii]++;
@@ -847,10 +859,10 @@
     }
     alpha += 0.05;
   };
-  function findEnvorimentCode(world,posX, posY, envmode) // envmode (0=keine,1=selbst,2=height,3=Wasser).
-    {
-      //console.log(envmode,world[posX][posY].typ, world[posX][posY-1].typ,world[posX+1][posY].typ,world[posX][posY+1].typ,world[posX-1][posY].typ);
-    return wasmFindEnvorimentCode(envmode,world[posX][posY].typ, world[posX][posY-1].typ,world[posX+1][posY].typ,world[posX][posY+1].typ,world[posX-1][posY].typ);
+  function findEnvorimentCode(world,posX, posY, envmode) {// envmode (0=keine,1=selbst,2=height,3=Wasser).
+    //console.log(envmode,world[posX][posY].typ, world[posX][posY-1].typ,world[posX+1][posY].typ,world[posX][posY+1].typ,world[posX-1][posY].typ);
+    let worldPos = conv2Dto1D(posX,posY)
+    return wasmFindEnvorimentCode(envmode,world.typ[worldPos], world.typ[worldPos-worldWidth],world.typ[worldPos+1],world.typ[worldPos+worldWidth],world.typ[worldPos-1]);
     // let worldEnvironment = [0,0,0,0];
     // switch (envmode)
     //   {
@@ -877,7 +889,7 @@
     //   }
     //   //console.log("X="+posX+"Y="+posY+"\nCode()"+worldEnvironment[0] +";"+ worldEnvironment[1] +";" + worldEnvironment[2] +";"+ worldEnvironment[3] +")")
     // return convertToBin(worldEnvironment[0] * 1000 + worldEnvironment[1] * 100 + worldEnvironment[2] * 10 + worldEnvironment[3] * 1);
-   }
+  }
   function render(context, contextGround,aktWorld) {
     if (context === void 0)return;//canvas not ready stop render
     let cscale = Math.round(scale*16)/16;
@@ -903,25 +915,25 @@
       for (let ix = ((width / 64)/cscale)|0; ix >= -1;ix--){
         aktPosX--;
         aktPosY--;
-        if (aktPosX < worldWidth && aktPosX >= 0 && aktPosY < worldHeight && aktPosY >= 0 && aktWorld[aktPosX][aktPosY].typ !== -1&& aktWorld[aktPosX][aktPosY].typ !== 0){
-          let worldPos = aktWorld[aktPosX][aktPosY];
+        if (aktPosX < worldWidth && aktPosX >= 0 && aktPosY < worldHeight && aktPosY >= 0 && aktWorld.typ[conv2Dto1D(aktPosX,aktPosY)] !== -1&& aktWorld.typ[conv2Dto1D(aktPosX,aktPosY)] !== 0){
+          let worldPos = conv2Dto1D(aktPosX,aktPosY);
           let drawPosX = 64*ix+32*Indentation;
           let drawPosY = 16*iy;
-          let height = (worldPos.height) * 16;
+          let height = (aktWorld.height[worldPos]) * 16;
           let isAktField = (aktPosX >= aktPlayerPosX && aktPosY >= aktPlayerPosY && aktPosX < aktPlayerPosX + StaticEntity[aktGameObject].size && aktPosY < aktPlayerPosY + StaticEntity[aktGameObject].size)
-          let aktReferenceX = (worldPos.reference[0]);
-          let aktReferenceY = (worldPos.reference[1]);
-          let typ = aktWorld[aktPosX - aktReferenceX][aktPosY -aktReferenceY].typ;
+          let aktReferenceX = (aktWorld.referenceX[worldPos]);
+          let aktReferenceY = (aktWorld.referenceY[worldPos]);
+          let typ = aktWorld.typ[conv2Dto1D(aktPosX - aktReferenceX,aktPosY -aktReferenceY)];
           //let ground = aktWorld[aktPosX][aktPosY].ground;
           let staticEntity = StaticEntity[typ];
 
-          if (aktWorld[aktPosX][aktPosY].discovered === 1 && staticEntity.ready === true){
+          if ((true||aktWorld.discovered[worldPos] === 1) && staticEntity.ready === true){
 
             let envcode = findEnvorimentCode(aktWorld,aktPosX, aktPosY, staticEntity.envmode);//env code for auto tile (0000 - 1111)
-            let version = worldPos.version; //graphic version
+            let version = aktWorld.version[worldPos]; //graphic version
             let overDraw = ((staticEntity.sprite[version][envcode].overDraw));
             let animPhase = staticEntity.sprite[version][envcode].animationPhase;
-            let anim = animator[animPhase] + worldPos.animation
+            let anim = animator[animPhase] + aktWorld.animation[worldPos];
             let imgSrcX = (aktReferenceX*32)+ (aktReferenceY * 32) + (staticEntity.size*64) * anim;
             let imgSrcY = 16 * (staticEntity.size - 1) -(aktReferenceX*16) + (aktReferenceY * 16);
 
@@ -930,7 +942,7 @@
               staticEntity.sprite[version][envcode].texture,
               imgSrcX, imgSrcY,
               64, 32+overDraw|0,
-              drawPosX*cscale, ((drawPosY - overDraw))*cscale|0,
+              drawPosX*cscale, ((drawPosY-overDraw))*cscale|0,
               64*cscale, ((32+overDraw)*cscale)|0
               );
             }
@@ -944,8 +956,11 @@
               );
             }
 
-            let aktEntity = EntityList[aktWorld[aktPosX][aktPosY].aktEntity];
-            if (aktWorld[aktPosX][aktPosY].aktEntity !== 0){
+                  //  context.fillStyle = "rgba(0,0,255,1)";    
+                  //  context.fillText(version, drawPosX+16, drawPosY);
+
+            let aktEntity = EntityList[aktWorld.aktEntity[worldPos]];
+            if (aktWorld.aktEntity[worldPos] !== 0){
               if (aktEntity.aktWorld === aktWorld){
 
               let EntityAddPosX = -100* (aktEntity.direction[0]-1)+(100-aktEntity.Progress) * (aktEntity.direction[0]-1)
@@ -977,14 +992,14 @@
           }
 
         }
-          worldPos = aktWorld[aktPosX][aktPosY];
+          //worldPos = aktWorld[aktPosX][aktPosY];??!
           if (isAktField===true){
             if (aktSelectetEntityNumber>0){
               switch (typ)
               {
                 case 7: context.drawImage(UiAktField[1].sprite[0][0].texture,0, 0,64, 32,drawPosX*cscale, (drawPosY)*cscale,64*cscale, 32*cscale);break;
                 case 8: context.drawImage(UiAktField[2].sprite[0][0].texture,0, 0,64, 32,drawPosX*cscale, (drawPosY)*cscale,64*cscale, 32*cscale);break;
-                default:if (worldPos.begehbar===1)context.drawImage(UiAktField[0].sprite[0][0].texture,0, 0,64, 32,drawPosX*cscale, (drawPosY)*cscale,64*cscale, 32*cscale);break;
+                default:if (aktWorld.begehbar[worldPos]===1)context.drawImage(UiAktField[0].sprite[0][0].texture,0, 0,64, 32,drawPosX*cscale, (drawPosY)*cscale,64*cscale, 32*cscale);break;
               }
             }
           }
@@ -1004,11 +1019,11 @@
       context.fillStyle = "rgba(0,255,0,0.2)";
       context.fillRect(mouse.dx, mouse.dy,  mouse.x-mouse.dx, mouse.y-mouse.dy);
     }
-    //pixelShader();
+
 
 
     context.fillStyle = "rgba(0,0,100,0.5)";
-    context.fillRect(0, 0,128, 15*11);
+    context.fillRect(0, 0,128, 15*12);
 
     context.fillStyle = "rgba(0,255,0,1)";
     context.fillText("Version: v0.00", 4, 12.5+15*0);
@@ -1023,7 +1038,7 @@
     context.fillText("Timer250: "+Timer250+"ms", 4, 12.5+15*9);
     context.fillText("Timer500: "+Timer500+"ms", 4, 12.5+15*10);
 
-    //context.fillText("LastWay: "+DebugString[4]+"ms", 4, 12.5+15*11);
+    context.fillText("LastWay: "+DebugString[4]+"ms", 4, 12.5+15*11);
 
     groundRender = false;
   } 
@@ -1168,47 +1183,47 @@
 //--Game---------------------------------------------------------------------------------------------------------------------------------------------------------
 
   function build(world,posX, posY, newTyp){
-              if (posX < worldWidth && posX >= 0 && posY < worldHeight && posY >= 0)
-              {
-                  for (let ix = 0; ix < StaticEntity[newTyp].size; ix++)
-                  {
-                      for (let iy = 0; iy < StaticEntity[newTyp].size; iy++)
-                      {
-                          world[posX + ix][posY + iy].begehbar = StaticEntity[newTyp].begehbar
-                          world[posX + ix][posY + iy].typ = 0;
-                          world[posX + ix][posY + iy].version = 0;
-                          world[posX + ix][posY + iy].reference[0] = ix;
-                          world[posX + ix][posY + iy].reference[1] = iy;
-                      }
-                  }
-
-                  world[posX][posY].version = (StaticEntity[newTyp].version * Math.random())|0;
-                  //if (StaticEntity[newTyp].envcode===0) 
-                  //world[posX][posY].animation = (StaticEntity[newTyp].sprite[world[posX][posY].version][0].animationPhase * Math.random())|0;
-                  //else 
-                  world[posX][posY].animation =0;        
-                  world[posX][posY].typ = newTyp;
-                  groundRender = true;
-              }
+    if (posX < worldWidth && posX >= 0 && posY < worldHeight && posY >= 0)
+    {
+      for (let ix = 0; ix < StaticEntity[newTyp].size; ix++)
+      {
+        for (let iy = 0; iy < StaticEntity[newTyp].size; iy++)
+        {
+          let worldPos = conv2Dto1D(posX + ix,posY + iy);
+          world.begehbar[worldPos] = StaticEntity[newTyp].begehbar
+          world.typ[worldPos] = 0;
+          world.version[worldPos] = 0;
+          world.referenceX[worldPos] = ix;
+          world.referenceY[worldPos] = iy;
+        }
+      }
+      let worldPos = conv2Dto1D(posX,posY);
+      world.version[worldPos] = (StaticEntity[newTyp].version * Math.random())|0;
+      //if (StaticEntity[newTyp].envcode===0) 
+      //world[posX][posY].animation = (StaticEntity[newTyp].sprite[world[posX][posY].version][0].animationPhase * Math.random())|0;
+      //else 
+      world.animation[worldPos] =0;        
+      world.typ[worldPos] = newTyp;
+      groundRender = true;
+    }
   }
   function worldDiscovered(world,posX,posY,r){
-                  posX-=r;
-                  posY-=r;
-                  let width = posX+r*2+1
-                  let height = posY+r*2+1
-                  if (posX<1)posX=1;
-                  if (posY<1)posY=1;
-                  if (width>worldWidth-1)width=worldWidth-1;
-                  if (height>worldHeight-1)height=worldHeight-1;
-                  r-=1;
-                    for (let ix = posX; ix < width; ix++)
-                  {
-                      for (let iy = posY; iy < height; iy++)
-                      {
-                          world[ix][iy].discovered = 1;
-                      }
-                  }
-
+    posX-=r;
+    posY-=r;
+    let width = posX+r*2+1
+    let height = posY+r*2+1
+    if (posX<1)posX=1;
+    if (posY<1)posY=1;
+    if (width>worldWidth-1)width=worldWidth-1;
+    if (height>worldHeight-1)height=worldHeight-1;
+    r-=1;
+      for (let ix = posX; ix < width; ix++)
+    {
+        for (let iy = posY; iy < height; iy++)
+        {
+            world.discovered[conv2Dto1D(ix,iy)] = 1;
+        }
+    }
   }
   function inGameBuild(posX,posY,typ){
     switch (typ)
@@ -1257,7 +1272,7 @@
           hp: MoveableEntity[typ].hp
         }
 
-        world[worldPos[0]][worldPos[1]].aktEntity = ii;
+        world.aktEntity[conv2Dto1D(worldPos[0],worldPos[1])] = ii;
         gotoNext(ii);
         worldDiscovered(world,EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],MoveableEntity[EntityList[ii].typ].view)
         
@@ -1271,8 +1286,8 @@
   function killEntity(entity){
 
       if (!(EntityList[entity] === void 0)||EntityList[entity].live===true){
-        EntityList[entity].aktWorld[EntityList[entity].worldPos[0]][EntityList[entity].worldPos[1]].aktEntity = 0;
-        EntityList[entity].aktWorld[EntityList[entity].goalX][EntityList[entity].goalY].resEntity = 0;
+        EntityList[entity].aktWorld.aktEntity[conv2Dto1D(EntityList[entity].worldPos[0],EntityList[entity].worldPos[1])] = 0;
+        EntityList[entity].aktWorld.resEntity[conv2Dto1D(EntityList[entity].goalX,EntityList[entity].goalY)] = 0;
 
         EntityList[entity].live = false;
         EntityList[entity].selection = false;
@@ -1281,19 +1296,15 @@
   }
   function coliMap(coliEntity){
         if (coliEntity===true){
-        for (let ix = 1; ix < worldWidth-2; ix++){
-          for (let iy = 1; iy < worldHeight-2; iy++){
-            if (Oworld[ix][iy].begehbar===1&&Oworld[ix][iy].aktEntity===0)Oworld[ix][iy].way = 0;
-            else Oworld[ix][iy].way = -1;
-          }
+        for (let ii = 0; ii < worldWidth*worldHeight; ii++){
+            if (Oworld.begehbar[ii]===1&&Oworld.aktEntity[ii]===0)Oworld.way[ii] = 0;
+            else Oworld.way[ii] = -1;
         }
       }else{
-        for (let ix = 1; ix < worldWidth-2; ix++){
-          for (let iy = 1; iy < worldHeight-2; iy++){
-            if (Oworld[ix][iy].begehbar===1)Oworld[ix][iy].way = 0;
-            else Oworld[ix][iy].way = -1;
+        for (let ii = 0; ii < worldWidth*worldHeight; ii++){
+            if (Oworld.begehbar[ii]===1)Oworld.way[ii] = 0;
+            else Oworld.way[iiy] = -1;
           }
-        }
       }
   }
   function findWay(world,startX,startY,goalX,goalY,coliEntity){
@@ -1306,28 +1317,12 @@
     let ir = 1
     let start,end;
     let loopStartX,loopEndX,loopStartY,loopEndY;
-    if (world[goalX][goalY].begehbar===1||world[goalX][goalY].typ===7||world[goalX][goalY].typ===8){
+    let worldPos = conv2Dto1D(goalX,goalY);
+    if (world.begehbar[worldPos]===1||world.typ[worldPos]===7||world.typ[worldPos]===8){
 
-        if (coliEntity===true){
+      coliMap(coliEntity)
 
-
-        for (let ix = 1; ix < worldWidth-2; ix++){
-          for (let iy = 1; iy < worldHeight-2; iy++){
-            if (world[ix][iy].begehbar===1&&world[ix][iy].aktEntity===0)world[ix][iy].way = 0;
-            else world[ix][iy].way = -1;
-          }
-        }
-      }else{
-        for (let ix = 1; ix < worldWidth-2; ix++){
-          for (let iy = 1; iy < worldHeight-2; iy++){
-            if (world[ix][iy].begehbar===1)world[ix][iy].way = 0;
-            else world[ix][iy].way = -1;
-          }
-        }
-      }
-
-
-      world[startX][startY].way = 1;
+      world.way[conv2Dto1D(startX,startY)] = 1;
       while (loop){
         loop = false;
 
@@ -1346,33 +1341,36 @@
           while (ix < loopEndX){
             iy = loopStartY;
             while (iy < loopEndY){
-              if (world[ix][iy].way === i-1 ){
+              worldPos = conv2Dto1D(ix,iy)
+              if (world.way[worldPos] === i-1 ){
 
                 let kosten = i;
-                if (world[ix+1][iy].way === 0){world[ix+1][iy].way = kosten;loop = true;}
-                if (world[ix][iy+1].way === 0){world[ix][iy+1].way = kosten;loop = true;}
-                if (world[ix-1][iy].way === 0){world[ix-1][iy].way = kosten;loop = true;}
-                if (world[ix][iy-1].way === 0){world[ix][iy-1].way = kosten;loop = true;}
+                let ww = worldWidth,wh=worldHeight;
+                if (world.way[worldPos+1] === 0){world.way[worldPos+1] = kosten;loop = true;}
+                if (world.way[worldPos+ww] === 0){world.way[worldPos+ww] = kosten;loop = true;}
+                if (world.way[worldPos-1] === 0){world.way[worldPos-1] = kosten;loop = true;}
+                if (world.way[worldPos-ww] === 0){world.way[worldPos-ww] = kosten;loop = true;}
 
-                if (world[ix+1][iy+1].way === 0 && (world[ix+1][iy].begehbar===1 && world[ix][iy+1].begehbar===1)){world[ix+1][iy+1].way = kosten;loop = true;}
-                if (world[ix+1][iy-1].way === 0 && (world[ix+1][iy].begehbar===1 && world[ix][iy-1].begehbar===1)){world[ix+1][iy-1].way = kosten;loop = true;}
-                if (world[ix-1][iy+1].way === 0 && (world[ix-1][iy].begehbar===1 && world[ix][iy+1].begehbar===1)){world[ix-1][iy+1].way = kosten;loop = true;}
-                if (world[ix-1][iy-1].way === 0 && (world[ix-1][iy].begehbar===1 && world[ix][iy-1].begehbar===1)){world[ix-1][iy-1].way = kosten;loop = true;}
+                if (world.way[worldPos+1+ww] === 0 && (world.begehbar[worldPos+1]===1 && world.begehbar[worldPos+ww]===1)){world.way[worldPos+1+ww] = kosten;loop = true;}
+                if (world.way[worldPos+1-ww] === 0 && (world.begehbar[worldPos+1]===1 && world.begehbar[worldPos-ww]===1)){world.way[worldPos+1-ww] = kosten;loop = true;}
+                if (world.way[worldPos-1+ww] === 0 && (world.begehbar[worldPos-1]===1 && world.begehbar[worldPos+ww]===1)){world.way[worldPos-1+ww] = kosten;loop = true;}
+                if (world.way[worldPos-1-ww] === 0 && (world.begehbar[worldPos-1]===1 && world.begehbar[worldPos-ww]===1)){world.way[worldPos-1-ww] = kosten;loop = true;}
                 //(ix+2 > goalX && ix-2 < goalX && iy+2 > goalY && iy-2 < goalY)
                 if (ix+2 > goalX && ix-2 < goalX && iy+2 > goalY && iy-2 < goalY){
                     
                   let aktPosX = goalX, aktPosY=goalY;
                   way[i] = -1;
                   for (let iw = i-1;iw>=1;iw--){
-                    if (world[aktPosX+1][aktPosY].way === iw){way[iw] = [-1,0];aktPosX++;continue;}
-                    if (world[aktPosX][aktPosY+1].way === iw){way[iw] = [0,-1];aktPosY++;continue;}
-                    if (world[aktPosX-1][aktPosY].way === iw){way[iw] = [+1,0];aktPosX--;continue;}
-                    if (world[aktPosX][aktPosY-1].way === iw){way[iw] = [0,+1];aktPosY--;continue;}
+                    worldPos = conv2Dto1D(aktPosX,aktPosY)
+                    if (world.way[worldPos+1] === iw){way[iw] = [-1,0];aktPosX++;continue;}
+                    if (world.way[worldPos+ww] === iw){way[iw] = [0,-1];aktPosY++;continue;}
+                    if (world.way[worldPos-1] === iw){way[iw] = [+1,0];aktPosX--;continue;}
+                    if (world.way[worldPos-ww] === iw){way[iw] = [0,+1];aktPosY--;continue;}
 
-                    if (world[aktPosX+1][aktPosY+1].way === iw){way[iw] = [-1,-1];aktPosX++;aktPosY++;continue;}
-                    if (world[aktPosX+1][aktPosY-1].way === iw){way[iw] = [-1,+1];aktPosX++;aktPosY--;continue;}
-                    if (world[aktPosX-1][aktPosY+1].way === iw){way[iw] = [+1,-1];aktPosX--;aktPosY++;continue;}
-                    if (world[aktPosX-1][aktPosY-1].way === iw){way[iw] = [+1,+1];aktPosX--;aktPosY--;continue;}
+                    if (world.way[worldPos+1+ww] === iw){way[iw] = [-1,-1];aktPosX++;aktPosY++;continue;}
+                    if (world.way[worldPos+1-ww] === iw){way[iw] = [-1,+1];aktPosX++;aktPosY--;continue;}
+                    if (world.way[worldPos-1+ww] === iw){way[iw] = [+1,-1];aktPosX--;aktPosY++;continue;}
+                    if (world.way[worldPos-1-ww] === iw){way[iw] = [+1,+1];aktPosX--;aktPosY--;continue;}
 
                   }
 
@@ -1454,7 +1452,8 @@
     if ((aktEntity.worldPos[0]===aktEntity.TotalGoalX && aktEntity.worldPos[1]===aktEntity.TotalGoalY) && aktEntity.Progress===0){
       for (let iy = -1;iy <2;iy++){
         for (let ix = -1;ix <2;ix++){
-          if (world[aktEntity.worldPos[0]+ix][aktEntity.worldPos[1]+iy].begehbar===1 && world[aktEntity.worldPos[0]+ix][aktEntity.worldPos[1]+iy].aktEntity===0){
+          let worldPos = conv2Dto1D(aktEntity.worldPos[0]+ix,aktEntity.worldPos[1]+iy)
+          if (world.begehbar[worldPos]===1 && world.aktEntity[worldPos]===0){
             aktEntity.goalX=aktEntity.TotalGoalX+=ix;
             aktEntity.goalY=aktEntity.TotalGoalY+=iy;
             aktEntity.Progress = 1;
@@ -1470,10 +1469,12 @@
       let move = [0,0];
       let aktEntity = EntityList[Entity];
       let world = aktEntity.aktWorld;
+      let worldPos = conv2Dto1D(aktEntity.worldPos[0],aktEntity.worldPos[1])
           //gotoNext(Entity);
-      if(aktEntity.hp>0||world[aktEntity.worldPos[0]][aktEntity.worldPos[1]].aktEntity===Entity){//Entety lebt?
+      if(aktEntity.hp>0||world.aktEntity[worldPos]===Entity){//Entety lebt?
       if ((aktEntity.worldPos[0]!==aktEntity.TotalGoalX || aktEntity.worldPos[1]!==aktEntity.TotalGoalY)||aktEntity.Progress!==0){
-          if (world[aktEntity.goalX][aktEntity.goalY].aktEntity===0&&world[aktEntity.goalX][aktEntity.goalY].begehbar===1){
+          worldPos = conv2Dto1D(aktEntity.goalX,aktEntity.goalY)
+          if (world.aktEntity[worldPos]===0&&world.begehbar[worldPos]===1){
 
             aktEntity.Progress -= MoveableEntity[aktEntity.typ].speed;
 
@@ -1487,7 +1488,7 @@
               aktEntity.direction[0] = move[0]+1;
               aktEntity.direction[1] = move[1]+1;
 
-              world[aktEntity.worldPos[0]][aktEntity.worldPos[1]].aktEntity = 0;
+              world.aktEntity[conv2Dto1D(aktEntity.worldPos[0],aktEntity.worldPos[1])] = 0;
 
               aktEntity.aktWayPos++;
               if (aktEntity.way[aktEntity.aktWayPos]!==-1){     
@@ -1499,14 +1500,15 @@
 
               aktEntity.worldPos[0]+=move[0];
               aktEntity.worldPos[1]+=move[1];
-              world[aktEntity.worldPos[0]][aktEntity.worldPos[1]].aktEntity = Entity;
+              world.aktEntity[conv2Dto1D(aktEntity.worldPos[0],aktEntity.worldPos[1])] = Entity;
               worldDiscovered(world,aktEntity.worldPos[0],aktEntity.worldPos[1],MoveableEntity[aktEntity.typ].view)
             }
             aktEntity.wait=0;
             aktEntity.waitTry=1;
           }
           else{
-            if (world[aktEntity.goalX][aktEntity.goalY].aktEntity!==0&&world[aktEntity.goalX][aktEntity.goalY].typ!==7&&world[aktEntity.goalX][aktEntity.goalY].typ!==8)gotoNext(world[aktEntity.goalX][aktEntity.goalY].aktEntity);
+            worldPos = conv2Dto1D(aktEntity.goalX,aktEntity.goalY)
+            if (world.aktEntity[worldPos]!==0&&world.typ[worldPos]!==7&&world.typ[worldPos]!==8)gotoNext(world.aktEntity[worldPos]);
             if(aktEntity.Progress>0)aktEntity.Progress-=MoveableEntity[aktEntity.typ].speed;
             else if(aktEntity.Progress<0)aktEntity.Progress+=1;
             else if (aktEntity.Progress===0&&(aktEntity.goalX!==aktEntity.TotalGoalX)&&(aktEntity.goalY!==aktEntity.TotalGoalY)){
@@ -1527,21 +1529,22 @@
           }
         }
         else{
-          switch(world[aktEntity.worldPos[0]][aktEntity.worldPos[1]].typ)
+          worldPos = conv2Dto1D(aktEntity.worldPos[0],aktEntity.worldPos[1])
+          switch(world.typ[worldPos])
           {
             case 7:
-            if(Uworld[aktEntity.worldPos[0]][aktEntity.worldPos[1]].aktEntity===0){
+            if(Uworld.aktEntity[worldPos]===0){
             aktEntity.aktWorld = Uworld; 
-            Oworld[aktEntity.worldPos[0]][aktEntity.worldPos[1]].aktEntity = 0;
-            Uworld[aktEntity.worldPos[0]][aktEntity.worldPos[1]].aktEntity = Entity;
+            Oworld.aktEntity[worldPos] = 0;
+            Uworld.aktEntity[worldPos] = Entity;
             gotoNext(Entity);
             }
             break;
             case 8:
-            if(Oworld[aktEntity.worldPos[0]][aktEntity.worldPos[1]].aktEntity===0){
+            if(Oworld.aktEntity[worldPos]===0){
             aktEntity.aktWorld = Oworld; 
-            Uworld[aktEntity.worldPos[0]][aktEntity.worldPos[1]].aktEntity = 0;
-            Oworld[aktEntity.worldPos[0]][aktEntity.worldPos[1]].aktEntity = Entity;
+            Uworld.aktEntity[worldPos] = 0;
+            Oworld.aktEntity[worldPos] = Entity;
             gotoNext(Entity);
             }
             break;
@@ -1645,8 +1648,8 @@
     canvas.height = height;
     canvasGround.width = width;
     canvasGround.height = height;
-    context.imageSmoothingEnabled = false;//Chrome
-    context.mozImageSmoothingEnabled = false;//Firefox
+    context.imageSmoothingEnabled = contextGround.imageSmoothingEnabled = false;//Chrome
+    context.mozImageSmoothingEnabled = contextGround.mozImageSmoothingEnabled = false;//Firefox
     context.font = "12px Arial";
     context.fillStyle = "#000";
     groundRender = true;

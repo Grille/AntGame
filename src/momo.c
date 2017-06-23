@@ -1,7 +1,14 @@
 let code = `// momo code
 
+  //Global
+  int worldWidth  = 0;
 
-  extern int convertToBin(int input) {
+  //Global get/set
+  extern void set_WorldWidth(int input){worldWidth = input;}
+  extern int get_WorldWidth(){return worldWidth;};
+
+  //Math
+  extern int convDezToBin(int input) {
     if (input == 0) {return 0;}
     else if (input == 1) {return 1;}
     else if (input == 10) {return 2;}
@@ -37,8 +44,12 @@ extern int wasmFindEnvorimentCode(int envmode,int typ, int typO,int typR,int typ
       if (typL == 0 || typL == 2) {worldEnv3 = 1;}
     }
     else {return 0}
-    convertToBin(worldEnv0 * 1000 + worldEnv1 * 100 + worldEnv2 * 10 + worldEnv3 * 1);
+    convDezToBin(worldEnv0 * 1000 + worldEnv1 * 100 + worldEnv2 * 10 + worldEnv3 * 1);
 };
+
+ extern int conv2Dto1D(int posX,int posY) {
+   return (posX + (posY * worldWidth));
+ };
 
 
 `;
