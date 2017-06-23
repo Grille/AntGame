@@ -927,7 +927,7 @@
           //let ground = aktWorld[aktPosX][aktPosY].ground;
           let staticEntity = StaticEntity[typ];
 
-          if ((true||aktWorld.discovered[worldPos] === 1) && staticEntity.ready === true){
+          if ((false||aktWorld.discovered[worldPos] === 1) && staticEntity.ready === true){
 
             let envcode = findEnvorimentCode(aktWorld,aktPosX, aktPosY, staticEntity.envmode);//env code for auto tile (0000 - 1111)
             let version = aktWorld.version[worldPos]; //graphic version
@@ -1303,7 +1303,7 @@
       }else{
         for (let ii = 0; ii < worldWidth*worldHeight; ii++){
             if (Oworld.begehbar[ii]===1)Oworld.way[ii] = 0;
-            else Oworld.way[iiy] = -1;
+            else Oworld.way[ii] = -1;
           }
       }
   }
