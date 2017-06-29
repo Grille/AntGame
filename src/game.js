@@ -2,98 +2,97 @@
 //--class--------------------------------------------------------------------------------------------------------------------------------------------------------
   class MyMouseEvent{
     constructor() {
-        this.isRightMB = false;
-        this.x = 0;
-        this.y = 0;
-        this.dx = 0;
-        this.dy = 0;
-        this.mode = 0;
-        this.down = false;
+      this.isRightMB = false;
+      this.x = 0;
+      this.y = 0;
+      this.dx = 0;
+      this.dy = 0;
+      this.mode = 0;
+      this.down = false;
     }
     setMouse(e,mode) { 
-        //console.log("-----------------------------------------------------------------------sm")
-        let isRightMB;
-        if ("which" in e)  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
-        this.isRightMB = e.which === 3; 
-        else if ("button" in e)  // IE, Opera 
-        this.isRightMB = e.button === 2; 
-		this.x = e.clientX
-		this.y = e.clientY
-        this.mode = mode;
-        switch (mode)
-        {
-          case 0:break;
-          case 1:
-          this.down = true;
-          this.dx = this.x;
-          this.dy = this.y;
-          break;
-          case 2:
-          this.down = false;
-          break;
-        }
+      //console.log("-----------------------------------------------------------------------sm")
+      let isRightMB;
+      if ("which" in e)  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+      this.isRightMB = e.which === 3; 
+      else if ("button" in e)  // IE, Opera 
+      this.isRightMB = e.button === 2; 
+      this.x = e.clientX
+      this.y = e.clientY
+      this.mode = mode;
+      switch (mode)
+      {
+        case 0:break;
+        case 1:
+        this.down = true;
+        this.dx = this.x;
+        this.dy = this.y;
+        break;
+        case 2:
+        this.down = false;
+        break;
+      }
         //console.log("mode:"+this.mode+ " down:"+this.down)
     }
   }
     
   class GUI{
     constructor(path,align,posX,posY,width,height) {
-        this.posX = posX;
-        this.posY = posY;
-        this.width = width;
-        this.height = height;
-        this.alignX=0;this.alignY=0;
-        this.image = loadUi(path);
-        this.enabled = true;
+      this.posX = posX;
+      this.posY = posY;
+      this.width = width;
+      this.height = height;
+      this.alignX=0;this.alignY=0;
+      this.image = loadUi(path);
+      this.enabled = true;
 
-        switch (align){
-          case 0:this.alignX=0;this.alignY=0;break; //ol
-          case 1:this.alignX=1;this.alignY=0;break; //or
-          case 2:this.alignX=0;this.alignY=1;break; //ul
-          case 3:this.alignX=1;this.alignY=1;break; //ur
-        }
-
+      switch (align){
+        case 0:this.alignX=0;this.alignY=0;break; //ol
+        case 1:this.alignX=1;this.alignY=0;break; //or
+        case 2:this.alignX=0;this.alignY=1;break; //ul
+        case 3:this.alignX=1;this.alignY=1;break; //ur
+      }
     }
     render(){
-        if (this.image.ready===true&&this.enabled===true){
-          context.drawImage(
-          this.image.sprite[0].texture,
-          0, 0,
-          this.image.sprite[0].width, this.image.sprite[0].height,
-          this.posX+(width*this.alignX), this.posY+(height*this.alignY),
-          this.width, this.height
-          );
-        }
+      if (this.image.ready===true&&this.enabled===true){
+        context.drawImage(
+        this.image.sprite[0].texture,
+        0, 0,
+        this.image.sprite[0].width, this.image.sprite[0].height,
+        this.posX+(width*this.alignX), this.posY+(height*this.alignY),
+        this.width, this.height
+        );
+      }
     }
   }
   class Button extends GUI{
     constructor(path,align,posX,posY,width,height) {
-        super(path,align,posX,posY,width,height);
+      super(path,align,posX,posY,width,height);
     }
     clicked() { //-<<-<>->>-<>-<<-<>->>-
-        if (  
-          mouse.x > this.posX+(width*this.alignX)  &&  
-          mouse.y > this.posY+(height*this.alignY)  &&  
-          mouse.x < this.posX+(width*this.alignX)+this.width  &&  
-          mouse.y < this.posY+(height*this.alignY)+this.height  &&
-          this.enabled===true
-          )
-          {return true;}
-        return false;
+      if (  
+        mouse.x > this.posX+(width*this.alignX)  &&  
+        mouse.y > this.posY+(height*this.alignY)  &&  
+        mouse.x < this.posX+(width*this.alignX)+this.width  &&  
+        mouse.y < this.posY+(height*this.alignY)+this.height  &&
+        this.enabled===true
+        )
+        {return true;}
+      return false;
     }
     render(){
-        if (this.image.ready===true&&this.enabled===true){
-          let width = (this.image.sprite[0].width/3)|0;
-          let hj=0
-          if (this.clicked()===true){hj=1;if(mouse.down===true){hj=2}}
-          context.drawImage(
-          this.image.sprite[0].texture,
-          width*hj, 0,
-          width, this.image.sprite[0].height,
-          this.posX+width*this.alignX, this.posY+height*this.alignY,
-          this.width, this.height
-          );
-        }
+      if (this.image.ready===true&&this.enabled===true){
+        let width = (this.image.sprite[0].width/3)|0;
+        let hj=0
+        if (this.clicked()===true){hj=1;if(mouse.down===true){hj=2}}
+        context.drawImage(
+        this.image.sprite[0].texture,
+        width*hj, 0,
+        width, this.image.sprite[0].height,
+        this.posX+width*this.alignX, this.posY+height*this.alignY,
+        this.width, this.height
+        );
+      }
     }
   }
 
@@ -105,7 +104,6 @@
 
   //--System/Render--
   let last = Date.now();
-  let body = document.getElementById("body");
   let context = canvas.getContext("2d");
   let contextGround = canvasGround.getContext("2d");
   let animator = [0];
@@ -142,7 +140,7 @@
   let EntityList = [];
 
   //--GameData--
-  let MaxEntity = 200;
+  let MaxEntity = 2000;
   let MoveableEntity = []; //[loadMoveableEntity]
   let StaticEntity = [];   //[loadStaticEntity()]
   let GroundTexture = [];  //[loadStaticEntity()]
@@ -206,47 +204,47 @@
   function loadStaticEntity(path,size,version,envmode,begehbar) {
     
     let StaticEntity = {
-        size: size,
-        envmode: envmode,
-        version: version,
-        begehbar: begehbar,
-        ready: false,
-        sprite: null,
+      size: size,
+      envmode: envmode,
+      version: version,
+      begehbar: begehbar,
+      ready: false,
+      sprite: null,
     };
     StaticEntity.sprite = loadImageArray(StaticEntity, path,size,version,envmode);
     return (StaticEntity);
   };
   function loadImage(object, path) {
     let sprite = [];
-        let img = new Image();
-        img.onload = () => {
-        sprite[0] = {
-        texture: imgToCanvas(img),
-        width: img.width,
-        height: img.height};
-        object.ready = true;
-        };
-        img.src = path+".png";
-        // console.log("----------------------------");
-        // console.log(sprite);
+    let img = new Image();
+    img.onload = () => {
+      sprite[0] = {
+      texture: imgToCanvas(img),
+      width: img.width,
+      height: img.height};
+      object.ready = true;
+    };
+    img.src = path+".png";
+    // console.log("----------------------------");
+    // console.log(sprite);
     return sprite; //     ?!
   };
   function loadMoveableEntity(path,hp,view,speed,power) {
     let MoveableEntity = {
-        hp: hp,
-        speed: speed,
-        view: view,
-        power: power,
-        ready: false,
-        sprite: null,
+      hp: hp,
+      speed: speed,
+      view: view,
+      power: power,
+      ready: false,
+      sprite: null,
     };
     MoveableEntity.sprite = loadImage(MoveableEntity, path);
     return (MoveableEntity);
   };
   function loadUi(path) {
     let Ui = {
-        ready: false,
-        sprite: null,
+      ready: false,
+      sprite: null,
     };
     Ui.sprite = loadImage(Ui, path);
     return (Ui);
@@ -258,6 +256,18 @@
 //--initGame-----------------------------------------------------------------------------------------------------------------------------------------------------
 
   function initGame(){
+    loadAssets();
+    buildHTML();
+    addEvents();
+
+    setMouse(mouse,0);setMouse(mouse,1);setMouse(mouse,2);
+    buildMap(128*2,128*2);
+
+    //Start Game
+    logikTimer();       // run logik loop
+    renderTimer();      // run render loop
+  };
+  function loadAssets(){
     Ui = 
     [
       loadUi("./assets/png/Ui/RB"),//0
@@ -293,7 +303,7 @@
     ]
     StaticEntity = 
     [
-            loadStaticEntity("./assets/png/Natur/Berg",1,1,0,1),//0
+      loadStaticEntity("./assets/png/Natur/Berg",1,1,0,1),//0
       loadStaticEntity("./assets/png/Natur/Berg",1,1,0,1),//1
       loadStaticEntity("./assets/png/Natur/Wasser/Wasser",1,1,3,0),
       loadStaticEntity("./assets/png/Natur/Wald/Wald",1,5,0,0),
@@ -322,13 +332,7 @@
 
     EntityList[0] = {live: false}
     for (let i = 0;i<UiButton.length;i++){UiButton[i].enabled=false;}
-    buildHTML();
-    addEvents();
-    setMouse(mouse,0);setMouse(mouse,1);setMouse(mouse,2);
-    buildMap(128,128);
-    logikTimer();       // run logik loop
-    renderTimer();      // run render loop
-  };
+  }
   function buildHTML(){
     var button = document.createElement('p');
     button.textContent = 'Click to start game in fullscreenmode\n (recommended for Firefox, else use F11)';
@@ -368,136 +372,22 @@
       mouse.setMouse(e,1);
       lastAktPlayerPosX = aktPlayerPosX;
       lastAktPlayerPosY = aktPlayerPosY;
-      //console.log(mouse);
-      // if (mouse.isRightMB===true) {
-      //   mapMoveX = ((mouse.x - (width/2)) / 64)|0;
-      //   mapMoveY = ((mouse.y - (height / 2)) / 32)|0;
-      //   mapScroal();
-      //   mapMoveX = 0;
-      //   mapMoveY = 0;
-      // }
     });
+
     window.addEventListener("mouseup", (e) => {
       mouse.setMouse(e,2);
       let aktWorld;
       if (worldMode===0) aktWorld = Oworld;
       else aktWorld = Uworld;
 
-      if (buttonClick(0,height-100,100,100)===1){
-        if (worldMode===0)worldMode = 1;
-        else worldMode = 0;
-        groundRender = true;
-        return
-      }
 
       if (mouse.isRightMB===true){ //RightMouse
-
-
-
-        mapMoveX = 0; mapMoveY = 0;
-        for (let ii = 0;ii<=MaxEntity;ii++){
-          if (EntityList[ii] !== void 0 && EntityList[ii].live===true && EntityList[ii].selection===true){
-
-              EntityList[ii].TotalGoalX = aktPlayerPosX;EntityList[ii].TotalGoalY = aktPlayerPosY;
-              EntityList[ii].way =findWay(EntityList[ii].aktWorld,EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],aktPlayerPosX,aktPlayerPosY,false);
-              EntityList[ii].aktWayPos = 1;
-              if (EntityList[ii].way[1] !== -1){
-                EntityList[ii].goalX = EntityList[ii].worldPos[0]+EntityList[ii].way[EntityList[ii].aktWayPos][0],
-                EntityList[ii].goalY =EntityList[ii].worldPos[1]+EntityList[ii].way[EntityList[ii].aktWayPos][1]
-              }
-
-          }
-        }
+        clickOnMapComand(aktWorld);
       }
-
-
-
-      else { //LeftMouse
-
-
-
-        if (UiButton[0].clicked() === true||UiButton[0].clicked() === true){
-          console.log(lastbut);
-          for (let ii = 0;ii<=MaxEntity;ii++){
-            if (EntityList[ii] !== void 0 && EntityList[ii].live===true && EntityList[ii].selection===true){
-            switch (EntityList[ii].typ)
-            {
-              case 0:
-              case 2:
-              killEntity(ii);
-              inGameBuild(EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],100)
-
-              addEntity(Uworld,1,EntityList[ii].worldPos)
-
-              // for (let i = 10; ix < worldWidth-20; ix++){
-              //   for (let iy = 10; iy < worldHeight-20; iy++){
-              //     if (Math.random() <= 0.8 && Uworld.begehbar[conv2Dto1D(ix,iy)] === 1 && Uworld.aktEntity[conv2Dto1D(ix,iy)].aktEntity===-1) {
-              //       //addEntity(Uworld,2,ix,iy);
-              //       addEntity(Uworld,2,ix,iy);
-              //     }
-              //   }
-              // }
-
-              addEntity(Oworld,2,[EntityList[ii].worldPos[0],EntityList[ii].worldPos[1]+1])
-              addEntity(Oworld,2,[EntityList[ii].worldPos[0],EntityList[ii].worldPos[1]-1])
-              addEntity(Oworld,2,[EntityList[ii].worldPos[0]+1,EntityList[ii].worldPos[1]])
-              addEntity(Oworld,2,[EntityList[ii].worldPos[0]-1,EntityList[ii].worldPos[1]])
-              break;
-              //            case 2:
-              // inGameBuild(EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],2)
-
-              // break;
-            }
-            }
-          }
+      else/*(mouse.isRightMB===false)*/{ //LeftMouse
+        if (clickOnButton()===false){
+          clickOnMapSelect(aktWorld)
         }
-        else if (UiButton[1].clicked() === true){
-                for (let ii = 0;ii<=MaxEntity;ii++){
-            if (EntityList[ii] !== void 0 && EntityList[ii].live===true && EntityList[ii].selection===true){
-            switch (EntityList[ii].typ)
-            {
-              case 2:
-          inGameBuild(EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],2)
-                }}}
-        }
-        else if (UiButton[7].clicked() === true){
-          addEntity(Uworld,2,[aktSelectetStaticposX,aktSelectetStaticposY])
-          gotoNext(world.aktEntity[conv2Dto1D(aktSelectetStaticposX,aktSelectetStaticposY)]);
-        }
-        else{
-          aktSelectetStaticTyp = aktWorld.typ[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)];
-          aktSelectetStaticposX = aktPlayerPosX;
-          aktSelectetStaticposY = aktPlayerPosY;
-          switch (keyCode)
-          {
-            case 16: //Shift
-              if (aktWorld.aktEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]!==-1){
-                EntityList[aktWorld.aktEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].selection = !EntityList[aktWorld.aktEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].selection;
-                aktSelectetEntityTyp=-1;}
-              else if (aktWorld.resEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]!==-1){
-                EntityList[aktWorld.resEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].selection = !EntityList[aktWorld.resEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].selection;
-                aktSelectetEntityTyp=-1;}
-            break
-            default: 
-              for (let ii = 0;ii<=MaxEntity;ii++){
-                if (EntityList[ii] !== void 0 && EntityList[ii].live===true){
-                  EntityList[ii].selection = false;
-                }
-              }
-              aktSelectetEntityNumber=0;
-              aktSelectetEntityTyp=-1;
-              if (aktWorld.aktEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]!==-1) {
-                EntityList[aktWorld.aktEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].selection = true;
-                aktSelectetEntityTyp=EntityList[aktWorld.aktEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].typ;
-                aktSelectetEntityNumber=1;}
-              else if (aktWorld.resEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]!==-1) {
-                EntityList[aktWorld.resEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].selection = true;
-                aktSelectetEntityTyp=EntityList[aktWorld.resEntity[conv2Dto1D(aktPlayerPosX,aktPlayerPosY)]].typ;
-                aktSelectetEntityNumber=1;}
-            break;
-          }
-        }
-
         for (let i = 0;i<UiButton.length;i++){UiButton[i].enabled=false;}
         switch (aktSelectetStaticTyp){
           case 14:UiButton[7].enabled=true;break;
@@ -512,11 +402,19 @@
             }
           break;
         }
-
-
-
-      } //EndMouse
+      }
     });
+
+    window.addEventListener("dblclick", (e) => {   
+      let aktWorld;
+      if (worldMode===0) aktWorld = Oworld;
+      else aktWorld = Uworld;
+
+      if (clickOnButton()===false){
+        dbClickOnMapSelect(aktWorld)
+      }
+    });
+
     window.addEventListener("resize", resize); {
         resize();
     }
@@ -587,7 +485,7 @@
       DebugString[1]=Date.now()-date;
 
       date = Date.now();
-      if (Timer250>250){
+      while (Timer250>250){
         Timer250-=250;
         setAnimator();
         groundRender = true;
@@ -595,7 +493,7 @@
       DebugString[2]=Date.now()-date;
 
       date = Date.now();
-      if (Timer500>500){
+      while (Timer500>500){
         UiButton[0].clicked();
         Timer500-=500;
         if (worldMode === 0)worldMap = buildWorldMap(Oworld);
@@ -606,7 +504,6 @@
       DebugString[0]= Date.now() - totalDate;
     Timer = Date.now();
     setTimeout(logikTimer, 10);
-    //setImmediate(logikTimer);
   }
 
 
@@ -615,30 +512,6 @@
 //--BuildWorld---------------------------------------------------------------------------------------------------------------------------------------------------
 
   function buildWorldarray(width,height,typ){
-
-      // let world = [];
-      // for (let yy = 0; yy < width; ++yy) {
-      //   world[yy] = [];
-      //   for (let xx = 0; xx < height; ++xx) {
-      //     world[yy][xx] = {
-      //       typ: typ,
-      //       version: 0,
-      //       animation: 0,
-      //       height: 0,
-      //       referenceX: 0,
-      //       referenceY: 0,
-      //       aktEntity: 0,  
-      //       resEntity: 0,  
-      //       discovered: 1,  
-      //       owner:0  ,
-      //       way:0,
-      //       debug:0,
-      //       debug2:0,
-      //       wayKost:0,
-      //       begehbar:0
-      //     };
-      //   };
-      // };
 
     let size = (width * height);
     let world = 
@@ -658,9 +531,8 @@
       debug2: new Uint8Array(size),
       wayKost: new Uint8Array(size),
       begehbar: new Uint8Array(size),
+      view: new Uint8Array(size),
     };
-
-    //for (let ii = 0; ii < size-3; ii++) world.typ[ii] = 3;
 
     for (let ii = 0; ii < width; ii++) world.typ[conv2Dto1D(ii,0)] = 0;
     for (let ii = 0; ii < width; ii++) world.typ[conv2Dto1D(ii,height - 1)] = 0;
@@ -810,6 +682,7 @@
     canvas.height = worldHeight*2;
     let mod = context.createImageData(canvas.width, canvas.height);
     let imgData = context.getImageData(0, 0, canvas.width, canvas.height);
+    let i = 0;
     for (let x = 0; x < worldWidth; x++) {
       for (let y = 0; y < worldHeight; y++) {
 
@@ -818,7 +691,7 @@
         let typ =world.typ[conv2Dto1D(x,y)];
         if (world.discovered[conv2Dto1D(x,y)] === 1 &&typ!==9)
         {
-          if(world.owner[conv2Dto1D(x,y)]!==0||world.aktEntity[conv2Dto1D(x,y)]!==0){
+          if(world.owner[i]!==0||world.aktEntity[i]!==0){
             mod.data[offset]     = 0;//r
             mod.data[offset + 1] = 255;//g
             mod.data[offset + 2] = 0;//b
@@ -843,6 +716,7 @@
 
 
       }
+      i++;
     }
     let offset = (imgData.width * (2) + worldWidth-2) * 4;
     mod.data[offset]     = 255;//r
@@ -890,7 +764,7 @@
     //   //console.log("X="+posX+"Y="+posY+"\nCode()"+worldEnvironment[0] +";"+ worldEnvironment[1] +";" + worldEnvironment[2] +";"+ worldEnvironment[3] +")")
     // return convertToBin(worldEnvironment[0] * 1000 + worldEnvironment[1] * 100 + worldEnvironment[2] * 10 + worldEnvironment[3] * 1);
   }
-  function render(context, contextGround,aktWorld) {
+  function render(context, contextGround,aktWorld) { 
     if (context === void 0)return;//canvas not ready stop render
     let cscale = Math.round(scale*16)/16;
     let date = Date.now();
@@ -904,7 +778,7 @@
     let posy = 0;
     let addPosX = (width / 64 + 2)|0 ;
     let addPosY = 1;
-
+    aktWorld.view = new Uint8Array(worldWidth*worldHeight);
     let aktPosX = ((mapPosX|0) + addPosX + addPosY);
     let aktPosY = ((mapPosY|0) + addPosX - addPosY);
     for (let iy = -1; iy <= ((height/16)/cscale)|0; iy++) {
@@ -1269,7 +1143,8 @@
           aktWorld:world,
           wayLenght:0,
           way: [-1],
-          hp: MoveableEntity[typ].hp
+          hp: MoveableEntity[typ].hp,
+          commandGroup: -1
         }
 
         world.aktEntity[conv2Dto1D(worldPos[0],worldPos[1])] = ii;
@@ -1558,7 +1433,7 @@
 
 
 //--Effents------------------------------------------------------------------------------------------------------------------------------------------------------
-
+  //addEvents() //350
   function mapScroal(timeFactor){
     // mouseEffents();
 
@@ -1586,10 +1461,8 @@
     mouse = e || window.event;
     let isRightMB;
 
-    if ("which" in e)  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
-      isRightMB = e.which === 3; 
-    else if ("button" in e)  // IE, Opera 
-      isRightMB = e.button === 2; 
+    if ("which" in e) isRightMB = e.which === 3; // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+    else if ("button" in e) isRightMB = e.button === 2; // IE, Opera 
     mouse.isRightMB = isRightMB
     mouse.x = mouse.clientX
     mouse.y = mouse.clientY
@@ -1636,10 +1509,125 @@
     if (e.x > width-10) mapMoveX = 1;
     if (e.y > height-10) mapMoveY = 1;
   };
+
   function buttonClick(posX,posY,width,height){
     if (mouse.x >= posX && mouse.x <= posX+width && mouse.y >= posY && mouse.y <= posY+height) return 1;
     return 0;
   }
+
+  function dbClickOnMapSelect(aktWorld){
+
+    let worldPos = conv2Dto1D(aktPlayerPosX,aktPlayerPosY);
+    aktSelectetStaticTyp = aktWorld.typ[worldPos];
+    aktSelectetStaticposX = aktPlayerPosX;
+    aktSelectetStaticposY = aktPlayerPosY;
+
+    for (let ii = 0;ii<worldWidth*worldHeight;ii++){
+      if ((EntityList[aktWorld.aktEntity[worldPos]].typ === EntityList[aktWorld.aktEntity[ii]].typ || aktWorld.view[ii] === true) === true){
+        EntityList[aktWorld.aktEntity[ii]].selection = true;
+      }
+    }
+
+  }
+
+  function clickOnMapSelect(aktWorld){
+
+    let worldPos = conv2Dto1D(aktPlayerPosX,aktPlayerPosY);
+    aktSelectetStaticTyp = aktWorld.typ[worldPos];
+    aktSelectetStaticposX = aktPlayerPosX;
+    aktSelectetStaticposY = aktPlayerPosY;
+    switch (keyCode)
+    {
+      case 16: //Shift
+        if (aktWorld.aktEntity[worldPos]!==-1){
+          EntityList[aktWorld.aktEntity[worldPos]].selection = !EntityList[aktWorld.aktEntity[worldPos]].selection;
+          aktSelectetEntityTyp=-1;}
+        else if (aktWorld.resEntity[worldPos]!==-1){
+          EntityList[aktWorld.resEntity[worldPos]].selection = !EntityList[aktWorld.resEntity[worldPos]].selection;
+          aktSelectetEntityTyp=-1;}
+      break
+      default: 
+        for (let ii = 0;ii<=MaxEntity;ii++){
+          if (EntityList[ii] !== void 0 && EntityList[ii].live===true){
+            EntityList[ii].selection = false;
+          }
+        }
+        aktSelectetEntityNumber=0;
+        aktSelectetEntityTyp=-1;
+        if (aktWorld.aktEntity[worldPos]!==-1) {
+          EntityList[aktWorld.aktEntity[worldPos]].selection = true;
+          aktSelectetEntityTyp=EntityList[aktWorld.aktEntity[worldPos]].typ;
+          aktSelectetEntityNumber=1;}
+        else if (aktWorld.resEntity[worldPos]!==-1) {
+          EntityList[aktWorld.resEntity[worldPos]].selection = true;
+          aktSelectetEntityTyp=EntityList[aktWorld.resEntity[worldPos]].typ;
+          aktSelectetEntityNumber=1;}
+      break;
+    }
+
+  }
+
+  function clickOnMapComand(aktWorld){
+    mapMoveX = 0; mapMoveY = 0;
+    for (let ii = 0;ii<=MaxEntity;ii++){
+      if (EntityList[ii] !== void 0 && EntityList[ii].live===true && EntityList[ii].selection===true){
+
+          EntityList[ii].TotalGoalX = aktPlayerPosX;EntityList[ii].TotalGoalY = aktPlayerPosY;
+          EntityList[ii].way =findWay(EntityList[ii].aktWorld,EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],aktPlayerPosX,aktPlayerPosY,false);
+          EntityList[ii].aktWayPos = 1;
+          if (EntityList[ii].way[1] !== -1){
+            EntityList[ii].goalX = EntityList[ii].worldPos[0]+EntityList[ii].way[EntityList[ii].aktWayPos][0],
+            EntityList[ii].goalY =EntityList[ii].worldPos[1]+EntityList[ii].way[EntityList[ii].aktWayPos][1]
+          }
+
+      }
+    }
+  
+  }
+
+  function clickOnButton(){
+    if (UiButton[0].clicked() === true||UiButton[0].clicked() === true){
+      for (let ii = 0;ii<=MaxEntity;ii++){
+        if (EntityList[ii] !== void 0 && EntityList[ii].live===true && EntityList[ii].selection===true){
+          switch (EntityList[ii].typ)
+          {
+            case 0:
+            case 2:
+            killEntity(ii);
+            inGameBuild(EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],100)
+
+            addEntity(Uworld,1,EntityList[ii].worldPos)
+
+            addEntity(Oworld,2,[EntityList[ii].worldPos[0],EntityList[ii].worldPos[1]+1])
+            addEntity(Oworld,2,[EntityList[ii].worldPos[0],EntityList[ii].worldPos[1]-1])
+            addEntity(Oworld,2,[EntityList[ii].worldPos[0]+1,EntityList[ii].worldPos[1]])
+            addEntity(Oworld,2,[EntityList[ii].worldPos[0]-1,EntityList[ii].worldPos[1]])
+            break;
+          }
+        }
+      }
+      return true
+    }
+    else if (UiButton[1].clicked() === true){
+      for (let ii = 0;ii<=MaxEntity;ii++){
+        if (EntityList[ii] !== void 0 && EntityList[ii].live===true && EntityList[ii].selection===true){
+          switch (EntityList[ii].typ)
+          {
+            case 2:
+            inGameBuild(EntityList[ii].worldPos[0],EntityList[ii].worldPos[1],2)
+          }
+        }
+      }
+      return true
+    }
+    else if (UiButton[7].clicked() === true){
+      addEntity(Uworld,2,[aktSelectetStaticposX,aktSelectetStaticposY])
+      gotoNext(world.aktEntity[conv2Dto1D(aktSelectetStaticposX,aktSelectetStaticposY)]);
+      return true
+    }
+    return false
+  }
+
   let resize = () => {
     width = window.innerWidth;
     height = window.innerHeight;

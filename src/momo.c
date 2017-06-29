@@ -52,4 +52,4 @@ extern int wasmFindEnvorimentCode(int envmode,int typ, int typO,int typR,int typ
  };
 
 
-`;
+`;//end code
