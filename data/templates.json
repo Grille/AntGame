@@ -1,0 +1,59 @@
+
+{ 
+  "ground" : {
+    "name":"empty",
+    "path":"./data/png/ground/textures.png",
+    "passable":true,
+    "offsetX":0,
+    "offsetY":0,
+    "graphicMode":0,
+    "graphicNeighbors" : []
+  },
+  "staticObject" :
+  {
+    "name":"empty",
+    "path":"./data/png/static/empty",
+    "description":"-",
+    "passable":false,
+    "size":1,
+    "versions":1,
+    "addGraphicWidth":0,
+    "graphicMode":0,
+    "graphicNeighbors" : [],
+
+    "setGround" : null,
+    "upgradeTyp" : 0,
+    "downgradeTyp" : 0,
+    "demolitionTyp" : 0,
+    "decayTyp" : 0,
+    "destroyTyp" : 0,
+
+    "canBuild" : [],
+    "CanBuiltOn" : [0,2],
+    "AreaEffects" : [],
+    "AreaDependent" : [],
+    "ResourcesBuild" : [],
+    "ResourcesMonthly" : [],
+    "ResourcesDependent" : []
+  },
+  "movableObject" :{
+    "name":"empty",
+    "path":"./data/png/movable/empty",
+    "selectable":false,
+    "versions":1,
+    "speed":0.1,
+    "hitPoints":1,
+    "attack":0,
+    "range":0,
+
+    "canBuild":[],
+    "AreaDependent" : [],
+    "ResourcesBuild" : [],
+    "ResourcesMonthly" : [],
+    "ResourcesDependent" : []
+  },
+  "resources" : {
+    "name":"empty",
+    "storable":true
+  }
+}

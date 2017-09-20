@@ -1,0 +1,16 @@
+
+[
+  {},
+  {
+    "name":"dirt",
+    "offsetX":1
+  },
+  {
+    "name":"stonyDirt",
+    "offsetX":2
+  },
+  {
+    "name":"dryDirt",
+    "offsetX":3
+  }
+]

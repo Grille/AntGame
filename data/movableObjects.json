@@ -1,0 +1,20 @@
+[
+  {
+    "ID":0,
+    "name":"queen",
+    "path":"./data/png/movable/unit",
+    "canBuild":[[]]
+  },
+  {
+    "ID":1,
+    "name":"worker"
+  },
+  {
+    "ID":2,
+    "name":"scout"
+  },
+  {
+    "ID":3,
+    "name":"warrior"
+  }
+]

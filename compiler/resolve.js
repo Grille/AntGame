@@ -1,3 +1,0 @@
-function resolveExpression(node) {
-  
-};
