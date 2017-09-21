@@ -27,11 +27,25 @@ function setAnimator() {
   }
 };
 
+let now = 0;
+let startTime = 0;
+let useTime = 0;
+let bindTime = 0;
+let renderTime = 0;
+
 function render(curWorld) { 
   if (curWorld.typ !== void 0){
     // try{
-      gl2D.startScene();
       let date = Date.now();
+      let last = date;
+      let tmplast
+
+      tmplast = Date.now();
+      gl2D.startScene();
+      date = Date.now();
+      startTime = (startTime*3 + (date - tmplast))/4;
+
+      tmplast = Date.now();
 
       groundColor[0]=groundColor[4]=groundColor[8]=groundColor[12]=color[0];
       groundColor[1]=groundColor[5]=groundColor[9]=groundColor[13]=color[1];
@@ -108,8 +122,33 @@ function render(curWorld) {
         gl2D.drawImage(drawList[i][0], drawList[i][1],drawList[i][2],drawList[i][3]);
       }
       //gl2D.drawPrimitives(nullTexture,groundSrc,[0,0, width,0, width,height, 0,height],[200,200,255,100, 200,200,255,100, 200,200,255,0, 200,200,255,0]);
-      gl2D.endScene();
-      gl2D.renderScene();
+      date = Date.now();
+      useTime = (useTime*3 + (date - tmplast))/4;
+
+      gl2D.drawImage(nullTexture,[0,0,1,1],[16,16,256,32],[100,100,100,255]);
+      if ((now/16.66) < 1) gl2D.drawImage(nullTexture,[0,0,1,1],[16,19,(now/16.66)*256,26],[(now/16.66)*255,200,0,255]);
+      else {
+        gl2D.drawImage(nullTexture,[0,0,1,1],[16,19,256,26],[255,150,0,255]);
+        gl2D.drawImage(nullTexture,[0,0,1,1],[16,19,(now/16.66)*256-256,26],[255,0,0,255]);
+      }
+      let fullTime = useTime + bindTime + renderTime;
+      gl2D.drawImage(nullTexture,[0,0,1,1],[16,64,256,32],[100,100,100,255]);
+      gl2D.drawImage(nullTexture,[0,0,1,1],[16,67,(useTime/fullTime)*256,26],[200,0,0,255]);
+      gl2D.drawImage(nullTexture,[0,0,1,1],[16+(useTime/fullTime)*256,67,(bindTime/fullTime)*256,26],[0,200,0,255]);
+      gl2D.drawImage(nullTexture,[0,0,1,1],[16+(useTime/fullTime)*256+(bindTime/fullTime)*256,67,(renderTime/fullTime)*256,26],[0,0,200,255]);
+
+      tmplast = Date.now();
+      gl2D.endScene();//--
+      date = Date.now();
+      bindTime = (bindTime*3 + (date - tmplast))/4;
+      
+      tmplast = Date.now();
+      gl2D.renderScene();//--
+      date = Date.now();
+      renderTime = (renderTime*3 + (date - tmplast))/4;
+      date = Date.now();
+      now = (now*3 + (date - last))/4;
+      
      console.log("FPS => "+(Date.now()-date));
     // }
     // catch(e) {console.log(e);}
