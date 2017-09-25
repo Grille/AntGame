@@ -599,5 +599,7 @@ function webGL2DStart(canvas) {
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   gl.enable(gl.BLEND);
   
+  gl2D.nullTexture = gl2D.textureFromPixelArray(new Uint8Array([255,255,255]),1,1);
+  
   return gl2D;
 };

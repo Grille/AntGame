@@ -1,83 +1,91 @@
 [
   {
     "ID":0,
+    "name":"void",
+    "passable":true
+  },
+  {
+    "ID":1,
     "name":"stone",
     "versions":2,
     "path":"./data/png/static/stone"
   },
   {
-    "ID":1,
+    "ID":2,
     "name":"plant",
     "versions":2,
     "path":"./data/png/static/plant",
     "addGraphicWidth":64
   },
   {
-    "ID":2,
+    "ID":3,
     "name":"grass",
     "versions":2,
     "path":"./data/png/static/grass"
   },
   {
-    "ID":3,
+    "ID":4,
     "name":"aphidPlant"
   },
   {
-    "ID":4,
+    "ID":5,
     "name":"aphidPlantInhabited"
   },
   {
-    "ID":5,
+    "ID":6,
     "name":"aphidPlantUsed"
   },
   {
-    "ID":6,
+    "ID":7,
     "name":"berry"
   },
   {
-    "ID":7,
-    "name":"wildMushroom"
-  },
-  {
     "ID":8,
-    "name":"wood"
+    "name":"wildMushroom",
+    "path":"./data/png/static/wildMushroom"
   },
   {
     "ID":9,
-    "name":"cadaver",
-    "size":2
+    "name":"wood",
+    "path":"./data/png/static/wood"
   },
   {
     "ID":10,
-    "name":"cadaverUsed",
+    "name":"cadaver",
+    "path":"./data/png/static/test2x2",
     "size":2
   },
   {
     "ID":11,
-    "name":"cadaverConsumed",
+    "name":"cadaverUsed",
     "size":2
   },
   {
     "ID":12,
-    "name":"waste",
+    "name":"cadaverConsumed",
     "size":2
   },
   {
     "ID":13,
-    "name":"wasteUsed",
+    "name":"waste",
     "size":2
   },
   {
     "ID":14,
-    "name":"wasteConsumed",
+    "name":"wasteUsed",
     "size":2
   },
   {
     "ID":15,
-    "name":"entry"
+    "name":"wasteConsumed",
+    "size":2
   },
   {
     "ID":16,
+    "name":"entry"
+  },
+  {
+    "ID":17,
     "name":"exit"
   }
 

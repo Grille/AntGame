@@ -1,5 +1,16 @@
+"use strict"
+
 function buildStatic(world,posX,posY,typ){
   let offset = posX+posY*worldWidth;
+  world.version[offset] = Math.random()*staticObject[typ].versions;
+  for (let ix = 0;ix<staticObject[typ].size;ix++){
+    for (let iy = 0;iy<staticObject[typ].size;iy++){
+      world.version[offset+ix+iy*worldWidth] = world.version[offset];
+      world.typ[offset+ix+iy*worldWidth] = 0;
+      world.referenceX[offset+ix+iy*worldWidth] = ix;
+      world.referenceY[offset+ix+iy*worldWidth] = iy;
+    }
+  }
   world.typ[offset] = typ;
   world.version[offset] = Math.random()*staticObject[typ].versions;
 }
@@ -38,7 +49,8 @@ function sendEntity(entity,goalX,goalY){
   curEntity.goalY = goalY;
 
   for (let i = 0;i<worldWidth*worldHeight;i++){
-    if (worldO.typ[i]===0)
+    
+    if (staticObject[worldO.typ[i]].passable===true)
       worldO.way[i] = 0;
     else 
       worldO.way[i] = 1000;

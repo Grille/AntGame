@@ -1,6 +1,8 @@
 "use strict";
 
+//contexts
 let gl2D;
+let gui;
 
 let color = [255,255,255,255];
 let mapMousePos = 0;
@@ -33,6 +35,7 @@ let worldO = {
   version : new Uint8Array(worldWidth*worldHeight),
   referenceX : new Uint8Array(worldWidth*worldHeight),
   referenceY : new Uint8Array(worldWidth*worldHeight),
+  stability : new Uint8Array(worldWidth*worldHeight),
   entity:[],
 }
 let worldU = {
@@ -43,6 +46,7 @@ let worldU = {
   version : new Uint8Array(worldWidth*worldHeight),
   referenceX : new Uint8Array(worldWidth*worldHeight),
   referenceY : new Uint8Array(worldWidth*worldHeight),
+  stability : new Uint8Array(worldWidth*worldHeight),
   entity:[],
 }
 for (let i = 0;i<worldWidth*worldHeight;i++){

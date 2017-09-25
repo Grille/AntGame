@@ -38,12 +38,12 @@ function timer(){
         if (timeH===7){
           let pro = 1-timeM/60;
           let add = 255*(1-pro);
-          color = [100*pro+add,100*pro+add,150*pro+add,255];
+          color = [150*pro+add,150*pro+add,255*pro+add,255];
         }
         if (timeH===20){
           let pro = timeM/60;
           let add = 255*(1-pro);
-          color = [100*pro+add,100*pro+add,150*pro+add,255];
+          color = [150*pro+add,150*pro+add,255*pro+add,255];
         }
 
         simulateEntity(0);

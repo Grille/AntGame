@@ -71,37 +71,37 @@ function render(curWorld) {
           aktPosX--;
           aktPosY--;
           if (aktPosX < worldWidth && aktPosX >= 0 && aktPosY < worldHeight && aktPosY >= 0){
-            let worldPos = aktPosX+aktPosY*worldWidth;
+            let worldOffset = aktPosX+aktPosY*worldWidth;
             let drawPosX = 64*ix+32*Indentation;
             let drawPosY = 16*iy;
             //gl2D.drawImage(texture,[0,0,64,32],[drawPosX,drawPosY,64,32],color);
             //if (groundTexture !== void 0)
-            drawGround(groundTextures,curWorld.ground[worldPos], aktPosX+aktPosY*(worldWidth+1),[drawPosX,drawPosY]);
+            drawGround(groundTextures,curWorld.ground[worldOffset], aktPosX+aktPosY*(worldWidth+1),[drawPosX,drawPosY]);
             // let isAktField = (aktPosX >= aktPlayerPosX && aktPosY >= aktPlayerPosY && aktPosX < aktPlayerPosX + StaticEntity[aktGameObject].size && aktPosY < aktPlayerPosY + StaticEntity[aktGameObject].size)
-            let aktReferenceX = (curWorld.referenceX[worldPos]);
-            let aktReferenceY = (curWorld.referenceY[worldPos]);
-            let typ = curWorld.typ[aktPosX - aktReferenceX+(aktPosY -aktReferenceY)*worldWidth];
-            let height = worldHeightMap[aktPosX - aktReferenceX+(aktPosY -aktReferenceY)*worldWidth];
-
+            let aktReferenceX = (curWorld.referenceX[worldOffset]);
+            let aktReferenceY = (curWorld.referenceY[worldOffset]);
+            let refOffset = aktPosX - aktReferenceX+(aktPosY -aktReferenceY)*worldWidth;
+            let typ = curWorld.typ[refOffset];
+            let height = worldHeightMap[refOffset];
+            let version = curWorld.version[refOffset]; 
         
 
             let sObject = staticObject[typ];
-            let version = curWorld.version[worldPos]; //graphic version
             if (typ > 0 && sObject.texture[version] !== void 0){
 
               let addGraphicWidth = sObject.addGraphicWidth;
               let envcode = 0;//findEnvorimentCode(aktWorld,aktPosX, aktPosY, sObject.envmode);//env code for auto tile (0000 - 1111)
               let overDraw = sObject.overDraw[version];
               let animPhase = sObject.animationPhases[version];
-              let anim = animator[animPhase];
-              let imgSrcX = (aktReferenceX * 32)+ (aktReferenceY * 32) + (sObject.size * 64) * anim;
+              let anim = animator[animPhase-1];
+              let imgSrcX = (aktReferenceX * 32)+ (aktReferenceY * 32) + (sObject.size * 64 + 128) * (anim);
               let imgSrcY = 16 * (sObject.size - 1) -(aktReferenceX * 16) + (aktReferenceY * 16);
 
               drawList[drawListIndex++] = [sObject.texture[version], [imgSrcX,imgSrcY,64+addGraphicWidth*2,32+overDraw],[drawPosX-addGraphicWidth,drawPosY-overDraw-height,64+addGraphicWidth*2,32+overDraw],color];
             }
 
-            for (let i = 0; i<curWorld.entity[worldPos].length;i++){
-              let curEntity = entityList[curWorld.entity[worldPos][i]];
+            for (let i = 0; i<curWorld.entity[worldOffset].length;i++){
+              let curEntity = entityList[curWorld.entity[worldOffset][i]];
               if (movableObject[curEntity.typ].texture[0] !== void 0){
                 let entitySize = movableObject[curEntity.typ].graphicSize;
                 let entitySrcX = (curEntity.directionX+1)*(entitySize)*2;
@@ -114,7 +114,9 @@ function render(curWorld) {
               }
             }
 
-            if (worldPos === mapMousePos) drawGround(guiTexture[0],0, aktPosX+aktPosY*(worldWidth+1),[drawPosX,drawPosY]);
+            if (worldOffset === mapMousePos) {
+              drawGround(guiTexture[0],0, aktPosX+aktPosY*(worldWidth+1),[drawPosX,drawPosY]);
+            }
           }
         }
       }
@@ -137,6 +139,7 @@ function render(curWorld) {
       gl2D.drawImage(nullTexture,[0,0,1,1],[16+(useTime/fullTime)*256,67,(bindTime/fullTime)*256,26],[0,200,0,255]);
       gl2D.drawImage(nullTexture,[0,0,1,1],[16+(useTime/fullTime)*256+(bindTime/fullTime)*256,67,(renderTime/fullTime)*256,26],[0,0,200,255]);
 
+      //gui.render(gl2D);
       tmplast = Date.now();
       gl2D.endScene();//--
       date = Date.now();

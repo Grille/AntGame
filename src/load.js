@@ -57,37 +57,38 @@ function loadGameData(){
   }
 
   for (let i = 0;i<data.staticObject.length;i++){
-    staticObject[i+1] = {};
+    staticObject[i] = {};
 
-    if (data.staticObject[i].name === void 0) staticObject[i+1].name = data.template.staticObject.name;
-    else staticObject[i+1].name = data.staticObject[i].name;
+    if (data.staticObject[i].name === void 0) staticObject[i].name = data.template.staticObject.name;
+    else staticObject[i].name = data.staticObject[i].name;
 
-    if (data.staticObject[i].path === void 0) staticObject[i+1].path = data.template.staticObject.path;
-    else staticObject[i+1].path = data.staticObject[i].path;
+    if (data.staticObject[i].path === void 0) staticObject[i].path = data.template.staticObject.path;
+    else staticObject[i].path = data.staticObject[i].path;
 
-    if (data.staticObject[i].passable === void 0) staticObject[i+1].passable = data.template.staticObject.passable;
-    else staticObject[i+1].passable = data.staticObject[i].passable;
+    if (data.staticObject[i].passable === void 0) staticObject[i].passable = data.template.staticObject.passable;
+    else staticObject[i].passable = data.staticObject[i].passable;
 
-    if (data.staticObject[i].size === void 0) staticObject[i+1].size = data.template.staticObject.size;
-    else staticObject[i+1].size = data.staticObject[i].size;
+    if (data.staticObject[i].size === void 0) staticObject[i].size = data.template.staticObject.size;
+    else staticObject[i].size = data.staticObject[i].size;
 
-    if (data.staticObject[i].versions === void 0) staticObject[i+1].versions = data.template.staticObject.versions;
-    else staticObject[i+1].versions = data.staticObject[i].versions;
+    if (data.staticObject[i].versions === void 0) staticObject[i].versions = data.template.staticObject.versions;
+    else staticObject[i].versions = data.staticObject[i].versions;
 
-    if (data.staticObject[i].addGraphicWidth === void 0) staticObject[i+1].addGraphicWidth = data.template.staticObject.addGraphicWidth;
-    else staticObject[i+1].addGraphicWidth = data.staticObject[i].addGraphicWidth;
+    if (data.staticObject[i].addGraphicWidth === void 0) staticObject[i].addGraphicWidth = data.template.staticObject.addGraphicWidth;
+    else staticObject[i].addGraphicWidth = data.staticObject[i].addGraphicWidth;
 
-    staticObject[i+1].texture = [];
-    staticObject[i+1].overDraw = [];
-    staticObject[i+1].animationPhases = [];
-    for (let iv = 0;iv<staticObject[i+1].versions;iv++){
+    staticObject[i].texture = [];
+    staticObject[i].overDraw = [];
+    staticObject[i].animationPhases = [];
+    for (let iv = 0;iv<staticObject[i].versions;iv++){
       let image = new Image();
       image.onload = function () {
-        staticObject[i+1].texture[iv] = gl2D.textureFromImage(image);
-        staticObject[i+1].overDraw[iv] = staticObject[i+1].texture[iv].height - 32;
-        staticObject[i+1].animationPhases[iv] = (image.width-staticObject[i+1].addGraphicWidth*2) / (64*staticObject[i+1].size)-1
+        staticObject[i].texture[iv] = gl2D.textureFromImage(image);
+        staticObject[i].overDraw[iv] = staticObject[i].texture[iv].height - 32*staticObject[i].size;
+        staticObject[i].animationPhases[iv] = image.width / (staticObject[i].addGraphicWidth*2 + (64*staticObject[i].size));
+        //console.log(i + " => "+staticObject[i].animationPhases[iv]);
       }
-      image.src = staticObject[i+1].path + "_" + iv + ".png";
+      image.src = staticObject[i].path + "_" + iv + ".png";
     }
   }
 

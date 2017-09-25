@@ -90,7 +90,7 @@ function addEvents(){
       sendEntity(0,mapMouseX,mapMouseY);
     }
     else{
-      buildStatic(curWorld,mapMouseX,mapMouseY,1)
+      buildStatic(curWorld,mapMouseX,mapMouseY,10)
     }
   })
   window.addEventListener("resize", resize); 

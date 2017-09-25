@@ -68,7 +68,7 @@ function buildMap(){
     i=0;
   for (let ix = 0;ix<worldWidth;ix++)
     for (let iy = 0;iy<worldHeight;iy++)
-      worldO.ground[i++] = (Math.random()*3+1)|0
+      worldO.ground[i++] = (Math.random()*4+1)|0
 
   let oSrc = 0;
   let oDst = 0;
@@ -127,12 +127,22 @@ function buildMap(){
 function main(){
   //init game Data
   gl2D = webGL2DStart(canvas);
-  resize()
+  //gui = initGL2DGui(canvas);
+  //initGL2DGui();
+  resize();
   buildHTML();
   addEvents();
   loadGameData();
   buildMap();
   //run Game
+
+  // gui.addButton(nullTexture,[400,400,200,200]);
+
+  // let ref = gui.addButton(nullTexture,[200,400,50,50]);
+  // ref.mouseUp = (e) => {
+  //   ref.rectangle[0]+=10;
+  // }
+
   renderTimer();
   timer();
 }

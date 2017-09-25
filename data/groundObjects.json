@@ -12,5 +12,17 @@
   {
     "name":"dryDirt",
     "offsetX":3
+  },
+  {
+    "name":"mossDirt",
+    "offsetX":4
+  },
+  {
+    "name":"woodDirt",
+    "offsetX":5
+  },
+  {
+    "name":"leveDirt",
+    "offsetX":6
   }
 ]
