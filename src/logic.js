@@ -35,6 +35,9 @@ function addEntity(world,typ,posX,posY){
       directionY:1
     
     };
+    for (let ix = -4;ix <=4;ix++)
+      for (let iy = -4;iy <=4;iy++)
+        world.discovered[posX+ix+(posY+iy)*worldWidth] = 1;
     world.entity[posX+posY*worldWidth] = [i];
     return i;
 }
@@ -45,24 +48,25 @@ function sendEntity(entity,goalX,goalY){
 
   let curEntity = entityList[entity];
   
+  let world = entityList[entity].world;
   curEntity.goalX = goalX;
   curEntity.goalY = goalY;
 
   for (let i = 0;i<worldWidth*worldHeight;i++){
     
-    if (staticObject[worldO.typ[i]].passable===true)
-      worldO.way[i] = 0;
+    if (staticObject[world.typ[i]].passable===true)
+    world.way[i] = 0;
     else 
-      worldO.way[i] = 1000;
+    world.way[i] = 1000;
   }
 
   let posX = curEntity.posX;
   let posY = curEntity.posY;
-  let way = findWay(worldO.way,worldWidth,posX,posY,goalX,goalY);
+  let way = findWay(world.way,worldWidth,posX,posY,goalX,goalY);
   curEntity.wayPos = 1;
   curEntity.wayLength = (way.length-2)/2;
   for (let i = 0;i<=way.length;i+=2){
-    worldO.ground[posX+posY*worldWidth]=0;
+    world.ground[posX+posY*worldWidth]=0;
     posX+=way[i];
     posY+=way[i+1];
   }

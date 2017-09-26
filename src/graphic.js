@@ -70,7 +70,7 @@ function render(curWorld) {
         for (let ix = ((width / 64))|0; ix >= -1;ix--){
           aktPosX--;
           aktPosY--;
-          if (aktPosX < worldWidth && aktPosX >= 0 && aktPosY < worldHeight && aktPosY >= 0){
+          if (aktPosX < worldWidth && aktPosX >= 0 && aktPosY < worldHeight && aktPosY >= 0 ){
             let worldOffset = aktPosX+aktPosY*worldWidth;
             let drawPosX = 64*ix+32*Indentation;
             let drawPosY = 16*iy;
@@ -87,30 +87,32 @@ function render(curWorld) {
         
 
             let sObject = staticObject[typ];
-            if (typ > 0 && sObject.texture[version] !== void 0){
+            if (true || curWorld.discovered[worldOffset] === 1){
+              if (typ > 0 && sObject.texture[version] !== void 0){
 
-              let addGraphicWidth = sObject.addGraphicWidth;
-              let envcode = 0;//findEnvorimentCode(aktWorld,aktPosX, aktPosY, sObject.envmode);//env code for auto tile (0000 - 1111)
-              let overDraw = sObject.overDraw[version];
-              let animPhase = sObject.animationPhases[version];
-              let anim = animator[animPhase-1];
-              let imgSrcX = (aktReferenceX * 32)+ (aktReferenceY * 32) + (sObject.size * 64 + 128) * (anim);
-              let imgSrcY = 16 * (sObject.size - 1) -(aktReferenceX * 16) + (aktReferenceY * 16);
+                let addGraphicWidth = sObject.addGraphicWidth;
+                let envcode = 0;//findEnvorimentCode(aktWorld,aktPosX, aktPosY, sObject.envmode);//env code for auto tile (0000 - 1111)
+                let overDraw = sObject.overDraw[version];
+                let animPhase = sObject.animationPhases[version];
+                let anim = animator[animPhase-1];
+                let imgSrcX = (aktReferenceX * 32)+ (aktReferenceY * 32) + (sObject.size * 64 + 128) * (anim);
+                let imgSrcY = 16 * (sObject.size - 1) -(aktReferenceX * 16) + (aktReferenceY * 16);
 
-              drawList[drawListIndex++] = [sObject.texture[version], [imgSrcX,imgSrcY,64+addGraphicWidth*2,32+overDraw],[drawPosX-addGraphicWidth,drawPosY-overDraw-height,64+addGraphicWidth*2,32+overDraw],color];
-            }
+                drawList[drawListIndex++] = [sObject.texture[version], [imgSrcX,imgSrcY,64+addGraphicWidth*2,32+overDraw],[drawPosX-addGraphicWidth,drawPosY-overDraw-height,64+addGraphicWidth*2,32+overDraw],color];
+              }
 
-            for (let i = 0; i<curWorld.entity[worldOffset].length;i++){
-              let curEntity = entityList[curWorld.entity[worldOffset][i]];
-              if (movableObject[curEntity.typ].texture[0] !== void 0){
-                let entitySize = movableObject[curEntity.typ].graphicSize;
-                let entitySrcX = (curEntity.directionX+1)*(entitySize)*2;
-                let entitySrcY = (curEntity.directionY+1)*(entitySize);
+              for (let i = 0; i<curWorld.entity[worldOffset].length;i++){
+                let curEntity = entityList[curWorld.entity[worldOffset][i]];
+                if (movableObject[curEntity.typ].texture[0] !== void 0){
+                  let entitySize = movableObject[curEntity.typ].graphicSize;
+                  let entitySrcX = (curEntity.directionX+1)*(entitySize)*2;
+                  let entitySrcY = (curEntity.directionY+1)*(entitySize);
 
-                let directionPosX = (curEntity.moveProcess*32)*curEntity.directionX+(curEntity.moveProcess*32)*curEntity.directionY;
-                let directionPosY = -(curEntity.moveProcess*16)*curEntity.directionX+(curEntity.moveProcess*16)*curEntity.directionY;
+                  let directionPosX = (curEntity.moveProcess*32)*curEntity.directionX+(curEntity.moveProcess*32)*curEntity.directionY;
+                  let directionPosY = -(curEntity.moveProcess*16)*curEntity.directionX+(curEntity.moveProcess*16)*curEntity.directionY;
 
-                drawList[drawListIndex++] = [movableObject[curEntity.typ].texture[0], [entitySrcX,entitySrcY,entitySize*2,entitySize],[drawPosX+directionPosX,drawPosY-height+directionPosY,64,32],color];
+                  drawList[drawListIndex++] = [movableObject[curEntity.typ].texture[0], [entitySrcX,entitySrcY,entitySize*2,entitySize],[drawPosX+directionPosX,drawPosY-height+directionPosY,64,32],color];
+                }
               }
             }
 
@@ -127,19 +129,19 @@ function render(curWorld) {
       date = Date.now();
       useTime = (useTime*3 + (date - tmplast))/4;
 
-      gl2D.drawImage(nullTexture,[0,0,1,1],[16,16,256,32],[100,100,100,255]);
-      if ((now/16.66) < 1) gl2D.drawImage(nullTexture,[0,0,1,1],[16,19,(now/16.66)*256,26],[(now/16.66)*255,200,0,255]);
+      gl2D.drawImage(nullTexture,[0,0,1,1],[0,32,256,16],[100,100,100,255]);
+      if ((now/16.66) < 1) gl2D.drawImage(nullTexture,[0,0,1,1],[0,35,(now/16.66)*256,10],[(now/16.66)*255,200,0,255]);
       else {
-        gl2D.drawImage(nullTexture,[0,0,1,1],[16,19,256,26],[255,150,0,255]);
-        gl2D.drawImage(nullTexture,[0,0,1,1],[16,19,(now/16.66)*256-256,26],[255,0,0,255]);
+        gl2D.drawImage(nullTexture,[0,0,1,1],[0,35,256,10],[255,150,0,255]);
+        gl2D.drawImage(nullTexture,[0,0,1,1],[0,35,(now/16.66)*256-256,10],[255,0,0,255]);
       }
       let fullTime = useTime + bindTime + renderTime;
-      gl2D.drawImage(nullTexture,[0,0,1,1],[16,64,256,32],[100,100,100,255]);
-      gl2D.drawImage(nullTexture,[0,0,1,1],[16,67,(useTime/fullTime)*256,26],[200,0,0,255]);
-      gl2D.drawImage(nullTexture,[0,0,1,1],[16+(useTime/fullTime)*256,67,(bindTime/fullTime)*256,26],[0,200,0,255]);
-      gl2D.drawImage(nullTexture,[0,0,1,1],[16+(useTime/fullTime)*256+(bindTime/fullTime)*256,67,(renderTime/fullTime)*256,26],[0,0,200,255]);
+      gl2D.drawImage(nullTexture,[0,0,1,1],[0,48,256,16],[100,100,100,255]);
+      gl2D.drawImage(nullTexture,[0,0,1,1],[0,51,(useTime/fullTime)*256,10],[200,0,0,255]);
+      gl2D.drawImage(nullTexture,[0,0,1,1],[0+(useTime/fullTime)*256,51,(bindTime/fullTime)*256,10],[0,200,0,255]);
+      gl2D.drawImage(nullTexture,[0,0,1,1],[0+(useTime/fullTime)*256+(bindTime/fullTime)*256,51,(renderTime/fullTime)*256,10],[0,0,200,255]);
 
-      //gui.render(gl2D);
+      gui.render(gl2D);
       tmplast = Date.now();
       gl2D.endScene();//--
       date = Date.now();

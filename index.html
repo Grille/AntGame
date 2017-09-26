@@ -1,8 +1,10 @@
 <html>
     <head>
         <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+        <link rel="stylesheet" href="stylesheet.css">
 
         <script type="text/javascript" src="libs/webgl2D.js"></script>
+        <script type="text/javascript" src="libs/webgl2DGui.js"></script>
 
         <script type="text/javascript" src="src/global.js"></script>
         <script type="text/javascript" src="src/config.js"></script>
@@ -12,8 +14,32 @@
         <script type="text/javascript" src="src/logic.js"></script>
         <script type="text/javascript" src="src/program.js"></script>
         <script type="text/javascript" src="src/main.js"></script>
-   </head>
+    </head>
     <body onload="main();" style="overflow: hidden; margin: 0;background: rgba(0,0,0,1)"; oncontextmenu="return false";>
         <canvas id="canvas" style="border: none; position: absolute; background: rgba(0,50,50,1); left: 0px;" width="2000" height="512"></canvas>
+        <!-- top bar -->
+        <div style="top: 0px; left: 0px;width: 100%;height: 32px; background: #671;";>
+            <button id="butFullscreen" style="top: 0px; left: 0px;width: 256px;height: 32px;;">Click to start game in fullscreenmode</button>
+            <button style="top: 0px; right: 0px;width: 256px;height: 32px;;">Menu</button>
+        </div>
+        <!-- bottom bar -->
+        <div style="bottom: 0px; left: 0px;width: 100%;height: 32px; background: #671;";>
+            <button id="butSwitchWorld" style="bottom: 0px; right: 0px;width: 260px;height: 32px;;">switch world</button>
+        </div>
+        <!-- mini map -->
+        <div style="bottom: 32px; right: 0px;width: 260px;height: 132px; background: #671;";>
+            <canvas id="guiMiniMap" style="border: none; position: absolute; background: rgba(50,75,25,1); left: 2px;top: 2px;" width="256" height="128"></canvas>
+        </div>
+        <!-- unit info -->
+        <div style="bottom: 32px; left: 0px;width: 260px;height: 132px; background: #671;";>
+            <canvas id="guiUnitInfo" style="border: none; position: absolute; background: rgba(50,75,25,1); left: 2px;top: 2px;" width="256" height="128"></canvas>
+        </div>
+        <!-- menu -->
+        <div style="visibility:hidden;top: calc(50% - 128px); left: calc(50% - 128px);width: 264px;height: 136px; background: #671;";>
+
+        </div>
+        <!-- <script language="javascript" type="text/javascript">
+            buildHTML();
+        </script>  -->
     </body>
 </html>

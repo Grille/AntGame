@@ -1,0 +1,26 @@
+.default{
+  position: fixed; 
+}
+
+button {
+  outline: none;
+  position: fixed; 
+  font-size: 12px;
+  background: rgb(85, 102, 17); 
+  color: rgb(162, 255, 0); 
+  opacity: 1; 
+  cursor: pointer;
+  border: 1px solid rgb(121, 152, 0);
+  transition: 0s;
+}
+button:hover {
+  background-color: rgb(69, 83, 13);
+}
+button:active {
+  background-color: rgb(69, 83, 13);
+  border: 1px solid rgb(100, 206, 88);
+}
+div {
+  position: fixed; 
+  background: rgb(102, 119, 17); 
+}

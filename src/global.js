@@ -16,10 +16,13 @@ let worldHeightVertex = new Int16Array((worldWidth+1)*(worldHeight+1));
 let worldHeightMap = new Uint16Array(worldWidth*worldHeight);
 let animator = [];
 
+let selectetTyp = 0;
+let selectetIndex = 0;
 let nullTexture;
 let guiTexture = [];
 let groundTextures;
 
+let iconGraphic = [];
 let groundObject = [];
 let staticObject = [];
 let movableObject = [];
@@ -36,6 +39,7 @@ let worldO = {
   referenceX : new Uint8Array(worldWidth*worldHeight),
   referenceY : new Uint8Array(worldWidth*worldHeight),
   stability : new Uint8Array(worldWidth*worldHeight),
+  discovered : new Uint8Array(worldWidth*worldHeight),
   entity:[],
 }
 let worldU = {
@@ -47,6 +51,7 @@ let worldU = {
   referenceX : new Uint8Array(worldWidth*worldHeight),
   referenceY : new Uint8Array(worldWidth*worldHeight),
   stability : new Uint8Array(worldWidth*worldHeight),
+  discovered : new Uint8Array(worldWidth*worldHeight),
   entity:[],
 }
 for (let i = 0;i<worldWidth*worldHeight;i++){
@@ -61,6 +66,7 @@ let timeM = 0;
 let timeH = 12;
 
 var Timer = Date.now();
+var TimerScroal025=0; 
 var Timer025=0; 
 var Timer100=0; 
 var Timer250=0;

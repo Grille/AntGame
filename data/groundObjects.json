@@ -6,23 +6,23 @@
     "offsetX":1
   },
   {
-    "name":"stonyDirt",
+    "name":"dirtStony",
     "offsetX":2
   },
   {
-    "name":"dryDirt",
+    "name":"dirtDry",
     "offsetX":3
   },
   {
-    "name":"mossDirt",
+    "name":"dirtMossy",
     "offsetX":4
   },
   {
-    "name":"woodDirt",
+    "name":"dirtWood",
     "offsetX":5
   },
   {
-    "name":"leveDirt",
+    "name":"dirtLeve",
     "offsetX":6
   }
 ]

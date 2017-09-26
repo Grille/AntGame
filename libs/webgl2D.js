@@ -131,6 +131,8 @@ function webGL2DStart(canvas) {
         gl.bindTexture(gl.TEXTURE_2D, null);
         texture.width = canvas.width;
         texture.height = canvas.height;
+        texture.imgwidth = image.width;
+        texture.imgheight = image.height;
         texture.index = gl2D.textureCounter;
         gl2D.textureCounter++
 
@@ -156,6 +158,8 @@ function webGL2DStart(canvas) {
           gl.bindTexture(gl.TEXTURE_2D, null);
           texture.width = canvas.width;
           texture.height = canvas.height;
+          texture.imgwidth = texture.image.width;
+          texture.imgheight = texture.image.height;
           texture.index = gl2D.textureCounter;
           gl2D.textureCounter++
         }
@@ -178,8 +182,38 @@ function webGL2DStart(canvas) {
         gl.bindTexture( gl.TEXTURE_2D, null )
         texture.width = width;
         texture.height = height;
+        texture.imgwidth = width;
+        texture.imgheight = height;
         texture.index = gl2D.textureCounter;
         gl2D.textureCounter++
+        return texture;
+      },
+      textureFromString: (string,font,size) => {
+        let gl = gl2D.gl;
+        let texture
+        texture = gl.createTexture();
+
+        let canvas = document.createElement("canvas");
+        let context  = canvas.getContext("2d");
+        context.imageSmoothingEnabled = false;//Chrome
+        context.mozImageSmoothingEnabled = false;//Firefox
+        canvas.width = gl2D.pow(512);
+        canvas.height = gl2D.pow(512);
+        context.t
+        context.drawImage(image, 0, 0, image.width, image.height);
+
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        texture.width = canvas.width;
+        texture.height = canvas.height;
+        texture.imgwidth = image.width;
+        texture.imgheight = image.height;
+        texture.index = gl2D.textureCounter;
+        gl2D.textureCounter++
+
         return texture;
       },
 

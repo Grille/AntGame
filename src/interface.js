@@ -46,13 +46,77 @@ function resize(){
 
 }
 
+//let gui = []
+let butList = [];
 function buildHTML(){
-  var button = document.createElement('p');
-  button.textContent = 'Click to start game in fullscreenmode';
-  button.title = 'Press F11 to enter or leave fullscreen mode';
-  button.setAttribute('style', 'position: fixed; top: -16px; left: 0px;width: 256px;height: 32px; background: #004; color: #0f0; opacity: 0.5; cursor: pointer;')
+
   
-  button.addEventListener('click', function(event) {
+  for (let ix = 0;ix<20;ix++){
+    butList[ix] = [];
+
+    for (let iy = 0;iy < 2;iy++){
+    butList[ix][iy]=gui.addButton(iconGraphic[0],[260 + 52 * ix,34+52*iy,48,48]);
+    butList[ix][iy].anchor[3] = true;
+    butList[ix][iy].enabled = false;
+    butList[ix][iy].visible = false;
+    }
+  }
+
+  butList[1][0].enabled = true;
+  butList[1][0].visible = true;
+  butList[1][0].texture = iconGraphic[1];
+
+  butList[1][0].mouseUp = () => {
+
+    buildStatic(worldO,entityList[0].posX,entityList[0].posY,2)
+    buildStatic(worldU,entityList[0].posX,entityList[0].posY,2)
+
+    entityList[0].world = worldU;
+    worldO.discovered[entityList[0].pos] = 1;
+  }
+
+  // for (let i = 0;i<20;i++){
+  //   butList[i] = [];
+  //   butList[i][0]=document.createElement('button');
+  //   butList[i][0].textContent = i + ";" + 0;
+  //   butList[i][0].setAttribute("style", "position: fixed; bottom: 80px; left: "+ (260 + 48 * i) + "px;width: 48px;height: 48px; background: #671; opacity: 1;")
+  //   document.body.appendChild(butList[i][0]);
+    
+  //   butList[i][1]=document.createElement('button');
+  //   butList[i][1].textContent = i + ";" + 1;
+  //   butList[i][1].setAttribute("style", "position: fixed; bottom: 32px; left: "+ (260 + 48 * i) + "px;width: 48px;height: 48px; background: #671; opacity: 1;")
+  //   document.body.appendChild(butList[i][1]);
+  // }
+    //top bar
+  // guidiv[0] = document.createElement('div');
+  // guidiv[0].setAttribute('style', 'position: fixed; top: 0px; left: 0px;width: 100%;height: 32px; background: #671; opacity: 1;')
+  // document.body.appendChild(guidiv[0]);
+
+  // guidiv[1] = document.createElement('div');
+  // guidiv[1].setAttribute('style', 'position: fixed; bottom: 0px; left: 0px;width: 100%;height: 32px; background: #671; opacity: 1;')
+  // document.body.appendChild(guidiv[1]);
+
+  // guidiv[2] = document.createElement('div');
+  // guidiv[2].setAttribute('style', 'position: fixed; bottom: 32px; left: 0px;width: 128px;height: 128px; background: #671; opacity: 1;')
+  // document.body.appendChild(guidiv[2]);
+
+  // gui[0] = document.createElement('button');
+  // gui[0].textContent = 'Click to start game in fullscreenmode';
+  // gui[0].title = 'Press F11 to enter or leave fullscreen mode';
+  // gui[0].setAttribute('style', 'position: fixed; top: 0px; left: 0px;width: 256px;height: 32px; background: #561; color: #0f0; opacity: 1; cursor: pointer;border: 1px solid green;transition: 0s')
+  // document.body.appendChild(gui[0]);
+
+  // gui[1] = document.createElement('button');
+  // gui[1].textContent = 'switch world';
+  // gui[1].title = 'Press F11 to enter or leave fullscreen mode';
+  // gui[1].setAttribute('style', 'position: fixed; top: 0px; left: 256px;width: 256px;height: 32px; background: #561; color: #0f0; opacity: 1; cursor: pointer;border: 1px solid green;transition: 0s')
+  // document.body.appendChild(gui[1]);
+
+  
+}
+function addEvents(){
+
+  butFullscreen.addEventListener('click', function(event) {
     if (document.body.requestFullScreen) {
       document.body.requestFullScreen();
     } else if (document.body.mozRequestFullScreen) {
@@ -61,30 +125,20 @@ function buildHTML(){
       document.body.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
     }
   }, false);
-  document.body.appendChild(button);
 
-  button = document.createElement('p');
-  button.textContent = 'switch world';
-  button.title = 'Press F11 to enter or leave fullscreen mode';
-  button.setAttribute('style', 'position: fixed; top: -16px; left: 256px;width: 256px;height: 32px; background: #004; color: #0f0; opacity: 0.5; cursor: pointer;')
-  
-  button.addEventListener('click', function(event) {
+ 
+  butSwitchWorld.addEventListener('click', function(event) {
+    
+        if (curWorld === worldO)curWorld = worldU;
+        else curWorld = worldO;
+      }, false);
 
-    if (curWorld === worldO)curWorld = worldU;
-    else curWorld = worldO;
-  }, false);
-  document.body.appendChild(button);
-  
-}
-function addEvents(){
-
-
-  window.addEventListener("mousemove", (e) => {
+  gui.mouseMove = (e) => {
     mouse.setMouse(e,0);
     mouseEffents();
-    
-  })
-  window.addEventListener("mouseup",(e) => {
+  }
+
+  gui.mouseUp = (e) => {
     mouse.setMouse(e,0);
     if (mouse.isRightMB===true){
       sendEntity(0,mapMouseX,mapMouseY);
@@ -92,8 +146,9 @@ function addEvents(){
     else{
       buildStatic(curWorld,mapMouseX,mapMouseY,10)
     }
-  })
+  }
   window.addEventListener("resize", resize); 
+
 }
 
 function mouseEffents(){
@@ -133,10 +188,10 @@ function mouseEffents(){
   mapMoveX = 0;
   mapMoveY = 0;
   //console.log(e.x);
-  if (e.x < 10) mapMoveX = -1;
-  if (e.y < 10) mapMoveY = -1;
-  if (e.x > canvas.width-10) mapMoveX = 1;
-  if (e.y > canvas.height-10) mapMoveY = 1;
+  if (e.x < 5) mapMoveX = -1;
+  if (e.y < 5) mapMoveY = -1;
+  if (e.x > canvas.width-5) mapMoveX = 1;
+  if (e.y > canvas.height-5) mapMoveY = 1;
 };
 function mapScroal(factor){
   // mouseEffents();

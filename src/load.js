@@ -22,17 +22,22 @@ function loadGameData(){
   request.open("GET", "./data/movableObjects.json", false);
   request.send(null)
   data.movableObject = JSON.parse(request.responseText);
+  request.open("GET", "./data/icons.json", false);
+  request.send(null)
+  data.icons = JSON.parse(request.responseText);
 
   // request.open("GET", "./data/gameObjects.json", false);
   // request.send(null)
   // let data = JSON.parse(request.responseText);
 
 
-
   // let groundTexture = document.createElement("canvas");
   // let context  = groundTexture.getContext("2d");
 
   groundTextures = gl2D.textureFromFile(data.template.ground.path);
+  for (let i = 0;i<data.icons.length;i++){
+    iconGraphic[i] = gl2D.textureFromFile(data.icons[i] + ".png");
+  }
 
   for (let i = 0;i<data.ground.length;i++){
     groundObject[i] = {};
@@ -48,6 +53,7 @@ function loadGameData(){
 
     if (data.ground[i].offsetY === void 0) groundObject[i].offsetY = data.template.ground.offsetY*64;
     else groundObject[i].offsetY = data.ground[i].offsetY*64;
+    
       // context.imageSmoothingEnabled = false;//Chrome
       // context.mozImageSmoothingEnabled = false;//Firefox
       // canvas.width = img.width;
@@ -106,6 +112,9 @@ function loadGameData(){
 
     if (data.movableObject[i].speed === void 0) movableObject[i].speed = data.template.movableObject.speed;
     else movableObject[i].speed = data.movableObject[i].speed;
+
+    if (data.movableObject[i].viewRange === void 0) movableObject[i].viewRange = data.template.movableObject.viewRange;
+    else movableObject[i].viewRange = data.movableObject[i].viewRange;
 
     // if (data.movableObject[i].size === void 0) movableObject[i].size = data.template.movableObject.size;
     // else movableObject[i].size = data.movableObject[i].size;

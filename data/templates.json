@@ -43,6 +43,7 @@
     "versions":1,
     "speed":0.1,
     "hitPoints":1,
+    "viewRange":2,
     "attack":0,
     "range":0,
 
