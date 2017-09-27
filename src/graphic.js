@@ -125,7 +125,7 @@ function render(curWorld) {
       for (let i = 0;i<drawListIndex;i++){
         gl2D.drawImage(drawList[i][0], drawList[i][1],drawList[i][2],drawList[i][3]);
       }
-      //gl2D.drawPrimitives(nullTexture,groundSrc,[0,0, width,0, width,height, 0,height],[200,200,255,100, 200,200,255,100, 200,200,255,0, 200,200,255,0]);
+      //gl2D.drawPrimitives(nullTexture,groundSrc,[0,0, width,0, width,height, 0,height],[200,200,255,50, 200,200,255,50, 200,200,255,0, 200,200,255,0]);
       date = Date.now();
       useTime = (useTime*3 + (date - tmplast))/4;
 

@@ -179,11 +179,8 @@ function mouseEffents(){
     else break;
   }
 
-//console.log("height => "+curWorld.height[mapMousePos]);
-
-    mapMousePos = (x)|0+((y)|0)*worldWidth;
-    //console.log("x => "+x);
-
+  mapMouseX = x|0;mapMouseY = y|0;
+  mapMousePos = (x)|0+((y)|0)*worldWidth;
 
   mapMoveX = 0;
   mapMoveY = 0;

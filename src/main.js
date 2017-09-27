@@ -111,10 +111,10 @@ function buildMap(){
   //     worldHeightMap[ix+iy*(worldWidth+1)] = 50;
   mapPosX = worldWidth/2,mapPosY = worldHeight/2-30;
 
-  for (let i1 = 0;i1<0;i1++){
+  for (let i1 = 0;i1<1;i1++){
     for (let ix = 1;ix<=worldWidth-2;ix++){
       for (let iy = 1;iy<=worldHeight-2;iy++){
-        if (Math.random()<= 0.02)worldHeightVertex[ix+iy*(worldWidth+1)]=2000;
+        if (Math.random()<= 0.02)worldHeightVertex[ix+iy*(worldWidth+1)]=1000;
       }
     }
 
@@ -142,14 +142,14 @@ function buildMap(){
   let i = 0;
 
   generateGround(worldO, 1, 1, 0);
-  generateGround(worldO, 3, 0.001, 0.6);
-  generateGround(worldO, 2, 0.005, 0.4);
-  generateGround(worldO, 4, 0.001, 0.6);
-  generateGround(worldO, 5, 0.003, 0.4);
+  generateGround(worldO, 3, 0.0003, 0.65);
+  generateGround(worldO, 2, 0.003, 0.4);
+  generateGround(worldO, 4, 0.0001, 0.65);
+  generateGround(worldO, 5, 0.001, 0.5);
 
   generateGround(worldU, 1, 1, 0);
   generateGround(worldU, 3, 0.001, 0.6);
-  generateGround(worldU, 2, 0.005, 0.4);
+  generateGround(worldU, 2, 0.005, 0.5);
 
   // i=0;
   // for (let ix = 0;ix<worldWidth;ix++)
@@ -159,6 +159,14 @@ function buildMap(){
   for (let ix = 0;ix<=worldWidth;ix++)
     for (let iy = 0;iy<=worldHeight;iy++)
       worldHeightVertex[i++] += (Math.random()*4)|0
+
+  //mus
+  for (let ix = 0;ix<worldWidth;ix++){
+    for (let iy = 0;iy<worldHeight;iy++){
+      if (worldO.ground[ix+iy*worldWidth] === 1) {if (Math.random()<= 0.005)buildStatic(worldO,ix,iy,8);}
+      else {if (Math.random()<= 0.001)buildStatic(worldO,ix,iy,8);}
+    }
+  }
 
   //grass
   for (let ix = 0;ix<worldWidth;ix++){
