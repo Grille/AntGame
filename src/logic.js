@@ -91,13 +91,13 @@ function sendEntity(entity,goalX,goalY){
   let posY = curEntity.posY;
   let way = findWay(world.way,worldWidth,posX,posY,goalX,goalY);
 
-  if(curEntity.wayPos !== curEntity.wayLength+1) {
-    curEntity.wayPos = 0;
-    console.log("test");
-  }
-  else{
+  // if(curEntity.wayPos !== curEntity.wayLength+1) {
+  //   curEntity.wayPos = 0;
+  //   console.log("test");
+  // }
+  // else{
     curEntity.wayPos = 1;
-  }
+  //}
   curEntity.wayLength = (way.length-2)/2;
   curEntity.way = way;
 

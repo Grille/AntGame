@@ -112,7 +112,7 @@ function buildMap(){
 
 
   //generate Height
-  for (let i1 = 0;i1<1;i1++){
+  for (let i1 = 0;i1<0;i1++){
     for (let ix = 1;ix<=worldWidth-2;ix++){
       for (let iy = 1;iy<=worldHeight-2;iy++){
         if (Math.random()<= 0.02)worldHeightVertex[ix+iy*(worldWidth+1)]=1000;
