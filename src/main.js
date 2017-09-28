@@ -103,21 +103,21 @@ function expand(inputMap,value,density){
 }
 
 function buildMap(){
-  // for (let ix = 2;ix<8;ix++)
-  //   for (let iy = 2;iy<8;iy++)
-  //     worldHeightMap[ix+iy*(worldWidth+1)] = 25;
-  // for (let ix = 4;ix<6;ix++)
-  //   for (let iy = 4;iy<6;iy++)
-  //     worldHeightMap[ix+iy*(worldWidth+1)] = 50;
+
+  let i = 0;
   mapPosX = worldWidth/2,mapPosY = worldHeight/2-30;
 
+
+
+
+
+  //generate Height
   for (let i1 = 0;i1<1;i1++){
     for (let ix = 1;ix<=worldWidth-2;ix++){
       for (let iy = 1;iy<=worldHeight-2;iy++){
         if (Math.random()<= 0.02)worldHeightVertex[ix+iy*(worldWidth+1)]=1000;
       }
     }
-
     for (let i2 = 0;i2<11;i2++){
       for (let ix = 1;ix<=worldWidth-2;ix++){
         for (let iy = 1;iy<=worldHeight-2;iy++){
@@ -139,8 +139,7 @@ function buildMap(){
     }
   }
 
-  let i = 0;
-
+  //Generate Ground/Biomes
   generateGround(worldO, 1, 1, 0);
   generateGround(worldO, 3, 0.0003, 0.65);
   generateGround(worldO, 2, 0.003, 0.4);
@@ -151,10 +150,6 @@ function buildMap(){
   generateGround(worldU, 3, 0.001, 0.6);
   generateGround(worldU, 2, 0.005, 0.5);
 
-  // i=0;
-  // for (let ix = 0;ix<worldWidth;ix++)
-  //   for (let iy = 0;iy<worldHeight;iy++)
-  //     worldU.ground[i++] = (Math.random()*3+1)|0
   i=0;
   for (let ix = 0;ix<=worldWidth;ix++)
     for (let iy = 0;iy<=worldHeight;iy++)
@@ -177,7 +172,6 @@ function buildMap(){
       else {if (Math.random()<= 0.05)buildStatic(worldO,ix,iy,3);}
     }
   }
-  //expand(worldO,3,0.1);
 
   //stone
   for (let ix = 0;ix<worldWidth;ix++){

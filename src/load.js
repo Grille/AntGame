@@ -137,4 +137,5 @@ function loadGameData(){
 
   nullTexture = gl2D.textureFromPixelArray(new Uint8Array([255,255,255]),1,1);
   guiTexture[0] = gl2D.textureFromFile("./data/png/gui/selectField.png");
+  effects[0] = gl2D.textureFromFile("./data/png/effects/fog.png");
 }

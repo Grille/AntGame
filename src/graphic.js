@@ -1,19 +1,36 @@
 "use strict";
 
-let groundColor = new Uint8Array([255,255,255,255, 255,255,255,255, 255,255,255,255, 255,255,255,255]);
+//let groundColor = new Uint8Array([255,255,255,255, 255,255,255,255, 255,255,255,255, 255,255,255,255]);
 let groundSrc = new Uint8Array([0,0, 64,0, 64,64, 0,64]);
 
-function drawGround(texture, typ, worldPos, pos){
+function drawGround(texture, typ, worldPos,vertexWorldPos, pos){
   let offsetX = groundObject[typ].offsetX;
   let offsetY = groundObject[typ].offsetY;
   let groundSrc = [offsetX+0,offsetY+0, offsetX+64,offsetY+0, offsetX+64,offsetY+64, offsetX+0,offsetY+64];
   let heightVertex = worldHeightVertex;
+  let r=color[0],g=color[1],b=color[2],a=color[3];
+  let groundColor = [0,0,0,a, 0,0,0,a, 0,0,0,a, 0,0,0,a]
+
+  let discovered = curWorld.discovered;
+  //u
+  if (discovered[worldPos+worldWidth-1] ===1 && discovered[worldPos+worldWidth] ===1 && discovered[worldPos-1] ===1){groundColor[0]=r;groundColor[1]=g;groundColor[2]=b;}
+  else if (discovered[worldPos+worldWidth-1] >0 && discovered[worldPos+worldWidth] >0 && discovered[worldPos-1] >0){groundColor[0]=r/2;groundColor[1]=g/2;groundColor[2]=b/2;}
+  //r
+  if (discovered[worldPos+worldWidth+1] === 1 && discovered[worldPos+worldWidth] ===1 && discovered[worldPos+1] ===1){groundColor[4]=r;groundColor[5]=g;groundColor[6]=b;}
+  else if (discovered[worldPos+worldWidth+1] >0 && discovered[worldPos+worldWidth] >0 && discovered[worldPos+1] >0){groundColor[4]=r/2;groundColor[5]=g/2;groundColor[6]=b/2;}
+  //o
+  if (discovered[worldPos-worldWidth+1] === 1 && discovered[worldPos-worldWidth] ===1 && discovered[worldPos+1] ===1){groundColor[8]=r; groundColor[9]=g;groundColor[10]=b;}
+  else if (discovered[worldPos-worldWidth+1] >0 && discovered[worldPos-worldWidth] >0 && discovered[worldPos+1] >0){ groundColor[8]=r/2;groundColor[9]=g/2; groundColor[10]=b/2;}
+  //l
+  if (discovered[worldPos-worldWidth-1] === 1 && discovered[worldPos-worldWidth] ===1 && discovered[worldPos-1] ===1){groundColor[12]=r;groundColor[13]=g;groundColor[14]=b;}
+  else if (discovered[worldPos-worldWidth-1] >0 && discovered[worldPos-worldWidth] >0 && discovered[worldPos-1] >0){groundColor[12]=r/2;groundColor[13]=g/2;groundColor[14]=b/2;}
+  
   let vertexPos = 
   [
-    32,32-heightVertex[worldPos+(worldWidth+1)]/*u*/, 
-    64,16-heightVertex[worldPos+1+(worldWidth+1)]/*r*/, 
-    32,0-heightVertex[worldPos+1]/*o*/, 
-    0,16-heightVertex[worldPos]/*l*/
+    32,32-heightVertex[vertexWorldPos+(worldWidth+1)]/*u*/, 
+    64,16-heightVertex[vertexWorldPos+1+(worldWidth+1)]/*r*/, 
+    32,0-heightVertex[vertexWorldPos+1]/*o*/, 
+    0,16-heightVertex[vertexWorldPos]/*l*/
   ];
   gl2D.matrix.setTranslate([pos[0],pos[1]])
   gl2D.drawSquare(texture,groundSrc,vertexPos/*l*/,groundColor);
@@ -47,10 +64,10 @@ function render(curWorld) {
 
       tmplast = Date.now();
 
-      groundColor[0]=groundColor[4]=groundColor[8]=groundColor[12]=color[0];
-      groundColor[1]=groundColor[5]=groundColor[9]=groundColor[13]=color[1];
-      groundColor[2]=groundColor[6]=groundColor[10]=groundColor[14]=color[2];
-      groundColor[3]=groundColor[7]=groundColor[11]=groundColor[15]=color[3];
+      // groundColor[0]=groundColor[4]=groundColor[8]=groundColor[12]=color[0];
+      // groundColor[1]=groundColor[5]=groundColor[9]=groundColor[13]=color[1];
+      // groundColor[2]=groundColor[6]=groundColor[10]=groundColor[14]=color[2];
+      // groundColor[3]=groundColor[7]=groundColor[11]=groundColor[15]=color[3];
 
       let width = canvas.width, height=canvas.height;
       let Indentation = 0;
@@ -62,6 +79,8 @@ function render(curWorld) {
       let aktPosY = ((mapPosY|0) + addPosX - addPosY);
       let drawList = [];
       let drawListIndex = 0;
+      let fogDrawList = [];
+      let fogDrawListIndex = 0;
       for (let iy = -1; iy <= (((height+256)/16))|0; iy++) {
         if (Indentation == 0) {Indentation=1;posy++;posx--;}
         else Indentation = 0;
@@ -72,22 +91,22 @@ function render(curWorld) {
           aktPosY--;
           if (aktPosX < worldWidth && aktPosX >= 0 && aktPosY < worldHeight && aktPosY >= 0 ){
             let worldOffset = aktPosX+aktPosY*worldWidth;
-            let drawPosX = 64*ix+32*Indentation;
-            let drawPosY = 16*iy;
-            //gl2D.drawImage(texture,[0,0,64,32],[drawPosX,drawPosY,64,32],color);
-            //if (groundTexture !== void 0)
-            drawGround(groundTextures,curWorld.ground[worldOffset], aktPosX+aktPosY*(worldWidth+1),[drawPosX,drawPosY]);
-            // let isAktField = (aktPosX >= aktPlayerPosX && aktPosY >= aktPlayerPosY && aktPosX < aktPlayerPosX + StaticEntity[aktGameObject].size && aktPosY < aktPlayerPosY + StaticEntity[aktGameObject].size)
-            let aktReferenceX = (curWorld.referenceX[worldOffset]);
-            let aktReferenceY = (curWorld.referenceY[worldOffset]);
-            let refOffset = aktPosX - aktReferenceX+(aktPosY -aktReferenceY)*worldWidth;
-            let typ = curWorld.typ[refOffset];
-            let height = worldHeightMap[refOffset];
-            let version = curWorld.version[refOffset]; 
-        
+            if (curWorld.discovered[worldOffset] !== 0){
+              let drawPosX = 64*ix+32*Indentation;
+              let drawPosY = 16*iy;
+              //gl2D.drawImage(texture,[0,0,64,32],[drawPosX,drawPosY,64,32],color);
+              //if (groundTexture !== void 0)
+              drawGround(groundTextures,curWorld.ground[worldOffset], worldOffset, aktPosX+aktPosY*(worldWidth+1),[drawPosX,drawPosY]);
+              // let isAktField = (aktPosX >= aktPlayerPosX && aktPosY >= aktPlayerPosY && aktPosX < aktPlayerPosX + StaticEntity[aktGameObject].size && aktPosY < aktPlayerPosY + StaticEntity[aktGameObject].size)
+              let aktReferenceX = (curWorld.referenceX[worldOffset]);
+              let aktReferenceY = (curWorld.referenceY[worldOffset]);
+              let refOffset = aktPosX - aktReferenceX+(aktPosY -aktReferenceY)*worldWidth;
+              let typ = curWorld.typ[refOffset];
+              let height = worldHeightMap[refOffset];
+              let version = curWorld.version[refOffset]; 
+          
 
-            let sObject = staticObject[typ];
-            if (true || curWorld.discovered[worldOffset] === 1){
+              let sObject = staticObject[typ];
               if (typ > 0 && sObject.texture[version] !== void 0){
 
                 let addGraphicWidth = sObject.addGraphicWidth;
@@ -98,26 +117,38 @@ function render(curWorld) {
                 let imgSrcX = (aktReferenceX * 32)+ (aktReferenceY * 32) + (sObject.size * 64 + 128) * (anim);
                 let imgSrcY = 16 * (sObject.size - 1) -(aktReferenceX * 16) + (aktReferenceY * 16);
 
-                drawList[drawListIndex++] = [sObject.texture[version], [imgSrcX,imgSrcY,64+addGraphicWidth*2,32+overDraw],[drawPosX-addGraphicWidth,drawPosY-overDraw-height,64+addGraphicWidth*2,32+overDraw],color];
-              }
-
-              for (let i = 0; i<curWorld.entity[worldOffset].length;i++){
-                let curEntity = entityList[curWorld.entity[worldOffset][i]];
-                if (movableObject[curEntity.typ].texture[0] !== void 0){
-                  let entitySize = movableObject[curEntity.typ].graphicSize;
-                  let entitySrcX = (curEntity.directionX+1)*(entitySize)*2;
-                  let entitySrcY = (curEntity.directionY+1)*(entitySize);
-
-                  let directionPosX = (curEntity.moveProcess*32)*curEntity.directionX+(curEntity.moveProcess*32)*curEntity.directionY;
-                  let directionPosY = -(curEntity.moveProcess*16)*curEntity.directionX+(curEntity.moveProcess*16)*curEntity.directionY;
-
-                  drawList[drawListIndex++] = [movableObject[curEntity.typ].texture[0], [entitySrcX,entitySrcY,entitySize*2,entitySize],[drawPosX+directionPosX,drawPosY-height+directionPosY,64,32],color];
+                if (curWorld.discovered[worldOffset] === 1){
+                  drawList[drawListIndex++] = [sObject.texture[version], [imgSrcX,imgSrcY,64+addGraphicWidth*2,32+overDraw],[drawPosX-addGraphicWidth,drawPosY-overDraw-height,64+addGraphicWidth*2,32+overDraw],color];
+                }
+                else{
+                  drawList[drawListIndex++] = [sObject.texture[version], [imgSrcX,imgSrcY,64+addGraphicWidth*2,32+overDraw],[drawPosX-addGraphicWidth,drawPosY-overDraw-height,64+addGraphicWidth*2,32+overDraw],[color[0]/2,color[1]/2,color[2]/2,color[3]]];
                 }
               }
-            }
 
-            if (worldOffset === mapMousePos) {
-              drawGround(guiTexture[0],0, aktPosX+aktPosY*(worldWidth+1),[drawPosX,drawPosY]);
+              if (curWorld.discovered[worldOffset] === 1){
+                for (let i = 0; i<curWorld.entity[worldOffset].length;i++){
+                  let curEntity = entityList[curWorld.entity[worldOffset][i]];
+                  if (movableObject[curEntity.typ].texture[0] !== void 0){
+                    let entitySize = movableObject[curEntity.typ].graphicSize;
+                    let entitySrcX = (curEntity.directionX+1)*(entitySize)*2;
+                    let entitySrcY = (curEntity.directionY+1)*(entitySize);
+
+                    let directionPosX = (curEntity.moveProcess*32)*curEntity.directionX+(curEntity.moveProcess*32)*curEntity.directionY;
+                    let directionPosY = -(curEntity.moveProcess*16)*curEntity.directionX+(curEntity.moveProcess*16)*curEntity.directionY;
+
+                    drawList[drawListIndex++] = [movableObject[curEntity.typ].texture[0], [entitySrcX,entitySrcY,entitySize*2,entitySize],[drawPosX+directionPosX,drawPosY-height+directionPosY,64,32],color];
+                  }
+                }
+              }
+
+              if (worldOffset === mapMousePos) {
+                drawGround(guiTexture[0],0, worldOffset,aktPosX+aktPosY*(worldWidth+1),[drawPosX,drawPosY]);
+              }
+
+            }
+            else {
+              //drawGround(guiTexture[0],0, worldOffset,aktPosX+aktPosY*(worldWidth+1),[drawPosX,drawPosY]);
+              //fogDrawList[fogDrawListIndex++] = [effects[0], [0,0,64*3,32*3],[drawPosX-64,drawPosY-height-32,64*3,32*3],color];
             }
           }
         }
@@ -125,6 +156,9 @@ function render(curWorld) {
       for (let i = 0;i<drawListIndex;i++){
         gl2D.drawImage(drawList[i][0], drawList[i][1],drawList[i][2],drawList[i][3]);
       }
+      // for (let i = 0;i<fogDrawListIndex;i++){
+      //   gl2D.drawImage(fogDrawList[i][0], fogDrawList[i][1],fogDrawList[i][2],fogDrawList[i][3]);
+      // }
       //gl2D.drawPrimitives(nullTexture,groundSrc,[0,0, width,0, width,height, 0,height],[200,200,255,50, 200,200,255,50, 200,200,255,0, 200,200,255,0]);
       date = Date.now();
       useTime = (useTime*3 + (date - tmplast))/4;
@@ -154,7 +188,7 @@ function render(curWorld) {
       date = Date.now();
       now = (now*3 + (date - last))/4;
       
-     console.log("FPS => "+(Date.now()-date));
+     //console.log("FPS => "+(Date.now()-date));
     // }
     // catch(e) {console.log(e);}
   }

@@ -10,8 +10,8 @@ let mapMouseX = 0,mapMouseY = 0;
 let mapMoveX = 0,mapMoveY = 0;
 let mapPosX = 0,mapPosY = 0;
 let decmapPosX = 0, decmapPosY = 0;
-let worldWidth = 512;
-let worldHeight = 512;
+let worldWidth = 256;
+let worldHeight = 256;
 let worldHeightVertex = new Int16Array((worldWidth+1)*(worldHeight+1));
 let worldHeightMap = new Uint16Array(worldWidth*worldHeight);
 let animator = [];
@@ -22,6 +22,7 @@ let nullTexture;
 let guiTexture = [];
 let groundTextures;
 
+let effects = [];
 let iconGraphic = [];
 let groundObject = [];
 let staticObject = [];

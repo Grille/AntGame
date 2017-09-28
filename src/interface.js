@@ -57,8 +57,8 @@ function buildHTML(){
     for (let iy = 0;iy < 2;iy++){
     butList[ix][iy]=gui.addButton(iconGraphic[0],[260 + 52 * ix,34+52*iy,48,48]);
     butList[ix][iy].anchor[3] = true;
-    butList[ix][iy].enabled = false;
-    butList[ix][iy].visible = false;
+    // butList[ix][iy].enabled = false;
+    // butList[ix][iy].visible = false;
     }
   }
 

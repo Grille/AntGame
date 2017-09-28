@@ -271,7 +271,7 @@ function webGL2DStart(canvas) {
         return gl2D.useMatrixResult;
       },
     
-      drawPrimitive : (texture,src,dst,inputColor) => {
+      drawTriangle : (texture,src,dst,inputColor) => {
         let gl = gl2D.gl;
         let IndexOffset = gl2D.IndexOffset;
         let bufferOffset = gl2D.bufferOffset;
@@ -330,7 +330,7 @@ function webGL2DStart(canvas) {
         gl2D.bufferOffset+=3;
 
       },
-      drawPrimitives: (texture,src,dst,inputColor) => {
+      drawTriangleFan: (texture,src,dst,inputColor) => {
         let gl = gl2D.gl;
         let IndexOffset = gl2D.IndexOffset;
         let bufferOffset = gl2D.bufferOffset;

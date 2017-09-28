@@ -1,6 +1,8 @@
 
 [
-  {},
+  {
+    "passable":false
+  },
   {
     "name":"dirt",
     "offsetX":1

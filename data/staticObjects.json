@@ -47,7 +47,8 @@
   {
     "ID":9,
     "name":"wood",
-    "path":"./data/png/static/wood"
+    "path":"./data/png/static/wood",
+    "passable":true
   },
   {
     "ID":10,
@@ -58,35 +59,64 @@
   {
     "ID":11,
     "name":"cadaverUsed",
+    "path":"./data/png/static/test2x2",
     "size":2
   },
   {
     "ID":12,
     "name":"cadaverConsumed",
+    "path":"./data/png/static/test2x2",
     "size":2
   },
   {
     "ID":13,
     "name":"waste",
+    "path":"./data/png/static/test2x2",
     "size":2
   },
   {
     "ID":14,
     "name":"wasteUsed",
+    "path":"./data/png/static/test2x2",
     "size":2
   },
   {
     "ID":15,
     "name":"wasteConsumed",
+    "path":"./data/png/static/test2x2",
     "size":2
   },
   {
     "ID":16,
-    "name":"entry"
+    "name":"flower"
   },
   {
     "ID":17,
-    "name":"exit"
+    "name":"leave",
+    "passable":true
+  },
+  {
+    "ID":18,
+    "name":"tree",
+    "path":"./data/png/static/test2x2",
+    "size":2
+  },
+  {
+    "ID":19,
+    "name":"bigStone",
+    "path":"./data/png/static/test2x2",
+    "size":2
+  },
+  
+  {
+    "ID":20,
+    "name":"entry",
+    "passable":true
+  },
+  {
+    "ID":21,
+    "name":"exit",
+    "passable":true
   }
 
 ]

@@ -1,5 +1,26 @@
 "use strict"
 
+function discover(world,posX,posY,size){
+  size++;
+  let startX = posX - size,startY = posY - size,endX = posX + size,endY = posY + size;
+
+  if (startX<1)startX=1;
+  if (startY<1)startY=1;
+  if (endX>worldWidth-2)endX=worldWidth-2;
+  if (endY>worldHeight-2)endY=worldHeight-2;
+
+  for (let ix = startX;ix<=endX;ix++){
+    for (let iy = startY;iy<=endY;iy++){
+      world.discovered[ix+iy*worldWidth] = 1;
+    }
+  }
+
+  for (let ix = startX;ix<=endX;ix++)world.discovered[ix+startY*worldWidth] = 2;
+  for (let ix = startX;ix<=endX;ix++)world.discovered[ix+endY*worldWidth] = 2;
+  for (let iy = startY;iy<=endY;iy++)world.discovered[startX+iy*worldWidth] = 2;
+  for (let iy = startY;iy<=endY;iy++)world.discovered[endX+iy*worldWidth] = 2;
+}
+
 function buildStatic(world,posX,posY,typ){
   let offset = posX+posY*worldWidth;
   world.version[offset] = Math.random()*staticObject[typ].versions;
@@ -18,6 +39,8 @@ function addEntity(world,typ,posX,posY){
   let i = 0;
   while(entityList[i]!==void 0) i++
     entityList[i] = {
+      changePos:false,
+      playerControled:true,
       world:world,
       moveProcess:0,
       way:[0,0],
@@ -35,9 +58,10 @@ function addEntity(world,typ,posX,posY){
       directionY:1
     
     };
-    for (let ix = -4;ix <=4;ix++)
-      for (let iy = -4;iy <=4;iy++)
-        world.discovered[posX+ix+(posY+iy)*worldWidth] = 1;
+    // for (let ix = -4;ix <=4;ix++)
+    //   for (let iy = -4;iy <=4;iy++)
+    //     world.discovered[posX+ix+(posY+iy)*worldWidth] = 1;
+    discover(world,posX,posY,movableObject[entityList[i].typ].viewRange);
     world.entity[posX+posY*worldWidth] = [i];
     return i;
 }
@@ -54,35 +78,49 @@ function sendEntity(entity,goalX,goalY){
 
   for (let i = 0;i<worldWidth*worldHeight;i++){
     
-    if (staticObject[world.typ[i]].passable===true)
-    world.way[i] = 0;
+    if (staticObject[world.typ[i]].passable===true && groundObject[world.ground[i]].passable===true && world.discovered[i] !== 0)
+      world.way[i] = 0;
     else 
-    world.way[i] = 1000;
+      world.way[i] = 1000;
   }
+
+
+  //is entity moving
 
   let posX = curEntity.posX;
   let posY = curEntity.posY;
   let way = findWay(world.way,worldWidth,posX,posY,goalX,goalY);
-  curEntity.wayPos = 1;
-  curEntity.wayLength = (way.length-2)/2;
-  for (let i = 0;i<=way.length;i+=2){
-    world.ground[posX+posY*worldWidth]=0;
-    posX+=way[i];
-    posY+=way[i+1];
-  }
-  // console.log("way Time = "+(Date.now()-date)+"ms");
-  // console.log(way);
 
+  if(curEntity.wayPos !== curEntity.wayLength+1) {
+    curEntity.wayPos = 0;
+    console.log("test");
+  }
+  else{
+    curEntity.wayPos = 1;
+  }
+  curEntity.wayLength = (way.length-2)/2;
   curEntity.way = way;
+
 
 
 }
 function simulateEntity(entity){
   let curEntity = entityList[entity];
+
+  // console.log("-----------------------------------");
+  // console.log(curEntity.wayPos);
+  // console.log(curEntity.wayLength);
+
   if (curEntity.wayPos < curEntity.wayLength)
     moveEntity(entity,curEntity.way[curEntity.wayPos*2],curEntity.way[curEntity.wayPos*2+1],false);
-  else if (curEntity.wayPos === curEntity.wayLength)
+  else if (curEntity.wayPos === curEntity.wayLength){
     moveEntity(entity,curEntity.way[curEntity.wayPos*2],curEntity.way[curEntity.wayPos*2+1],true);
+  }
+  if (curEntity.changePos === true && curEntity.playerControled === true){
+    discover(curEntity.world,curEntity.posX,curEntity.posY,movableObject[curEntity.typ].viewRange);
+    curEntity.changePos = false;
+  }
+  
 }
 function moveEntity(entity,moveX,moveY,end){
   if (moveX !==0||moveY!==0){
@@ -95,6 +133,7 @@ function moveEntity(entity,moveX,moveY,end){
 
     if (curEntity.moveProcess >= 1){
       curEntity.world.entity[curEntity.pos] = [];
+      curEntity.changePos = true;
       if (end === false)curEntity.moveProcess-=1;
       else curEntity.moveProcess=0;
       curEntity.posX+=moveX;
@@ -104,7 +143,6 @@ function moveEntity(entity,moveX,moveY,end){
       curEntity.pos = pos;
       curEntity.wayPos+=1;
       curEntity.world.entity[pos] = [entity];
-
     }
   }
 }
