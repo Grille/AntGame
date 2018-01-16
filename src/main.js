@@ -227,8 +227,19 @@ function buildMap(){
   let endY=250;
 
 
-  let entity = addEntity(worldO,0,worldWidth/2,worldHeight/2);
-  //sendEntity(entity,200,250);
+  // for (let ix = 0;ix<10;ix++){
+  //   for (let iy = 0;iy<10;iy++){
+      addEntity(worldO,0,worldWidth/2,worldHeight/2);
+  //   }
+  // }
+
+  //let entity = addEntity(worldO,0,worldWidth/2+1,worldHeight/2+2);
+
+  addEntity(worldO,0,worldWidth/2,worldHeight/2-2);
+
+
+
+  //sendEntity(entity,64,64);
 
 
   //addEntity(worldO,0,3,3);
@@ -257,7 +268,7 @@ function main(){
   //initGL2DGui();
   loadGameData();
   resize();
-  buildHTML();
+  buildGui();
   addEvents();
   buildMap();
   //run Game

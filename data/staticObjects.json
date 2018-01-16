@@ -111,11 +111,13 @@
   {
     "ID":20,
     "name":"entry",
+    "path":"./data/png/static/entry",
     "passable":true
   },
   {
     "ID":21,
     "name":"exit",
+    "path":"./data/png/static/exit",
     "passable":true
   }
 

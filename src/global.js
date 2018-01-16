@@ -28,6 +28,8 @@ let groundObject = [];
 let staticObject = [];
 let movableObject = [];
 
+let curBuild = 0;
+
 let entityList = [];
 
 
@@ -41,6 +43,7 @@ let worldO = {
   referenceY : new Uint8Array(worldWidth*worldHeight),
   stability : new Uint8Array(worldWidth*worldHeight),
   discovered : new Uint8Array(worldWidth*worldHeight),
+  fill : new Uint8Array(worldWidth*worldHeight),
   entity:[],
 }
 let worldU = {
@@ -53,6 +56,7 @@ let worldU = {
   referenceY : new Uint8Array(worldWidth*worldHeight),
   stability : new Uint8Array(worldWidth*worldHeight),
   discovered : new Uint8Array(worldWidth*worldHeight),
+  fill : new Uint8Array(worldWidth*worldHeight),
   entity:[],
 }
 for (let i = 0;i<worldWidth*worldHeight;i++){

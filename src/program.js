@@ -32,8 +32,11 @@ function renderTimer(){
   date = Date.now();
   while (Timer100>100){
     Timer100-=100;
-    simulateEntity(0);
-    //console.log("time = "+timeH);
+    let i = 0;
+    while (true){
+      if (entityList[i] === void 0)break;
+      simulateEntity(i++);
+    }
   }
 
   date = Date.now();

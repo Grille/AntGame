@@ -8,115 +8,47 @@ let mouse = {
   dy : 0,
   mode : 0,
   down : false,
-  setMouse : (e,mode) => { 
-        //console.log("-----------------------------------------------------------------------sm")
-        //console.log(e);
+    setMouse : (e,mode) => { 
+      if ("which" in e)  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+      mouse.isRightMB = e.which === 3; 
+      else if ("button" in e)  // IE, Opera 
+      mouse.isRightMB = e.button === 2; 
 
-        if ("which" in e)  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
-        mouse.isRightMB = e.which === 3; 
-        else if ("button" in e)  // IE, Opera 
-        mouse.isRightMB = e.button === 2; 
-
-        mouse.x = e.clientX
-        mouse.y = e.clientY
-
-        //this.mode = mode;
-        // switch (mode)
-        // {
-        //   case 0:break;
-        //   case 1:
-        //   this.down = true;
-        //   this.dx = this.x;
-        //   this.dy = this.y;
-        //   break;
-        //   case 2:
-        //   this.down = false;
-        //   break;
-        // }
-        //console.log("mode:"+this.mode+ " down:"+this.down)
-    }
+      mouse.x = e.clientX
+      mouse.y = e.clientY
+  }
 };
 
 function resize(){
-
   gl2D.gl.viewportWidth = canvas.width = window.innerWidth;
   gl2D.gl.viewportHeight =canvas.height = window.innerHeight;
-  // context.font = "12px Arial";
-  // context.fillStyle = "#000";
-
 }
 
-//let gui = []
 let butList = [];
-function buildHTML(){
-
-  
+function buildGui(){
   for (let ix = 0;ix<20;ix++){
     butList[ix] = [];
-
     for (let iy = 0;iy < 2;iy++){
-    butList[ix][iy]=gui.addButton(iconGraphic[0],[260 + 52 * ix,34+52*iy,48,48]);
+    butList[ix][iy]=gui.addButton(iconGraphic[0],[260 + 54 * ix+3,35+54*iy,48,48]);
     butList[ix][iy].anchor[3] = true;
-    // butList[ix][iy].enabled = false;
-    // butList[ix][iy].visible = false;
+    butList[ix][iy].borderSize = 3;
+    butList[ix][iy].enabled = false;
+    butList[ix][iy].visible = false;
     }
   }
-
   butList[1][0].enabled = true;
   butList[1][0].visible = true;
   butList[1][0].texture = iconGraphic[1];
-
   butList[1][0].mouseUp = () => {
-
-    buildStatic(worldO,entityList[0].posX,entityList[0].posY,2)
-    buildStatic(worldU,entityList[0].posX,entityList[0].posY,2)
-
-    entityList[0].world = worldU;
-    worldO.discovered[entityList[0].pos] = 1;
+    buildStatic(worldO,entityList[0].posX,entityList[0].posY,20)
+    buildStatic(worldU,entityList[0].posX,entityList[0].posY,21)
+    portEntity(0,worldU,entityList[0].posX,entityList[0].posY);
+    discover(worldU,entityList[0].posX,entityList[0].posY,2);
   }
-
-  // for (let i = 0;i<20;i++){
-  //   butList[i] = [];
-  //   butList[i][0]=document.createElement('button');
-  //   butList[i][0].textContent = i + ";" + 0;
-  //   butList[i][0].setAttribute("style", "position: fixed; bottom: 80px; left: "+ (260 + 48 * i) + "px;width: 48px;height: 48px; background: #671; opacity: 1;")
-  //   document.body.appendChild(butList[i][0]);
-    
-  //   butList[i][1]=document.createElement('button');
-  //   butList[i][1].textContent = i + ";" + 1;
-  //   butList[i][1].setAttribute("style", "position: fixed; bottom: 32px; left: "+ (260 + 48 * i) + "px;width: 48px;height: 48px; background: #671; opacity: 1;")
-  //   document.body.appendChild(butList[i][1]);
-  // }
-    //top bar
-  // guidiv[0] = document.createElement('div');
-  // guidiv[0].setAttribute('style', 'position: fixed; top: 0px; left: 0px;width: 100%;height: 32px; background: #671; opacity: 1;')
-  // document.body.appendChild(guidiv[0]);
-
-  // guidiv[1] = document.createElement('div');
-  // guidiv[1].setAttribute('style', 'position: fixed; bottom: 0px; left: 0px;width: 100%;height: 32px; background: #671; opacity: 1;')
-  // document.body.appendChild(guidiv[1]);
-
-  // guidiv[2] = document.createElement('div');
-  // guidiv[2].setAttribute('style', 'position: fixed; bottom: 32px; left: 0px;width: 128px;height: 128px; background: #671; opacity: 1;')
-  // document.body.appendChild(guidiv[2]);
-
-  // gui[0] = document.createElement('button');
-  // gui[0].textContent = 'Click to start game in fullscreenmode';
-  // gui[0].title = 'Press F11 to enter or leave fullscreen mode';
-  // gui[0].setAttribute('style', 'position: fixed; top: 0px; left: 0px;width: 256px;height: 32px; background: #561; color: #0f0; opacity: 1; cursor: pointer;border: 1px solid green;transition: 0s')
-  // document.body.appendChild(gui[0]);
-
-  // gui[1] = document.createElement('button');
-  // gui[1].textContent = 'switch world';
-  // gui[1].title = 'Press F11 to enter or leave fullscreen mode';
-  // gui[1].setAttribute('style', 'position: fixed; top: 0px; left: 256px;width: 256px;height: 32px; background: #561; color: #0f0; opacity: 1; cursor: pointer;border: 1px solid green;transition: 0s')
-  // document.body.appendChild(gui[1]);
-
-  
 }
 function addEvents(){
-
-  butFullscreen.addEventListener('click', function(event) {
+  
+  butFullscreen.addEventListener('click', (e) => {
     if (document.body.requestFullScreen) {
       document.body.requestFullScreen();
     } else if (document.body.mozRequestFullScreen) {
@@ -126,12 +58,10 @@ function addEvents(){
     }
   }, false);
 
- 
-  butSwitchWorld.addEventListener('click', function(event) {
-    
-        if (curWorld === worldO)curWorld = worldU;
-        else curWorld = worldO;
-      }, false);
+  butSwitchWorld.addEventListener('click', (e) => {
+    if (curWorld === worldO)curWorld = worldU;
+    else curWorld = worldO;
+  }, false);
 
   gui.mouseMove = (e) => {
     mouse.setMouse(e,0);
@@ -142,9 +72,11 @@ function addEvents(){
     mouse.setMouse(e,0);
     if (mouse.isRightMB===true){
       sendEntity(0,mapMouseX,mapMouseY);
+      //portEntity(0,null,mapMouseX,mapMouseY);
     }
     else{
-      buildStatic(curWorld,mapMouseX,mapMouseY,10)
+      buildStatic(curWorld,mapMouseX,mapMouseY,curBuild);
+      //portEntity(0,null,mapMouseX,mapMouseY);
     }
   }
   window.addEventListener("resize", resize); 
