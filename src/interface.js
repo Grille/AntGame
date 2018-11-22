@@ -1,21 +1,27 @@
 "use strict";
 
 let mouse = {
-  isRightMB : false,
+  rightDown : false,
+  leftDown : false,
+  middleDown : false,
   x : 0,
   y : 0,
-  dx : 0,
-  dy : 0,
-  mode : 0,
-  down : false,
-    setMouse : (e,mode) => { 
-      if ("which" in e)  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
-      mouse.isRightMB = e.which === 3; 
-      else if ("button" in e)  // IE, Opera 
-      mouse.isRightMB = e.button === 2; 
+  divx : 0,
+  divy : 0,
+  updateMouse : (e) => { 
+    if ("which" in e){  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
+      mouse.leftDown = e.which === 1; 
+      mouse.middleDown = e.which === 2; 
+      mouse.rightDown = e.which === 3; 
+    }
+    else if ("button" in e){  // IE, Opera 
+      mouse.rightDown = e.button === 2; 
+    }
+    mouse.divx = e.clientX-mouse.x;
+    mouse.divy = e.clientY-mouse.y;
 
-      mouse.x = e.clientX
-      mouse.y = e.clientY
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
   }
 };
 
@@ -46,100 +52,55 @@ function buildGui(){
     discover(worldU,entityList[0].posX,entityList[0].posY,2);
   }
 }
-function addEvents(){
-  
-  butFullscreen.addEventListener('click', (e) => {
-    if (document.body.requestFullScreen) {
-      document.body.requestFullScreen();
-    } else if (document.body.mozRequestFullScreen) {
-      document.body.mozRequestFullScreen();
-    } else if (document.body.webkitRequestFullScreen) {
-      document.body.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
-    }
-  }, false);
 
-  butSwitchWorld.addEventListener('click', (e) => {
-    if (curWorld === worldO)curWorld = worldU;
-    else curWorld = worldO;
-  }, false);
 
-  gui.mouseMove = (e) => {
-    mouse.setMouse(e,0);
-    mouseEffents();
-  }
 
-  gui.mouseUp = (e) => {
-    mouse.setMouse(e,0);
-    if (mouse.isRightMB===true){
-      sendEntity(0,mapMouseX,mapMouseY);
-      //portEntity(0,null,mapMouseX,mapMouseY);
-    }
-    else{
-      buildStatic(curWorld,mapMouseX,mapMouseY,curBuild);
-      //portEntity(0,null,mapMouseX,mapMouseY);
-    }
-  }
-  window.addEventListener("resize", resize); 
 
-}
 
-function mouseEffents(){
 
-  let e = mouse;//let ex = (e.x)|0;let ey = (e.y)|0;
-  //ex -= ((StaticEntity[aktGameObject].size-1) * 32);
-  let fy = ((e.x / 64) + (e.y / 32));let fx = ((e.x / 64) - (e.y / 32))+100;//float
+
+
+function mouseMove(){
+
+  let fx = ((mouse.x / (64*camera.scale)) - (mouse.y / (32*camera.scale)));let fy = ((mouse.x / (64*camera.scale)) + (mouse.y / (32*camera.scale)));//float
 
   let x = (fx-0.5);let y = (fy+0.5);
   // x-=0.5;
   // y+=0.5;
-  x += mapPosX-98;y += mapPosY;
+  x += camera.posX*camera.scale+2;y += camera.posY*camera.scale;
   // if (!mouse.isRightMB){ //Right
   mapMouseX = x|0;mapMouseY = y|0;
-  mapMousePos = (x)|0+((y)|0)*worldWidth;
+  mapMousePos = (x)|0+((y)|0)*world.width;
 
 
   let curHeight = 0;
   while(true){
-    let nextHeight = worldHeightMap[mapMousePos-1+worldWidth]-curHeight;
+    let nextHeight = world.heightMap[mapMousePos-1+world.width]-curHeight;
     if (nextHeight>0){
       x-=nextHeight/32;
       y+=nextHeight/32;
-      mapMousePos = mapMousePos -1 + worldHeight;
-      curHeight = worldHeightMap[mapMousePos];
+      mapMousePos = mapMousePos -1 + world.height;
+      curHeight = world.heightMap[mapMousePos];
 
     }
     else break;
   }
 
   mapMouseX = x|0;mapMouseY = y|0;
-  mapMousePos = (x)|0+((y)|0)*worldWidth;
+  mapMousePos = (x)|0+((y)|0)*world.width;
 
-  mapMoveX = 0;
-  mapMoveY = 0;
-  //console.log(e.x);
-  if (e.x < 5) mapMoveX = -1;
-  if (e.y < 5) mapMoveY = -1;
-  if (e.x > canvas.width-5) mapMoveX = 1;
-  if (e.y > canvas.height-5) mapMoveY = 1;
+  mapMoveX = mapMoveY = 0;
+  if(mouse.middleDown){
+    //mapMoveX += 1;
+    //mapMoveY += mouse.divy*0.5;
+  }
+  if(window.innerWidth == screen.width && window.innerHeight == screen.height) {
+    if (mouse.x < 5) mapMoveX = -1;
+    if (mouse.y < 5) mapMoveY = -1;
+    if (mouse.x > canvas.width-5) mapMoveX = 1;
+    if (mouse.y > canvas.height-5) mapMoveY = 1;
+  }
 };
 function mapScroal(factor){
-  // mouseEffents();
-
-  // skip function if nothing to do
-  //if (mapMoveX === 0 && mapMoveY === 0) return void 0;
-
-  //if (timeFactor<1)timeFactor=1;
-  let oldPosX = mapPosX;
-  let oldPosY = mapPosY;
-  decmapPosX += (0 + mapMoveX*factor)|0;
-  decmapPosY += (0 + mapMoveX*factor)|0;
-  decmapPosX += (0 - mapMoveY*factor)|0;
-  decmapPosY -= (0 - mapMoveY*factor)|0;
-
-  //console.log ("... -> "+decmapPosX+" -> "+mapPosX);
-  while (decmapPosX>=1===true){decmapPosX--;mapPosX++;}
-  while (decmapPosX<0===true){decmapPosX++;mapPosX--;}
-  while (decmapPosY>=1===true){decmapPosY--;mapPosY++;}
-  while (decmapPosY<0===true){decmapPosY++;mapPosY--;}
-        //mapMoveX = 0; mapMoveY = 0;
+  camera.move(mapMoveX,mapMoveY);
 }

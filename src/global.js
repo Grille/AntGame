@@ -10,10 +10,6 @@ let mapMouseX = 0,mapMouseY = 0;
 let mapMoveX = 0,mapMoveY = 0;
 let mapPosX = 0,mapPosY = 0;
 let decmapPosX = 0, decmapPosY = 0;
-let worldWidth = 256;
-let worldHeight = 256;
-let worldHeightVertex = new Int16Array((worldWidth+1)*(worldHeight+1));
-let worldHeightMap = new Uint16Array(worldWidth*worldHeight);
 let animator = [];
 
 let selectetTyp = 0;
@@ -21,6 +17,8 @@ let selectetIndex = 0;
 let nullTexture;
 let guiTexture = [];
 let groundTextures;
+let underGroundTextures;
+let underGroundWallTextures;
 
 let effects = [];
 let iconGraphic = [];
@@ -32,40 +30,10 @@ let curBuild = 0;
 
 let entityList = [];
 
+let world = new World(256,256);
+let curLayer = world.upperLayer;
 
-let worldO = {
-  typ : new Uint8Array(worldWidth*worldHeight),
-  walkable: new Uint8Array(worldWidth*worldHeight),
-  way: new Uint16Array(worldWidth*worldHeight),
-  ground : new Uint8Array(worldWidth*worldHeight),
-  version : new Uint8Array(worldWidth*worldHeight),
-  referenceX : new Uint8Array(worldWidth*worldHeight),
-  referenceY : new Uint8Array(worldWidth*worldHeight),
-  stability : new Uint8Array(worldWidth*worldHeight),
-  discovered : new Uint8Array(worldWidth*worldHeight),
-  fill : new Uint8Array(worldWidth*worldHeight),
-  entity:[],
-}
-let worldU = {
-  typ : new Uint8Array(worldWidth*worldHeight),
-  walkable: new Uint8Array(worldWidth*worldHeight),
-  way: new Uint16Array(worldWidth*worldHeight),
-  ground : new Uint8Array(worldWidth*worldHeight),
-  version : new Uint8Array(worldWidth*worldHeight),
-  referenceX : new Uint8Array(worldWidth*worldHeight),
-  referenceY : new Uint8Array(worldWidth*worldHeight),
-  stability : new Uint8Array(worldWidth*worldHeight),
-  discovered : new Uint8Array(worldWidth*worldHeight),
-  fill : new Uint8Array(worldWidth*worldHeight),
-  entity:[],
-}
-for (let i = 0;i<worldWidth*worldHeight;i++){
-  worldO.entity[i] = [];
-  worldU.entity[i] = [];
-}
-
-let curWorld = worldO;
-
+let camera = new Camera(canvas);
 let timeS = 0;
 let timeM = 0;
 let timeH = 12;

@@ -1,10 +1,25 @@
+body{
+  color: rgb(162, 255, 0); 
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+     -moz-user-select: none; /* Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+          user-select: none; /* Non-prefixed version, currently
+                                supported by Chrome and Opera */
+}
+
 .default{
   position: fixed; 
 }
 
+::selection{
+  color: white;
+  background-color: black;
+}
 button {
   outline: none;
-  position: fixed; 
+  /*position: fixed;*/ 
   font-size: 12px;
   background: rgb(85, 102, 17); 
   color: rgb(162, 255, 0); 
@@ -12,6 +27,7 @@ button {
   cursor: pointer;
   border: 1px solid rgb(121, 152, 0);
   transition: 0s;
+  width: 256px;height: 32px;
 }
 button:hover {
   background-color: rgb(69, 83, 13);
@@ -20,7 +36,68 @@ button:active {
   background-color: rgb(69, 83, 13);
   border: 1px solid rgb(100, 206, 88);
 }
+input {
+  outline: none;
+  /*position: fixed;*/ 
+  font-size: 12px;
+  background: rgb(50, 59, 10); 
+  color: rgb(162, 255, 0); 
+  opacity: 1; 
+  border: 1px solid rgb(121, 152, 0);
+  transition: 0s;
+  width: 256px;height: 32px;
+  text-align: center;
+}
+input::placeholder{
+  color: rgb(96, 180, 0); 
+}
+
 div {
-  position: fixed; 
+  position: relative;
   background: rgb(102, 119, 17); 
+}
+
+.topBar{
+  top: 0px; left: 0px;width: 100%;height: 32px; background: rgb(60, 70, 10);
+}
+.botBar{
+  position: fixed;
+  bottom: 0px; left: 0px;width: 100%;height: 48px; background: #671;
+}
+
+.barBtn{
+  width: 48px;height: 48px;
+}
+.cmdBtn{
+  position: absolute;
+  width: 48px;height: 48px;
+}
+
+.resview{
+  width: min-content;
+  border: 2px solid rgb(43, 54, 0);
+}
+.resview input{
+  width: 64px;
+}
+.command{
+    width: 64px;height: 64px;
+}
+.menu {
+  /*visibility:hidden;*/
+  width: 256px;
+  height: 300px;
+
+  position: absolute;
+  top:0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border: 2px solid rgb(43, 54, 0);
+
+  margin: auto;
+  align-content: center;
+  align-items: center;
+  align-self: center;
+  background: #671;
 }

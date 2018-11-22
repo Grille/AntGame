@@ -7,7 +7,7 @@
       "name": "Launch Chrome against localhost",
       "runtimeArgs": [
         "--allow-file-access-from-files"
-        //"--start-fullscreen"
+        // "--start-fullscreen"
       ],
       "file": "${workspaceRoot}/index.html"
     }

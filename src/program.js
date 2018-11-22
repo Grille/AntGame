@@ -1,11 +1,15 @@
 "use strict";
 
 
+function startTimer(){
+  renderTimer();
+  logicTimer();
+}
 function renderTimer(){
-  render(curWorld);
+  render(curLayer);
   setTimeout(renderTimer, 16);
-  }
-  function timer(){
+}
+function logicTimer(){
   let ms = Date.now() - Timer;
   let factor = 1;
   //DebugString[0]=ms;
@@ -22,6 +26,12 @@ function renderTimer(){
   while (TimerScroal025>25){
     TimerScroal025-=25;
     mapScroal(1);
+
+    if (keyCode["ArrowUp"])camera.move(0,-1);
+    if (keyCode["ArrowRight"])camera.move(1,0);
+    if (keyCode["ArrowDown"])camera.move(0,1);
+    if (keyCode["ArrowLeft"])camera.move(-1,0);
+
   }
   date = Date.now();
   while (Timer025>25){
@@ -35,7 +45,7 @@ function renderTimer(){
     let i = 0;
     while (true){
       if (entityList[i] === void 0)break;
-      simulateEntity(i++);
+      updateEntity(i++);
     }
   }
 
@@ -52,7 +62,7 @@ function renderTimer(){
       }
     }
 
-    if (curWorld === worldO){
+    if (curLayer === world.upperLayer){
 
       if (timeH===7){
         let pro = 1-timeM/60;
@@ -71,9 +81,9 @@ function renderTimer(){
         color = [200,200,255,255];
       }
     }
-    else color = [200,200,200,255];
+    else color = [255,255,255,255];
 
-    setAnimator();
+    updateAnimatonNr();
   }
 
   date = Date.now();
@@ -83,6 +93,6 @@ function renderTimer(){
 
   Timer = Date.now();
 
-  setTimeout(timer, 10);
+  setTimeout(logicTimer, 10);
 }
 

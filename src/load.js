@@ -13,7 +13,7 @@ function loadGameData(){
   request.open("GET", "./data/templates.json", false);
   request.send(null)
   data.template = JSON.parse(request.responseText);
-  request.open("GET", "./data/groundObjects.json", false);
+  request.open("GET", "./data/groundTexture.json", false);
   request.send(null)
   data.ground = JSON.parse(request.responseText);
   request.open("GET", "./data/staticObjects.json", false);
@@ -35,6 +35,9 @@ function loadGameData(){
   // let context  = groundTexture.getContext("2d");
 
   groundTextures = gl2D.textureFromFile(data.template.ground.path);
+  underGroundTextures = gl2D.textureFromFile(data.template.ground.upath);
+  underGroundWallTextures = gl2D.textureFromFile(data.template.ground.uwpath);
+
   for (let i = 0;i<data.icons.length;i++){
     iconGraphic[i] = gl2D.textureFromFile(data.icons[i] + ".png");
   }

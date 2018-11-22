@@ -593,7 +593,7 @@ function webGL2DStart(canvas) {
   gl.viewportWidth = canvas.width;
   gl.viewportHeight = canvas.height;
 
-  let size = 32768
+  let size = 32768*4
 
   gl2D.vertexPosition = new Float32Array(size*2*2);
   gl2D.vertexTextureCoord = new Float32Array(size*2*2);

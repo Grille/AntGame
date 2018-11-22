@@ -2,7 +2,9 @@
 { 
   "ground" : {
     "name":"empty",
-    "path":"./data/png/ground/textures.png",
+    "path":"./data/png/ground/groundTextures.png",
+    "upath":"./data/png/ground/underGroundTextures.png",
+    "uwpath":"./data/png/ground/underGroundWallTextures.png",
     "passable":true,
     "offsetX":0,
     "offsetY":0,

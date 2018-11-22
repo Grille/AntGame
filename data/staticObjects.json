@@ -119,6 +119,11 @@
     "name":"exit",
     "path":"./data/png/static/exit",
     "passable":true
+  },
+  {
+    "ID":22,
+    "name":"wildMushroom",
+    "path":"./data/png/static/wildMushroom"
   }
 
 ]

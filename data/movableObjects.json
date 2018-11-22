@@ -3,14 +3,14 @@
     "ID":0,
     "name":"queen",
     "path":"./data/png/movable/unit",
-    "viewRange":8,
-    "canBuild":[[]]
+    "viewRange":8
   },
   {
     "ID":1,
     "name":"worker"
   },
   {
+
     "ID":2,
     "name":"scout"
   },
