@@ -95,7 +95,6 @@ function loadGameData(){
         staticObject[i].texture[iv] = gl2D.textureFromImage(image);
         staticObject[i].overDraw[iv] = staticObject[i].texture[iv].height - 32*staticObject[i].size;
         staticObject[i].animationPhases[iv] = image.width / (staticObject[i].addGraphicWidth*2 + (64*staticObject[i].size));
-        //console.log(i + " => "+staticObject[i].animationPhases[iv]);
       }
       image.src = staticObject[i].path + "_" + iv + ".png";
     }

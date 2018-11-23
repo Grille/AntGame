@@ -1,15 +1,20 @@
-function showMenu(){
+//html_divGui.style.pointerEvents = "none";
+
+let cmdIndex = 0;
+let cmdMemory = [];
+
+function showMenu() {
   html_divMenu.style.display = "block";
   html_divGui.style.display = "none";
 }
-function hideMenu(){
+function hideMenu() {
   html_divMenu.style.display = "none";
   html_divGui.style.display = "block";
 }
 
 let keyCode = [];
-function addEvents(){
-  
+function addEvents() {
+
   /*
   butFullscreen.addEventListener('click', (e) => {
     if (document.body.requestFullScreen) {
@@ -54,7 +59,7 @@ function addEvents(){
     keyCode[e.code] = true;
     console.log(e.code);
     switch (e.code) {
-      case "Escape":showMenu();break;
+      case "Escape": showMenu(); break;
     }
   }
   window.onkeyup = (e) => {
@@ -67,36 +72,75 @@ function addEvents(){
   }
   window.ondrop = (e) => {
     e.preventDefault();
-    let reader = new FileReader();  
-    reader.onload = function(event) {            
-         unpackData(event.target.result);
-         hideMenu();
-    }        
-    reader.readAsText(e.dataTransfer.files[0],"UTF-8");
+    let reader = new FileReader();
+    reader.onload = function (event) {
+      unpackData(event.target.result);
+      hideMenu();
+    }
+    reader.readAsText(e.dataTransfer.files[0], "UTF-8");
   }
-  gui.mouseMove = (e) => {
+  window.onmousemove = (e) => {
     mouse.updateMouse(e);
     mouseMove();
   }
 
-  
-  gui.mouseUp = (e) => {
+
+  canvas.onmouseup = (e) => {
     mouse.updateMouse(e);
     if (mouse.rightDown === true) {
       sendEntity(0, mapMouseX, mapMouseY);
       //portEntity(0,null,mapMouseX,mapMouseY);
     }
-    else if (mouse.middleDown){
-      camera.goTo(mapMouseX,mapMouseY);
+    else if (mouse.middleDown) {
+      camera.goTo(mapMouseX, mapMouseY);
     }
     else {
-      curBuild = 10;
       curLayer.buildStatic(mapMouseX, mapMouseY, curBuild);
-      curLayer.discovered[mapMouseX+mapMouseY*curLayer.width] = 2;
+      curLayer.discover(mapMouseX,mapMouseY,0);
+      //curLayer.discovered[mapMouseX + mapMouseY * curLayer.width] = 2;
       //portEntity(0,null,mapMouseX,mapMouseY);
     }
   }
-  
+
   window.addEventListener("resize", resize);
 
+  html_cmd.onkeyup = (e) => {
+    if (e.code =="ArrowUp" && cmdIndex > 0)html_cmd.value = cmdMemory[--cmdIndex];
+    if (e.code=="ArrowDown" && cmdMemory[cmdIndex+1]!==void 0)html_cmd.value = cmdMemory[++cmdIndex];
+  }
+
+  html_cmd.onchange = (e) => {
+    let cmdvalue = html_cmd.value.split(" ");
+    let canApply = false;
+    if (cmdvalue.length == 2) {
+      let command = cmdvalue[0];
+      let value = cmdvalue[1];
+      switch (command) {
+        case "build":
+          curBuild = parseInt(value);
+          canApply = true;
+          break;
+        case "scale":
+          camera.scale = parseFloat(value);
+          canApply = true;
+          break;
+      }
+    }
+    else {
+      let command = cmdvalue[0];
+      switch (command) {
+        case "discover":
+          world.setAsExplored();
+          canApply = true;
+          break;
+      }
+    }
+
+    if (canApply){
+      cmdMemory[cmdIndex++] = html_cmd.value;
+      html_cmd.value = "";
+    }
+  }
+
 }
+

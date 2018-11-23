@@ -9,8 +9,13 @@
 <body unselectable="on" onload="main();" style="overflow: hidden; margin: 0;background: rgba(0,0,0,1)" ; oncontextmenu="return false"
     ;>
     <canvas id="canvas" style="border: none; position: absolute; background: rgba(0,0,0,1); left: 0px;" width="256" height="256"></canvas>
+    <canvas id="canvas2d" class="transparent" style="border: none; position: absolute; left: 0px;" width="256" height="256"></canvas>
     <!-- top bar -->
-    <div id="html_divGui" style="position:fixed; width: 100%;background-color: transparent">
+    <div id="html_divGui" class = "transparent" style="position:fixed; width: 100%;">
+        <div id="html_mouseInfo" style="position: absolute; background: rgba(20,10,0,0.0); text-shadow: 1px 1px black">
+            typ: hause<br>
+            ground: sand<br>
+        </div>
         <div class="topBar" ;>
             <!-- <button id="butFullscreen" style="top: 0px; left: 0px;">Click to start game in fullscreenmode</button> -->
             <button id="html_btnMenu" style="top: 0px; right: 0px;">Menu</button>
@@ -70,13 +75,17 @@
                 </tr>
             </table>
         </div>
+        <input type="text" spellcheck="false" id="html_cmd" style="background-color:black;color: lightgrey;font-family: 'Courier New', Courier, monospace">
         <!-- bottom bar -->
-        <div class="botBar" style="bottom: 52px; background-color: transparent">
-            <button id = "html_cBtnExplore" class="cmdBtn" style="top:0px;left:0px">explore</button>
-            <button class="cmdBtn" style="top:0px;left:50px">build</button>
-            <button class="cmdBtn" style="top:0px;left:100px"></button>
-            <button class="cmdBtn" style="top:0px;left:150px"></button>
-            <button class="cmdBtn" style="top:0px;left:200px"></button>
+        <div id="cmdBar" class="transparent botBar" style="left:200px; bottom: 60px;">
+            <button id = "html_cBtnExplore" class="cmdBtn" style="top:0px;left:0px">explore/dig</button>
+            <button id = "html_cBtnExplore" class="cmdBtn" style="top:0px;left:50px">harvest</button>
+            <button class="cmdBtn" style="top:0px;left:150px">s enter</button>
+            <button class="cmdBtn" style="top:0px;left:200px">m enter</button>
+            <button class="cmdBtn" style="top:0px;left:250px">b enter</button>
+            <button class="cmdBtn" style="top:0px;left:350px">f storage</button>
+            <button class="cmdBtn" style="top:0px;left:400px">m storage</button>
+            <button class="cmdBtn" style="top:0px;left:450px">l storage</button>
         </div>
         <div class="botBar" ;>
             <button id="butSwitchWorld" class="barBtn" style="background-image: url(data/png/gui/switch.png)"></button>

@@ -7,6 +7,8 @@ body{
       -ms-user-select: none; /* Internet Explorer/Edge */
           user-select: none; /* Non-prefixed version, currently
                                 supported by Chrome and Opera */
+
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif
 }
 
 .default{
@@ -46,7 +48,7 @@ input {
   border: 1px solid rgb(121, 152, 0);
   transition: 0s;
   width: 256px;height: 32px;
-  text-align: center;
+  /* text-align: center; */
 }
 input::placeholder{
   color: rgb(96, 180, 0); 
@@ -100,4 +102,12 @@ div {
   align-items: center;
   align-self: center;
   background: #671;
+}
+
+.transparent{
+  background-color: transparent;
+  pointer-events: none;
+}
+.transparent *{
+  pointer-events: initial;
 }

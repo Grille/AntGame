@@ -5,12 +5,14 @@
 
 function main(){
   //init game Data
-  gl2D = webGL2DStart(canvas);
+  gl2D = new WebGL2DContext(canvas);
+  ctx = canvas2d.getContext('2d');
+  console.log(ctx);
   gui = initGL2DGui(window);
 
   loadGameData();
   resize();
-  buildGui();
+  //buildGui();
   addEvents();
   world.generateMap();
   world.setAsExplored();

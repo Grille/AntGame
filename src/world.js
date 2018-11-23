@@ -101,11 +101,12 @@ WorldLayer.prototype.discover = function (posX, posY, size) {
 }
 WorldLayer.prototype.buildStatic = function (posX, posY, staticID) {
   let offset = posX + posY * this.width;
-  this.version[offset] = Math.random() * staticObject[staticID].versions;
+  for (let ix = 0; ix < staticObject[staticID].size; ix++)
+    for (let iy = 0; iy < staticObject[staticID].size; iy++)
+      this.clear(posX+ix,posY+iy);
+
   for (let ix = 0; ix < staticObject[staticID].size; ix++) {
     for (let iy = 0; iy < staticObject[staticID].size; iy++) {
-      this.version[offset + ix + iy * this.width] = this.version[offset];
-      this.typ[offset + ix + iy * this.width] = 0;
       this.referenceX[offset + ix + iy * this.width] = ix;
       this.referenceY[offset + ix + iy * this.width] = iy;
     }
@@ -113,6 +114,23 @@ WorldLayer.prototype.buildStatic = function (posX, posY, staticID) {
   this.typ[offset] = staticID;
   this.version[offset] = Math.random() * staticObject[staticID].versions;
 }
+WorldLayer.prototype.clear = function (posX, posY) {
+  let pos = posX+posY*this.width;
+  let x = posX - this.referenceX[pos],y = posY - this.referenceY[pos];
+  let typ = this.typ[x+y*this.width];
+  if (typ == 0)return;
+
+  for (let ix = 0; ix < staticObject[typ].size; ix++) {
+    for (let iy = 0; iy < staticObject[typ].size; iy++) {
+      let pos = x+ix+(y+iy)*this.width;
+      this.typ[pos] = 0;
+      this.version[pos] = 0;
+      this.referenceX[pos] = 0;
+      this.referenceY[pos] = 0;
+    }
+  }
+}
+
 
 World.prototype.generateMap = function () {
 
@@ -206,7 +224,7 @@ World.prototype.generateMap = function () {
   for (let ix = 0; ix < this.width; ix++) upperLayer.buildStatic(ix, 0, 1);
   for (let ix = 0; ix < this.width; ix++) upperLayer.buildStatic(ix, this.height - 1, 1);
   for (let iy = 0; iy < this.height; iy++) upperLayer.buildStatic(0, iy, 1);
-  for (let iy = 0; iy < this.height; iy++) upperLayer.buildStatic(this.width - 1, iy - 1, 1);
+  for (let iy = 0; iy < this.height; iy++) upperLayer.buildStatic(this.width - 1, iy, 1);
 
   let oSrc = 0;
   let oDst = 0;

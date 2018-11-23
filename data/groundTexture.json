@@ -8,11 +8,11 @@
     "offsetX":1
   },
   {
-    "name":"dirtStony",
+    "name":"stone",
     "offsetX":2
   },
   {
-    "name":"dirtDry",
+    "name":"sand",
     "offsetX":3
   },
   {

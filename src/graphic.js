@@ -60,10 +60,14 @@ function drawGround(texture, groundID, worldPos, vertexWorldPos, pos,smoth) {
       32, 0 - world.heightVertex[vertexWorldPos + 1]/*o*/,
       0, 16 - world.heightVertex[vertexWorldPos]/*l*/
     ];
-  let matrix = gl2D.matrix.save()
-  gl2D.matrix.setTranslate(pos[0], pos[1])
+  //let matrix = gl2D.matrix.save()
+  gl2D.matrix.reset();
+  gl2D.matrix.translate(pos[0], pos[1]);
+  gl2D.matrix.scale(camera.scale, camera.scale);
   gl2D.drawSquare(texture, groundSrc, vertexPos/*l*/, groundColor);
-  gl2D.matrix.load(matrix);
+  //gl2D.matrix.load(matrix);
+  gl2D.matrix.reset();
+  gl2D.matrix.scale(camera.scale, camera.scale);
 }
 
 function updateAnimatonNr() {
@@ -82,7 +86,12 @@ let renderTime = 0;
 function render(curLayer) {
   if (curLayer.typ !== void 0) {
     // try{
-    gl2D.matrix.setScale(camera.scale, camera.scale);
+
+    let width = canvas.width, height = canvas.height;
+    //canvas2d.width = width; canvas2d.height = height;
+    //ctx.clearRect(0, 0, width, height)
+    gl2D.matrix.reset();
+    gl2D.matrix.scale(camera.scale, camera.scale);
     let date = Date.now();
     let last = date;
     let tmplast
@@ -99,7 +108,6 @@ function render(curLayer) {
     // groundColor[2]=groundColor[6]=groundColor[10]=groundColor[14]=color[2];
     // groundColor[3]=groundColor[7]=groundColor[11]=groundColor[15]=color[3];
 
-    let width = canvas.width, height = canvas.height;
     let Indentation = 0;
     let posx = 0;
     let posy = 0;
@@ -144,9 +152,10 @@ function render(curLayer) {
               if (curLayer.discovered[worldOffset+1]==0)
                 drawList[drawListIndex++] = drawWall(worldOffset, [drawPosX, drawPosY],color,true,+1);
             }
+
             let sObject = staticObject[typ];
             if (typ > 0 && sObject.texture[version] !== void 0) {
-
+ 
               let addGraphicWidth = sObject.addGraphicWidth;
               let envcode = 0;//findEnvorimentCode(aktWorld,aktPosX, aktPosY, sObject.envmode);//env code for auto tile (0000 - 1111)
               let overDraw = sObject.overDraw[version];
@@ -155,13 +164,10 @@ function render(curLayer) {
               let imgSrcX = (aktReferenceX * 32) + (aktReferenceY * 32) + (sObject.size * 64 + 128) * (anim);
               let imgSrcY = 16 * (sObject.size - 1) - (aktReferenceX * 16) + (aktReferenceY * 16);
 
-              if (curLayer.discovered[worldOffset] >= 2) {
-                drawList[drawListIndex++] = [0, sObject.texture[version], [imgSrcX, imgSrcY, 64 + addGraphicWidth * 2, 32 + overDraw], [drawPosX - addGraphicWidth, drawPosY - overDraw - height, 64 + addGraphicWidth * 2, 32 + overDraw], color];
-              }
-              else {
-                drawList[drawListIndex++] = [0, sObject.texture[version], [imgSrcX, imgSrcY, 64 + addGraphicWidth * 2, 32 + overDraw], [drawPosX - addGraphicWidth, drawPosY - overDraw - height, 64 + addGraphicWidth * 2, 32 + overDraw], [color[0] * 0.75, color[1] * 0.75, color[2] * 0.75, color[3]]];
-              }
+              if (curLayer.discovered[worldOffset] > 0) 
+                drawList[drawListIndex++] = [0, sObject.texture[version], [imgSrcX, imgSrcY, 64 + addGraphicWidth * 2, 32 + overDraw], [drawPosX - addGraphicWidth, (drawPosY - overDraw) - height, 64 + addGraphicWidth * 2, 32 + overDraw], color];
             }
+
             if (curLayer === world.underLayer){
               if (curLayer.discovered[worldOffset+world.width]==0)
                 drawList[drawListIndex++] = drawWall(worldOffset, [drawPosX+32, drawPosY+16],[0,0,0,255],false,+world.width);
@@ -227,6 +233,7 @@ function render(curLayer) {
     */
     //gui.render(gl2D);
 
+
     tmplast = Date.now();
     gl2D.endScene();//--
     date = Date.now();
@@ -238,6 +245,14 @@ function render(curLayer) {
     renderTime = (renderTime * 3 + (date - tmplast)) / 4;
     date = Date.now();
     now = (now * 3 + (date - last)) / 4;
+
+    /*
+    //ctx.fillRect(100,100,550,50);
+    let text = "typ: empety\nground: sand"
+    ctx.font = "12px Arial";
+    ctx.fillStyle = "lime";
+    ctx.fillText(text,mouse.x+32,mouse.y)
+    */
   }
 }
 

@@ -116,14 +116,40 @@
   },
   {
     "ID":21,
+    "name":"entry",
+    "path":"./data/png/static/middlehill",
+    "passable":true,
+    "size":3
+  },
+  {
+    "ID":22,
+    "name":"entry",
+    "path":"./data/png/static/entry",
+    "passable":true,
+    "size":5
+  },
+  {
+    "ID":23,
     "name":"exit",
     "path":"./data/png/static/exit",
     "passable":true
   },
   {
-    "ID":22,
-    "name":"wildMushroom",
-    "path":"./data/png/static/wildMushroom"
+    "ID":24,
+    "name":"exit",
+    "path":"./data/png/static/exit",
+    "passable":true
+  },
+  {
+    "ID":25,
+    "name":"exit",
+    "path":"./data/png/static/exit",
+    "passable":true
+  },
+  {
+    "ID":26,
+    "name":"cultivatedMushroom",
+    "path":"./data/png/static/cultivatedMushroom"
   }
 
 ]

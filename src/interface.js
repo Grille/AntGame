@@ -31,6 +31,7 @@ function resize(){
 }
 
 let butList = [];
+/*
 function buildGui(){
   for (let ix = 0;ix<20;ix++){
     butList[ix] = [];
@@ -52,6 +53,7 @@ function buildGui(){
     discover(worldU,entityList[0].posX,entityList[0].posY,2);
   }
 }
+*/
 
 
 
@@ -100,6 +102,17 @@ function mouseMove(){
     if (mouse.x > canvas.width-5) mapMoveX = 1;
     if (mouse.y > canvas.height-5) mapMoveY = 1;
   }
+
+
+  
+  let pos = mapMouseX+mapMouseY*curLayer.width;
+  let text = "";
+  text+="typ: "+staticObject[curLayer.typ[pos]].name+"<br>";
+  text+="ground: "+groundObject[curLayer.ground[pos]].name+"<br>";
+  text+="build: "+staticObject[curBuild].name+"<br>";
+  html_mouseInfo.innerHTML = text;
+  html_mouseInfo.style.left = (mouse.x+32)+"px";
+  html_mouseInfo.style.top = (mouse.y+-16)+"px";
 };
 function mapScroal(factor){
   camera.move(mapMoveX,mapMoveY);

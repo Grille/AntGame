@@ -2,6 +2,7 @@
 
 //contexts
 let gl2D;
+let ctx;
 let gui;
 
 let color = [255,255,255,255];
@@ -28,6 +29,7 @@ let movableObject = [];
 
 let curBuild = 0;
 
+let orderList = [];
 let entityList = [];
 
 let world = new World(256,256);
