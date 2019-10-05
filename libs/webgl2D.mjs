@@ -1,7 +1,7 @@
-"use strict";
-
-class WebGL2DContext {
-  constructor(canvas,size) {
+export class WebGL2DContext {
+  constructor(canvas, obj = {}) {
+    let { size = 200000, antialias = false, smoothing = false, blending = true } = obj;
+    this.canvas = canvas;
     this.gl = null;
     this.shaderProgram = null;
     this.vertexPosition = [];
@@ -21,23 +21,35 @@ class WebGL2DContext {
     this.textureOffset = 0;
     this.curOffset = 0;
     this.textureCounter = 0;
+    this.isWebGl2 = true;
+    this.antialias = antialias;
+    this.filter = 0;
 
     this.matrix = new Matrix();
 
+    if (canvas === void 0)
+      return;
 
-    this.gl = canvas.getContext("webgl2", { antialias: false, depth: false });
-    if (this.gl === void 0 || this.gl === null) this.gl = canvas.getContext("webgl", { antialias: false, depth: false });
-    if (this.gl === void 0 || this.gl === null) throw new Error (`WebGL2DContext cannot create webGL context from canvas`);
-    let gl = this.gl;
+    this.gl = canvas.getContext("webgl2", { antialias, depth: false });
+    if (this.gl === void 0 || this.gl === null) {
+      this.gl = canvas.getContext("webgl", { antialias, depth: false });
+      console.warn("Can not initialize WebGL2, try switching to WebGL")
+      this.isWebGl2 = false;
+    }
+    if (this.gl === void 0 || this.gl === null) {
+      console.error("Can not initialize WebGL!");
+      return;
+    }
+
+    if (smoothing === true)
+      this.filter = this.gl.LINEAR;
+    else
+      this.filter = this.gl.NEAREST;
+
     this.vertexPositionBuffer = this.gl.createBuffer();
     this.vertexColorBuffer = this.gl.createBuffer();
     this.vertexTextureCoordBuffer = this.gl.createBuffer();
     this.vertexIndexBuffer = this.gl.createBuffer();
-    this.gl.viewportWidth = canvas.width;
-    this.gl.viewportHeight = canvas.height;
-
-    if (size === void 0)
-      size = 200000;
 
     this.vertexPosition = new Float32Array(size * 2 * 2);
     this.vertexTextureCoord = new Float32Array(size * 2 * 2);
@@ -46,43 +58,47 @@ class WebGL2DContext {
     this.textureList = [];
     this.textureContinuous = [];
 
-    this.useShader(
-      this.compileShader(
-        `
-      attribute vec2 aVertexPosition;
-      attribute vec2 aTextureCoord;
-      attribute vec4 aVertexColor;
+    let vert = `
+    attribute vec2 aVertexPosition;
+    attribute vec2 aTextureCoord;
+    attribute vec4 aVertexColor;
 
-      varying vec2 vTextureCoord;
-      varying vec4 vColor;
+    varying vec2 vTextureCoord;
+    varying vec4 vColor;
 
-      void main(void) {
-          gl_Position = vec4(aVertexPosition.x, aVertexPosition.y, 0.0, 1.0);
-          vTextureCoord = aTextureCoord;
-          vColor = aVertexColor / vec4(255,255,255,255);
-      }
-      `
-        ,
-        `
-      precision mediump float;
+    void main(void) {
+        gl_Position = vec4(aVertexPosition.x, aVertexPosition.y, 0.0, 1.0);
+        vTextureCoord = aTextureCoord;
+        vColor = aVertexColor / vec4(255,255,255,255);
+    }
+    `
+    let frag = `
+    precision mediump float;
 
-      varying vec2 vTextureCoord;
-      varying vec4 vColor;
+    varying vec2 vTextureCoord;
+    varying vec4 vColor;
 
-      uniform sampler2D uSampler;
+    uniform sampler2D uSampler;
 
-      void main(void) {
-        gl_FragColor = vec4(texture2D(uSampler, vTextureCoord) * vColor);
-      }
-      `
-      )
-    );
+    void main(void) {
+      vec4 color = vec4(texture2D(uSampler, vTextureCoord) * vColor);
+      ${blending === true ? '' : 'if (color.a < 0.5) discard;\n'}
+      gl_FragColor = color;
+    }
+    `
+
+    this.useShader(this.compileShader(vert,frag));
 
     this.endScene();
 
     this.gl.disable(this.gl.DEPTH_TEST);
-    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
-    this.gl.enable(this.gl.BLEND);
+    if (blending === true) {
+      this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+      this.gl.enable(this.gl.BLEND);
+    }
+    else {
+      this.gl.disable(this.gl.BLEND);
+    }
 
     this.emptyTexture = this.textureFromPixelArray(new Uint8Array([255, 255, 255]), 1, 1);
   }
@@ -96,36 +112,36 @@ WebGL2DContext.prototype.pow = function (input) {
 }
 WebGL2DContext.prototype.compileShader = function (vertexShaderCode, fragmentShaderCode) {
   let gl = this.gl;
-  let fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-  let vertexShader = gl.createShader(gl.VERTEX_SHADER);
+  let fragmentShader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
+  let vertexShader = this.gl.createShader(this.gl.VERTEX_SHADER);
 
-  gl.shaderSource(vertexShader, vertexShaderCode);
+  this.gl.shaderSource(vertexShader, vertexShaderCode);
 
-  gl.compileShader(vertexShader);
+  this.gl.compileShader(vertexShader);
 
-  gl.shaderSource(fragmentShader, fragmentShaderCode);
+  this.gl.shaderSource(fragmentShader, fragmentShaderCode);
 
-  gl.compileShader(fragmentShader);
+  this.gl.compileShader(fragmentShader);
 
-  let shaderProgram = gl.createProgram();
-  gl.attachShader(shaderProgram, vertexShader);
-  gl.attachShader(shaderProgram, fragmentShader);
-  gl.linkProgram(shaderProgram);
+  let shaderProgram = this.gl.createProgram();
+  this.gl.attachShader(shaderProgram, vertexShader);
+  this.gl.attachShader(shaderProgram, fragmentShader);
+  this.gl.linkProgram(shaderProgram);
 
-  if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+  if (!gl.getProgramParameter(shaderProgram, this.gl.LINK_STATUS)) {
     alert("Could not initialise shaders");
   }
 
-  shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-  gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+  shaderProgram.vertexPositionAttribute = this.gl.getAttribLocation(shaderProgram, "aVertexPosition");
+  this.gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
-  shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
-  gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+  shaderProgram.textureCoordAttribute = this.gl.getAttribLocation(shaderProgram, "aTextureCoord");
+  this.gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
-  shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
-  gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
+  shaderProgram.vertexColorAttribute = this.gl.getAttribLocation(shaderProgram, "aVertexColor");
+  this.gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 
-  shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+  shaderProgram.samplerUniform = this.gl.getUniformLocation(shaderProgram, "uSampler");
 
   return shaderProgram;
 }
@@ -136,7 +152,7 @@ WebGL2DContext.prototype.useShader = function (shaderProgram) {
 WebGL2DContext.prototype.textureFromImage = function (image) {
   let gl = this.gl;
   let texture
-  texture = gl.createTexture();
+  texture = this.gl.createTexture();
 
   let canvas = document.createElement("canvas");
   let context = canvas.getContext("2d");
@@ -146,11 +162,11 @@ WebGL2DContext.prototype.textureFromImage = function (image) {
   canvas.height = this.pow(image.height);
   context.drawImage(image, 0, 0, image.width, image.height);
 
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.bindTexture(gl.TEXTURE_2D, null);
+  this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+  this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, canvas);
+  this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.filter);
+  this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.filter);
+  this.gl.bindTexture(this.gl.TEXTURE_2D, null);
   texture.width = canvas.width;
   texture.height = canvas.height;
   texture.imgwidth = image.width;
@@ -165,88 +181,76 @@ WebGL2DContext.prototype.textureFromFile = function (path) {
   let texture
   texture = this.gl.createTexture();
   texture.image = new Image();
-  let _this = this;
-  texture.image.onload = function () {
+
+  this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+  this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 1,1,0,this.gl.RGBA, this.gl.UNSIGNED_BYTE, new Uint8Array([255,255,255,255]));
+
+  texture.onload = () => { }
+  texture.image.onload = () => {
     let canvas = document.createElement("canvas");
     let context = canvas.getContext("2d");
     context.imageSmoothingEnabled = false;//Chrome
     context.mozImageSmoothingEnabled = false;//Firefox
-    canvas.width = _this.pow(texture.image.width);
-    canvas.height = _this.pow(texture.image.height);
+    canvas.width = this.pow(texture.image.width);
+    canvas.height = this.pow(texture.image.height);
     context.drawImage(texture.image, 0, 0, texture.image.width, texture.image.height);
-    _this.gl.bindTexture(_this.gl.TEXTURE_2D, texture);
-    _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, canvas);
-    _this.gl.texParameteri(_this.gl.TEXTURE_2D, _this.gl.TEXTURE_MAG_FILTER, _this.gl.NEAREST);
-    _this.gl.texParameteri(_this.gl.TEXTURE_2D, _this.gl.TEXTURE_MIN_FILTER, _this.gl.NEAREST);
-    _this.gl.bindTexture(_this.gl.TEXTURE_2D, null);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, canvas);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.filter);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.filter);
     texture.width = canvas.width;
     texture.height = canvas.height;
     texture.imgwidth = texture.image.width;
     texture.imgheight = texture.image.height;
-    texture.index = _this.textureCounter;
-    _this.textureCounter++
+    texture.index = this.textureCounter;
+    this.textureCounter++
+    texture.onload();
+
+    if (texture.width == 0)
+      console.error("can not load texture from " + location.pathname + " , " + path)
   }
   texture.image.src = path;
   return texture;
 }
-WebGL2DContext.prototype.textureFromPixelArray = function (dataArray, width, height) {
+WebGL2DContext.prototype.textureFromPixelArray = function (data, width, height) {
+  let src;
+  if (data.length/4<width*height){
+    let size = width*height;
+    src = new Uint8Array(size*4)
+    for (let i=0;i<size;i++){
+      src[i*4+0]=data[i*3+0];
+      src[i*4+1]=data[i*3+1];
+      src[i*4+2]=data[i*3+2];
+      src[i*4+3]=255;
+    }
+  }
+  else{
+    src = new Uint8Array(data);
+  }
   let gl = this.gl;
-  let type = this.gl.RGB;
-  // if (dataArray.lenght / (width * height)==3) type = gl.RGB;
-  // else type = gl.RGBA;
-  let texture = gl.createTexture();
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texImage2D(gl.TEXTURE_2D, 0, type, width, height, 0, type, gl.UNSIGNED_BYTE, dataArray);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.generateMipmap(gl.TEXTURE_2D);
-  gl.bindTexture(gl.TEXTURE_2D, null)
+  let texture = this.gl.createTexture();
+  this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+  this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, src);
+  this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.filter);
+  this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.filter);
   texture.width = width;
   texture.height = height;
-  texture.imgwidth = width;
-  texture.imgheight = height;
-  texture.index = this.textureCounter;
-  this.textureCounter++
-  return texture;
-}
-WebGL2DContext.prototype.textureFromString = function (string, font, size) {
-  let gl = this.gl;
-  let texture
-  texture = gl.createTexture();
-
-  let canvas = document.createElement("canvas");
-  let context = canvas.getContext("2d");
-  context.imageSmoothingEnabled = false;//Chrome
-  context.mozImageSmoothingEnabled = false;//Firefox
-  canvas.width = this.pow(512);
-  canvas.height = this.pow(512);
-  context.drawImage(image, 0, 0, image.width, image.height);
-
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.bindTexture(gl.TEXTURE_2D, null);
-  texture.width = canvas.width;
-  texture.height = canvas.height;
-  texture.imgwidth = image.width;
-  texture.imgheight = image.height;
   texture.index = this.textureCounter;
   this.textureCounter++
 
+  if (texture.width == 0)
+    console.error("can not create texture from source")
   return texture;
 }
+WebGL2DContext.prototype.deleteTexture = function(texture){
+  this.gl.deleteTexture(texture)
+}
+
 WebGL2DContext.prototype.startScene = function () {
+  this.gl.viewportWidth = this.canvas.width;
+  this.gl.viewportHeight = this.canvas.height;
   this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
   this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-  // this.vertexPosition = [];
-  // this.vertexTextureCoord = [];
-  // this.vertexColor = [];
-  // this.vertexIndex = [];
-  // this.textureList = [];
-  // this.textureContinuous = [];
 
   this.IndexOffset = 0;
   this.bufferOffset = 0;
@@ -257,7 +261,7 @@ WebGL2DContext.prototype.drawTriangle = function (texture, src, dst, color) {
   let gl = this.gl;
   let IndexOffset = this.IndexOffset;
   let bufferOffset = this.bufferOffset;
-  let dstPos = this.matrix.apply(dst, gl.viewportWidth, gl.viewportHeight);
+  let dstPos = this.matrix.apply(dst, this.gl.viewportWidth, this.gl.viewportHeight);
 
   let imageWidth = texture.width, imageHeight = texture.height;
 
@@ -315,7 +319,7 @@ WebGL2DContext.prototype.drawTriangleFan = function (texture, src, dst, color) {
   let IndexOffset = this.IndexOffset;
   let bufferOffset = this.bufferOffset;
   let size = dst.length / 2;
-  let dstPos = this.matrix.apply(dst, gl.viewportWidth, gl.viewportHeight);
+  let dstPos = this.matrix.apply(dst, this.gl.viewportWidth, this.gl.viewportHeight);
 
   let imageWidth = texture.width, imageHeight = texture.height;
 
@@ -356,7 +360,7 @@ WebGL2DContext.prototype.drawSquare = function (texture, src, dst, color) {
   let gl = this.gl;
   let IndexOffset = this.IndexOffset;
   let bufferOffset = this.bufferOffset;
-  let dstPos = this.matrix.apply(dst, gl.viewportWidth, gl.viewportHeight);
+  let dstPos = this.matrix.apply(dst, this.gl.viewportWidth, this.gl.viewportHeight);
 
   let imageWidth = texture.width, imageHeight = texture.height;
 
@@ -440,6 +444,8 @@ WebGL2DContext.prototype.drawSquare = function (texture, src, dst, color) {
 
 }
 WebGL2DContext.prototype.drawImage = function (texture, src, dst, color) {
+  if (color == null)
+    color = [255,255,255,255];
   let gl = this.gl;
   let IndexOffset = this.IndexOffset;
   let bufferOffset = this.bufferOffset;
@@ -450,7 +456,7 @@ WebGL2DContext.prototype.drawImage = function (texture, src, dst, color) {
     startdstY = dst[1],
     enddstY = dst[3] + dst[1];
 
-  let dstPos = this.matrix.apply([startdstX, enddstY, enddstX, enddstY, enddstX, startdstY, startdstX, startdstY], gl.viewportWidth, gl.viewportHeight);
+  let dstPos = this.matrix.apply([startdstX, enddstY, enddstX, enddstY, enddstX, startdstY, startdstX, startdstY], this.gl.viewportWidth, this.gl.viewportHeight);
 
   let imageWidth = texture.width, imageHeight = texture.height;
   let
@@ -512,26 +518,26 @@ WebGL2DContext.prototype.drawImage = function (texture, src, dst, color) {
 WebGL2DContext.prototype.endScene = function () {
   let gl = this.gl;
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexPositionBuffer);
-  if (this.bufferCreatet === false) gl.bufferData(gl.ARRAY_BUFFER, this.vertexPosition, gl.DYNAMIC_DRAW);
-  else gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexPosition, 0, this.bufferOffset * 2);
-  gl.vertexAttribPointer(this.shaderProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
+  this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexPositionBuffer);
+  if (this.bufferCreatet === false) this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertexPosition, this.gl.DYNAMIC_DRAW);
+  else this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.vertexPosition, 0, this.bufferOffset * 2);
+  this.gl.vertexAttribPointer(this.shaderProgram.vertexPositionAttribute, 2, this.gl.FLOAT, false, 0, 0);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexColorBuffer);
-  if (this.bufferCreatet === false) gl.bufferData(gl.ARRAY_BUFFER, this.vertexColor, gl.DYNAMIC_DRAW);
-  else gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexColor, 0, this.bufferOffset * 4);
-  gl.vertexAttribPointer(this.shaderProgram.vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+  this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexColorBuffer);
+  if (this.bufferCreatet === false) this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertexColor, this.gl.DYNAMIC_DRAW);
+  else this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.vertexColor, 0, this.bufferOffset * 4);
+  this.gl.vertexAttribPointer(this.shaderProgram.vertexColorAttribute, 4, this.gl.FLOAT, false, 0, 0);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexTextureCoordBuffer);
-  if (this.bufferCreatet === false) gl.bufferData(gl.ARRAY_BUFFER, this.vertexTextureCoord, gl.DYNAMIC_DRAW);
-  else gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexTextureCoord, 0, this.bufferOffset * 2);
-  gl.vertexAttribPointer(this.shaderProgram.textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+  this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexTextureCoordBuffer);
+  if (this.bufferCreatet === false) this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertexTextureCoord, this.gl.DYNAMIC_DRAW);
+  else this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.vertexTextureCoord, 0, this.bufferOffset * 2);
+  this.gl.vertexAttribPointer(this.shaderProgram.textureCoordAttribute, 2, this.gl.FLOAT, false, 0, 0);
 
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffer);
-  if (this.bufferCreatet === false) gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.vertexIndex, gl.DYNAMIC_DRAW);
-  else gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertexIndex, 0, this.IndexOffset);
+  this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffer);
+  if (this.bufferCreatet === false) this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.vertexIndex, this.gl.DYNAMIC_DRAW);
+  else this.gl.bufferSubData(this.gl.ELEMENT_ARRAY_BUFFER, 0, this.vertexIndex, 0, this.IndexOffset*3);
 
-  this.bufferCreatet = false;
+  this.bufferCreatet = true;
 }
 WebGL2DContext.prototype.createBuffer = function (size) {
 
@@ -544,54 +550,62 @@ WebGL2DContext.prototype.renderScene = function () {
   let amount = 0;
   while (it <= this.textureOffset) {
     amount = this.textureContinuous[it]
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this.textureList[it]);
-    gl.drawElements(gl.TRIANGLES, 3 * amount, gl.UNSIGNED_SHORT, offset * 6 * 1);
+    this.gl.activeTexture(this.gl.TEXTURE0);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureList[it]);
+    this.gl.drawElements(this.gl.TRIANGLES, 3 * amount, this.gl.UNSIGNED_SHORT, offset * 6 * 1);
     offset += amount;
     it++;
   };
 }
 
 
-class Matrix {
+class TransformBuffer {
   constructor() {
-    this.list = [];
+    this.commands = [];
   }
 }
-
-Matrix.prototype.translate = function (x, y) {
-  this.list[this.list.length] = { t: 0, tx: x, ty: y };
+TransformBuffer.prototype.translate = function (x, y) {
+  this.commands[this.commands.length] = { t: 0, tx: x, ty: y };
 }
-Matrix.prototype.scale = function (x, y) {
-  this.list[this.list.length] = { t: 1, sx: x, sy: y };
+TransformBuffer.prototype.scale = function (x, y) {
+  this.commands[this.commands.length] = { t: 1, sx: x, sy: y };
 }
-Matrix.prototype.rotate = function (angle) {
+TransformBuffer.prototype.rotate = function (angle) {
   let sin = Math.sin(angle * 3.14159265 / 180), cos = Math.cos(angle * 3.14159265 / 180);
-  this.list[this.list.length] = { t: 2, rs: sin, rc: cos };
+  this.commands[this.commands.length] = { t: 2, rs: sin, rc: cos };
 }
-Matrix.prototype.reset = function () {
-  this.list = [];
+TransformBuffer.prototype.reset = function () {
+  this.commands = [];
 }
-Matrix.prototype.apply = function (dst, width, height) {
+TransformBuffer.prototype.clone = function(){
+  let clone = new TransformBuffer()
+  for (let i = 0;i<this.commands.length;i++)
+    clone.commands[i] = {
+      t:this.commands[i].t,tx:this.commands[i].tx,ty:this.commands[i].ty,sx:this.commands[i].sx,
+      sy:this.commands[i].sy,rs:this.commands[i].rs,rc:this.commands[i].rc
+    }
+  return clone;
+}
+TransformBuffer.prototype.apply = function (dst, width, height) {
   let sceneWidth = width * 0.5, sceneHeight = height * 0.5;
   let max = dst.length;
 
   let result = new Float32Array(dst.length);
-  let list = this.list;
+  let commands = this.commands;
   for (let i = 0; i < max; i += 2) {
     result[i] = dst[i]; result[i + 1] = dst[i + 1];
-    for (let im = 0; im < list.length; im++) {
-      switch (list[im].t) {
+    for (let im = 0; im < commands.length; im++) {
+      switch (commands[im].t) {
         case 0:
-          result[i] += list[im].tx;
-          result[i + 1] += list[im].ty;
+          result[i] += commands[im].tx;
+          result[i + 1] += commands[im].ty;
           break;
         case 1:
-          result[i] *= list[im].sx;
-          result[i + 1] *= list[im].sy;
+          result[i] *= commands[im].sx;
+          result[i + 1] *= commands[im].sy;
           break;
         case 2:
-          let sin=list[im].rs,cos=list[im].rc,x = result[i],y=result[i + 1]
+          let sin = commands[im].rs, cos = commands[im].rc, x = result[i], y = result[i + 1]
           result[i] = x * cos - y * sin;
           result[i + 1] = x * sin + y * cos;
           break;
@@ -603,3 +617,93 @@ Matrix.prototype.apply = function (dst, width, height) {
   return result;
 }
 
+class Matrix {
+  constructor() {
+    this.xsc=1;
+    this.xsk=0;
+    this.ysk=0;
+    this.ysc=1;
+    this.xmo=0;
+    this.ymo=0;
+  }
+}
+
+Matrix.prototype.translate = function (x, y) {
+  this.xmo+=x;
+  this.ymo+=y;
+}
+Matrix.prototype.scale = function (x, y) {
+  this.xsc*=x;
+  this.ysc*=y;
+}
+Matrix.prototype.shear = function (x, y) {
+  this.xsk+=x;
+  this.ysk+=y;
+}
+Matrix.prototype.rotate = function (angle) {
+  let cos=Math.cos(angle*Math.PI / 180);
+  let sin=Math.sin(angle*Math.PI / 180);
+  this.transform(cos, sin, -sin, cos, 0, 0);
+}
+Matrix.prototype.reset = function () {
+  this.xsc=1;this.xsk=0;this.ysk=0;this.ysc=1;this.xmo=0;this.ymo=0;
+}
+Matrix.prototype.transform = function (xsc,xsk,ysk,ysc,xmo,ymo) {
+  this.xsc*=xsc;this.xsk+=xsk;this.ysk+=ysk;this.ysc*=ysc;this.xmo+=xmo;this.ymo+=ymo;
+}
+Matrix.prototype.setTransform = function (xsc,xsk,ysk,ysc,xmo,ymo) {
+  this.xsc=xsc;this.xsk=xsk;this.ysk=ysk;this.ysc=ysc;this.xmo=xmo;this.ymo=ymo;
+}
+Matrix.prototype.clone = function(){
+  let clone = new Matrix()
+  clone.xsc=this.xsc; clone.xsk=this.xsk; clone.ysk=this.ysk; clone.ysc=this.ysc; clone.xmo=this.xmo; clone.ymo=this.ymo;
+  return clone;
+}
+Matrix.prototype.apply = function (dst, width, height) {
+  let sceneWidth = width * 0.5, sceneHeight = height * 0.5;
+  let max = dst.length;
+
+  let result = new Float32Array(dst.length);
+  for (let i = 0; i < max; i += 2) {
+    result[i] = dst[i]; result[i + 1] = dst[i + 1];
+
+    let x = result[i],y = result[i+1];
+    
+    result[i+1] *=this.ysc;
+    result[i] *=this.xsc;
+
+    result[i] +=y*this.ysk;
+    result[i+1] +=x*this.xsk;
+    
+    result[i] +=this.xmo;
+    result[i+1] +=this.ymo;
+
+    result[i] = -1 + result[i] * 1 / sceneWidth;
+    result[i + 1] = +1 - result[i + 1] * 1 / sceneHeight;
+  }
+  return result;
+}
+
+//closure exports
+window['WebGL2DContext'] = WebGL2DContext;
+WebGL2DContext.prototype['textureFromImage'] = WebGL2DContext.prototype.textureFromImage;
+WebGL2DContext.prototype['textureFromFile'] = WebGL2DContext.prototype.textureFromFile;
+WebGL2DContext.prototype['textureFromPixelArray'] = WebGL2DContext.prototype.textureFromPixelArray;
+
+WebGL2DContext.prototype['startScene'] = WebGL2DContext.prototype.startScene;
+WebGL2DContext.prototype['endScene'] = WebGL2DContext.prototype.endScene;
+WebGL2DContext.prototype['renderScene'] = WebGL2DContext.prototype.renderScene;
+
+WebGL2DContext.prototype['drawTriangle'] = WebGL2DContext.prototype.drawTriangle;
+WebGL2DContext.prototype['drawTriangleFan'] = WebGL2DContext.prototype.drawTriangleFan;
+WebGL2DContext.prototype['drawSquare'] = WebGL2DContext.prototype.drawSquare;
+WebGL2DContext.prototype['drawImage'] = WebGL2DContext.prototype.drawImage;
+
+WebGL2DContext.prototype['compileShader'] = WebGL2DContext.prototype.compileShader;
+WebGL2DContext.prototype['useShader'] = WebGL2DContext.prototype.useShader;
+
+window['Matrix'] = Matrix;
+Matrix.prototype['translate'] = Matrix.prototype.translate;
+Matrix.prototype['scale'] = Matrix.prototype.scale;
+Matrix.prototype['rotate'] = Matrix.prototype.rotate;
+Matrix.prototype['reset'] = Matrix.prototype.reset;

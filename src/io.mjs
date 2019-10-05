@@ -1,11 +1,13 @@
-function encode(array){
+import World from "./world.mjs"
+
+export function encode(array){
   let result = ""
   for (let i = 0;i<array.length;i++){
     result += String.fromCharCode(array[i])[0];
   }
   return btoa(result);
 }
-function decode(string){
+export function decode(string){
   let result = new Uint8Array(string.length);
   let data = atob(string);
   for (let i = 0;i<data.length;i++){
@@ -13,7 +15,7 @@ function decode(string){
   }
   return result;
 }
-function newGame(){
+export function newGame(){
   //entityList.clear();
   world = new World(256,256);
   world.generateMap();
@@ -23,7 +25,7 @@ function newGame(){
 
   //spanNewPlayer();
 }
-function packData(){
+export function packData(){
   let upperLayer = world.upperLayer;
   let underLayer = world.underLayer;
   return JSON.stringify({
@@ -35,7 +37,7 @@ function packData(){
     underLayer: packLayer(underLayer)
   });
 }
-function packLayer(srcLayer) {
+export function packLayer(srcLayer) {
   let iDst = 0;
   let typData = [];
   for (let iSrc = 0; iSrc < srcLayer.size; iSrc++) {
@@ -53,7 +55,7 @@ function packLayer(srcLayer) {
     discovered: encode(srcLayer.discovered),
   }
 }
-function unpackData(datastr){
+export function unpackData(datastr){
   let data = JSON.parse(datastr);
   world = new World(data.width,data.height);
 
@@ -64,7 +66,7 @@ function unpackData(datastr){
   unpackLayer(world.underLayer,data.underLayer);
   curLayer = world.upperLayer;
 }
-function unpackLayer(dstLayer,srcData){
+export function unpackLayer(dstLayer,srcData){
   dstLayer.ground = decode(srcData.ground);
   dstLayer.discovered = decode(srcData.discovered);
 
@@ -77,14 +79,14 @@ function unpackLayer(dstLayer,srcData){
   }
 }
 
-function save(file) {
+export function save(file) {
   localStorage.setItem("agsave_"+file, packData());
 }
-function load(file) {
+export function load(file) {
   unpackData(localStorage.getItem("agsave_"+file));
 }
 
-function download(){
+export function download(){
   let data = packData();
 
   let element = document.createElement('a');

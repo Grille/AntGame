@@ -1,6 +1,36 @@
-"use strict";
+import { WebGL2DContext } from "../libs/webgl2D.mjs"
+import { loadGameData } from "./load.mjs"
+import { resize, mapScroal } from "./interface.mjs"
+import { addEvents, showMenu } from "./htmlEvents.mjs"
+import { updateAnimatonNr, render } from "./graphic.mjs"
 
+let timeM = 0;
+let timeH = 12;
 
+let Timer = Date.now();
+let TimerScroal025=0; 
+let Timer025=0; 
+let Timer100=0; 
+let Timer250=0;
+let Timer500=0;
+
+export function main(){
+  //init game Data
+  gl2D = new WebGL2DContext(canvas);
+  ctx = canvas2d.getContext('2d');
+  //gui = initGL2DGui(window);
+
+  loadGameData();
+  resize();
+  //buildGui();
+  addEvents();
+  world.generateMap();
+  world.setAsExplored();
+  updateAnimatonNr();
+  startTimer();
+
+  showMenu();
+}
 function startTimer(){
   renderTimer();
   logicTimer();

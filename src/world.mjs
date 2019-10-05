@@ -1,4 +1,3 @@
-"use strict";
 class WorldLayer {
   constructor(width, height) {
     this.width = width;
@@ -17,7 +16,7 @@ class WorldLayer {
       this.entity = []
   }
 }
-class World {
+export default class World {
   constructor(width, height) {
     this.width = width;
     this.height = height;
@@ -137,7 +136,6 @@ World.prototype.generateMap = function () {
   let upperLayer = this.upperLayer;
   let underLayer = this.underLayer;
   let i = 0;
-  //mapPosX = this.width / 2, mapPosY = this.height / 2 - 30;
   camera.goTo(this.width / 2,this.height / 2);
 
   //generate Height

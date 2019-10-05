@@ -1,10 +1,7 @@
-"use strict"
-
-
-function clearEntitys() {
+export function clearEntitys() {
   entityList = [];
 }
-function addEntity(layer, typ, posX, posY) {
+export function addEntity(layer, typ, posX, posY) {
   let entity = {
     changePos: false,
     playerControled: true,
@@ -34,7 +31,7 @@ function addEntity(layer, typ, posX, posY) {
   layer.entity[posX + posY * world.width] = [i];
   return i;
 }
-function sendEntity(entityID, goalX, goalY) {
+export function sendEntity(entityID, goalX, goalY) {
   let curEntity = entityList[entityID];
   let way;
 
@@ -68,7 +65,7 @@ function sendEntity(entityID, goalX, goalY) {
   curEntity.wayLength = (way.length - 2) / 2;
   curEntity.way = way;
 }
-function updateEntity(entityID) {
+export function updateEntity(entityID) {
   let curEntity = entityList[entityID];
   // entity move
   if (curEntity.wayPos < curEntity.wayLength) {
@@ -85,7 +82,7 @@ function updateEntity(entityID) {
   }
 
 }
-function moveEntity(entityID, moveX, moveY, end) {
+export function moveEntity(entityID, moveX, moveY, end) {
   //move required
   if (moveX !== 0 || moveY !== 0) {
     let curEntity = entityList[entityID];
@@ -122,7 +119,7 @@ function moveEntity(entityID, moveX, moveY, end) {
     }
   }
 }
-function portEntity(entityID, newWorld, posX, posY) {
+export function portEntity(entityID, newWorld, posX, posY) {
   let curEntity = entityList[entityID];
   let worldEntityList = curEntity.world.entity;
 
@@ -149,7 +146,7 @@ function portEntity(entityID, newWorld, posX, posY) {
   worldEntityList = newWorld.entity;
   worldEntityList[pos][worldEntityList[pos].length] = entityID;
 }
-function killEntity(entityID) {
+export function killEntity(entityID) {
   entityList[entityID].live = false
   let worldEntityList = curEntity.world.entity;
 
@@ -161,7 +158,7 @@ function killEntity(entityID) {
   worldEntityList[curEntity.pos] = newEntity;
 }
 
-function findWay(wayMap, startX, startY, endX, endY) {
+export function findWay(wayMap, startX, startY, endX, endY) {
   let endPos = endX + endY * world.width;
   let startPos = startX + startY * world.width;
   let wayNodesIndex = 1;

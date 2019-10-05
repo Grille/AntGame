@@ -1,4 +1,4 @@
-class Camera {
+export default class Camera {
   constructor(canvas) {
     this.canvas = canvas;
     this.posX = 0;
@@ -17,10 +17,4 @@ Camera.prototype.move = function(x,y){
   this.posY += (+ x);
   this.posX += (- y);
   this.posY -= (- y);
-/*
-  while (decmapPosX>=1===true){decmapPosX--;mapPosX++;}
-  while (decmapPosX<0===true){decmapPosX++;mapPosX--;}
-  while (decmapPosY>=1===true){decmapPosY--;mapPosY++;}
-  while (decmapPosY<0===true){decmapPosY++;mapPosY--;}
-*/
 }

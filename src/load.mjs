@@ -1,13 +1,16 @@
-"use strict";
-
-
-function loadImage(path){
+export function loadImage(path){
   let image = new Image();
   image.onload = function () {}
   image.src = path;
   return image;
 }
-function loadGameData(){
+export function loadJSON(){
+  let request = new XMLHttpRequest();
+  request.open("GET", "./data/templates.json", false);
+  request.send(null)
+  data.template = JSON.parse(request.responseText);
+}
+export function loadGameData(){
   let data = {};
   let request = new XMLHttpRequest();
   request.open("GET", "./data/templates.json", false);

@@ -1,5 +1,3 @@
-"use strict";
-
 //let groundColor = new Uint8Array([255,255,255,255, 255,255,255,255, 255,255,255,255, 255,255,255,255]);
 let groundSrc = new Uint8Array([0, 0, 64, 0, 64, 64, 0, 64]);
 
@@ -70,7 +68,7 @@ function drawGround(texture, groundID, worldPos, vertexWorldPos, pos,smoth) {
   gl2D.matrix.scale(camera.scale, camera.scale);
 }
 
-function updateAnimatonNr() {
+export function updateAnimatonNr() {
   for (let ii = 0; ii < 20; ii++) {
     if (animator[ii] < ii) animator[ii]++;
     else animator[ii] = 0;
@@ -83,7 +81,7 @@ let useTime = 0;
 let bindTime = 0;
 let renderTime = 0;
 
-function render(curLayer) {
+export function render(curLayer) {
   if (curLayer.typ !== void 0) {
     // try{
 

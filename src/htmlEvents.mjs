@@ -1,19 +1,19 @@
-//html_divGui.style.pointerEvents = "none";
+import { resize, mouseMove } from "./interface.mjs"
+import { newGame } from "./io.mjs"
 
 let cmdIndex = 0;
 let cmdMemory = [];
 
-function showMenu() {
+export function showMenu() {
   html_divMenu.style.display = "block";
   html_divGui.style.display = "none";
 }
-function hideMenu() {
+export function hideMenu() {
   html_divMenu.style.display = "none";
   html_divGui.style.display = "block";
 }
 
-let keyCode = [];
-function addEvents() {
+export function addEvents() {
 
   /*
   butFullscreen.addEventListener('click', (e) => {

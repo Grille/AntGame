@@ -1,31 +1,4 @@
-"use strict";
-
-let mouse = {
-  rightDown : false,
-  leftDown : false,
-  middleDown : false,
-  x : 0,
-  y : 0,
-  divx : 0,
-  divy : 0,
-  updateMouse : (e) => { 
-    if ("which" in e){  // Gecko (Firefox), WebKit (Safari/Chrome) & Opera
-      mouse.leftDown = e.which === 1; 
-      mouse.middleDown = e.which === 2; 
-      mouse.rightDown = e.which === 3; 
-    }
-    else if ("button" in e){  // IE, Opera 
-      mouse.rightDown = e.button === 2; 
-    }
-    mouse.divx = e.clientX-mouse.x;
-    mouse.divy = e.clientY-mouse.y;
-
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-  }
-};
-
-function resize(){
+export function resize(){
   gl2D.gl.viewportWidth = canvas.width = window.innerWidth;
   gl2D.gl.viewportHeight =canvas.height = window.innerHeight;
 }
@@ -62,7 +35,7 @@ function buildGui(){
 
 
 
-function mouseMove(){
+export function mouseMove(){
 
   let fx = ((mouse.x / (64*camera.scale)) - (mouse.y / (32*camera.scale)));let fy = ((mouse.x / (64*camera.scale)) + (mouse.y / (32*camera.scale)));//float
 
@@ -114,6 +87,6 @@ function mouseMove(){
   html_mouseInfo.style.left = (mouse.x+32)+"px";
   html_mouseInfo.style.top = (mouse.y+-16)+"px";
 };
-function mapScroal(factor){
+export function mapScroal(factor){
   camera.move(mapMoveX,mapMoveY);
 }

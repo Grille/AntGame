@@ -1,4 +1,3 @@
-"use strict";
 /*
 class Entity { 
   constructor(unitClass,layer,posX,posY) {
