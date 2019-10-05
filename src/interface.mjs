@@ -3,40 +3,7 @@ export function resize(){
   gl2D.gl.viewportHeight =canvas.height = window.innerHeight;
 }
 
-let butList = [];
-/*
-function buildGui(){
-  for (let ix = 0;ix<20;ix++){
-    butList[ix] = [];
-    for (let iy = 0;iy < 2;iy++){
-    butList[ix][iy]=gui.addButton(iconGraphic[0],[260 + 54 * ix+3,35+54*iy,48,48]);
-    butList[ix][iy].anchor[3] = true;
-    butList[ix][iy].borderSize = 3;
-    butList[ix][iy].enabled = false;
-    butList[ix][iy].visible = false;
-    }
-  }
-  butList[1][0].enabled = true;
-  butList[1][0].visible = true;
-  butList[1][0].texture = iconGraphic[1];
-  butList[1][0].mouseUp = () => {
-    buildStatic(worldO,entityList[0].posX,entityList[0].posY,20)
-    buildStatic(worldU,entityList[0].posX,entityList[0].posY,21)
-    portEntity(0,worldU,entityList[0].posX,entityList[0].posY);
-    discover(worldU,entityList[0].posX,entityList[0].posY,2);
-  }
-}
-*/
-
-
-
-
-
-
-
-
 export function mouseMove(){
-
   let fx = ((mouse.x / (64*camera.scale)) - (mouse.y / (32*camera.scale)));let fy = ((mouse.x / (64*camera.scale)) + (mouse.y / (32*camera.scale)));//float
 
   let x = (fx-0.5);let y = (fy+0.5);
@@ -87,6 +54,7 @@ export function mouseMove(){
   html_mouseInfo.style.left = (mouse.x+32)+"px";
   html_mouseInfo.style.top = (mouse.y+-16)+"px";
 };
+
 export function mapScroal(factor){
   camera.move(mapMoveX,mapMoveY);
 }
