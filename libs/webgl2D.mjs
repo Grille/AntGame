@@ -21,6 +21,7 @@ export class WebGL2DContext {
     this.textureOffset = 0;
     this.curOffset = 0;
     this.textureCounter = 0;
+    this.white = [255, 255, 255, 255];
     this.isWebGl2 = true;
     this.antialias = antialias;
     this.filter = 0;
@@ -104,6 +105,9 @@ export class WebGL2DContext {
   }
 }
 
+WebGL2DContext.prototype.destroy = function () {
+  this.gl.getExtension('WEBGL_lose_context').loseContext();
+}
 WebGL2DContext.prototype.pow = function (input) {
   let i = 1;
   while (true) {
@@ -167,10 +171,10 @@ WebGL2DContext.prototype.textureFromImage = function (image) {
   this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.filter);
   this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.filter);
   this.gl.bindTexture(this.gl.TEXTURE_2D, null);
-  texture.width = canvas.width;
-  texture.height = canvas.height;
-  texture.imgwidth = image.width;
-  texture.imgheight = image.height;
+  texture.powwidth = canvas.width;
+  texture.powheight = canvas.height;
+  texture.width = image.width;
+  texture.height = image.height;
   texture.index = this.textureCounter;
   this.textureCounter++
 
@@ -198,10 +202,10 @@ WebGL2DContext.prototype.textureFromFile = function (path) {
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, canvas);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.filter);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.filter);
-    texture.width = canvas.width;
-    texture.height = canvas.height;
-    texture.imgwidth = texture.image.width;
-    texture.imgheight = texture.image.height;
+    texture.powwidth = canvas.width;
+    texture.powheight = canvas.height;
+    texture.width = texture.image.width;
+    texture.height = texture.image.height;
     texture.index = this.textureCounter;
     this.textureCounter++
     texture.onload();
@@ -214,17 +218,19 @@ WebGL2DContext.prototype.textureFromFile = function (path) {
 }
 WebGL2DContext.prototype.textureFromPixelArray = function (data, width, height) {
   let src;
-  if (data.length/4<width*height){
-    let size = width*height;
-    src = new Uint8Array(size*4)
-    for (let i=0;i<size;i++){
-      src[i*4+0]=data[i*3+0];
-      src[i*4+1]=data[i*3+1];
-      src[i*4+2]=data[i*3+2];
-      src[i*4+3]=255;
+  if (data.length / 4 < width * height) {
+    let size = width * height;
+    src = new Uint8Array(size * 4)
+    for (let i = 0; i < size; i++) {
+      let offsetSrc = i * 4;
+      let offsetDst = i * 3;
+      src[offsetSrc + 0] = data[offsetDst + 0];
+      src[offsetSrc + 1] = data[offsetDst + 1];
+      src[offsetSrc + 2] = data[offsetDst + 2];
+      src[offsetSrc + 3] = 255;
     }
   }
-  else{
+  else {
     src = new Uint8Array(data);
   }
   let gl = this.gl;
@@ -235,6 +241,8 @@ WebGL2DContext.prototype.textureFromPixelArray = function (data, width, height) 
   this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.filter);
   texture.width = width;
   texture.height = height;
+  texture.powwidth = width;
+  texture.powheight = height;
   texture.index = this.textureCounter;
   this.textureCounter++
 
@@ -263,7 +271,7 @@ WebGL2DContext.prototype.drawTriangle = function (texture, src, dst, color) {
   let bufferOffset = this.bufferOffset;
   let dstPos = this.matrix.apply(dst, this.gl.viewportWidth, this.gl.viewportHeight);
 
-  let imageWidth = texture.width, imageHeight = texture.height;
+  let imageWidth = texture.powwidth, imageHeight = texture.powheight;
 
   let offset = this.curOffset;
 
@@ -321,7 +329,7 @@ WebGL2DContext.prototype.drawTriangleFan = function (texture, src, dst, color) {
   let size = dst.length / 2;
   let dstPos = this.matrix.apply(dst, this.gl.viewportWidth, this.gl.viewportHeight);
 
-  let imageWidth = texture.width, imageHeight = texture.height;
+  let imageWidth = texture.powwidth, imageHeight = texture.powheight;
 
   let vertexOffset = bufferOffset * 2;
   let textureOffset = bufferOffset * 2;
@@ -362,7 +370,7 @@ WebGL2DContext.prototype.drawSquare = function (texture, src, dst, color) {
   let bufferOffset = this.bufferOffset;
   let dstPos = this.matrix.apply(dst, this.gl.viewportWidth, this.gl.viewportHeight);
 
-  let imageWidth = texture.width, imageHeight = texture.height;
+  let imageWidth = texture.powwidth, imageHeight = texture.powheight;
 
   let offset = this.curOffset;
 
@@ -443,9 +451,7 @@ WebGL2DContext.prototype.drawSquare = function (texture, src, dst, color) {
 
 
 }
-WebGL2DContext.prototype.drawImage = function (texture, src, dst, color) {
-  if (color == null)
-    color = [255,255,255,255];
+WebGL2DContext.prototype.drawImage = function (texture, src, dst, color = this.white) {
   let gl = this.gl;
   let IndexOffset = this.IndexOffset;
   let bufferOffset = this.bufferOffset;
@@ -458,7 +464,7 @@ WebGL2DContext.prototype.drawImage = function (texture, src, dst, color) {
 
   let dstPos = this.matrix.apply([startdstX, enddstY, enddstX, enddstY, enddstX, startdstY, startdstX, startdstY], this.gl.viewportWidth, this.gl.viewportHeight);
 
-  let imageWidth = texture.width, imageHeight = texture.height;
+  let imageWidth = texture.powwidth, imageHeight = texture.powheight;
   let
     startsrcX = src[0] / imageWidth,
     endsrcX = (src[0] + src[2]) / imageWidth,

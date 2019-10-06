@@ -52,7 +52,7 @@ export function loadGameData() {
       texture.onload = () => {
         staticObject[i].texture[iv] = texture;
         staticObject[i].overDraw[iv] = texture.height - 32 * staticObject[i].size;
-        staticObject[i].animationPhases[iv] = texture.imgwidth / (staticObject[i].addGraphicWidth * 2 + (64 * staticObject[i].size));
+        staticObject[i].animationPhases[iv] = texture.width / (staticObject[i].addGraphicWidth * 2 + (64 * staticObject[i].size));
       }
     }
   }
@@ -74,7 +74,7 @@ export function loadGameData() {
       texture.onload = () => {
         movableObject[i].texture[iv] = texture;
         movableObject[i].animationPhases[iv] = 0;//image.width / (64*movableObject[i+1].size)-1
-        movableObject[i].graphicSize = texture.imgheight / 3;
+        movableObject[i].graphicSize = texture.height / 3;
       }
     }
   }
